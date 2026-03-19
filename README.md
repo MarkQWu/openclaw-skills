@@ -2,24 +2,23 @@
 
 gobuildit 社区精选 Claude Code Skills。
 
-## 安装方式
+## 一键安装
 
-### 安装全部 skills
-
-```bash
-git clone https://github.com/MarkQWu/openclaw-skills.git ~/.claude/skills/openclaw-skills
-```
-
-### 只安装单个 skill
+**Mac / Linux：**
 
 ```bash
-# 以短剧编剧为例
-git clone --depth 1 --filter=blob:none --sparse https://github.com/MarkQWu/openclaw-skills.git ~/.claude/skills/openclaw-skills
-cd ~/.claude/skills/openclaw-skills
-git sparse-checkout set short-drama
+curl -fsSL https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.sh | bash
 ```
 
-安装后重启 Claude Code 即可使用。
+**Windows（PowerShell）：**
+
+```powershell
+irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 | iex
+```
+
+安装后重启 Claude Code，输入 `/开始` 即可使用。
+
+> 已安装过？再跑一次同样的命令会自动更新到最新版。
 
 ## Skills 列表
 
