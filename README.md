@@ -1,8 +1,10 @@
 # openclaw-skills
 
-gobuildit 社区精选 Claude Code Skills。
+gobuildit 社区精选 Skills，兼容 Claude Code 和 OpenClaw。
 
 ## 一键安装
+
+前置条件：已安装 [git](https://git-scm.com)。
 
 **Mac / Linux：**
 
@@ -10,13 +12,13 @@ gobuildit 社区精选 Claude Code Skills。
 curl -fsSL https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.sh | bash
 ```
 
-**Windows（PowerShell）：**
+**Windows（请使用 PowerShell，不支持 cmd）：**
 
 ```powershell
 irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 | iex
 ```
 
-安装后重启 Claude Code，输入 `/开始` 即可使用。
+安装后关闭当前会话，重新打开 Claude Code / OpenClaw，输入 `/开始` 即可使用。
 
 > 已安装过？再跑一次同样的命令会自动更新到最新版。
 
