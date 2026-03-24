@@ -1,9 +1,9 @@
 ---
 name: short-drama
-description: "微短剧剧本创作。从选题到完稿的完整管线，支持国内/出海双模式。当用户说"写短剧"、"短剧剧本"、"微短剧"、"short drama"时使用。"
+description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。从选题到完稿的完整管线，支持国内/出海双模式。当用户说"写短剧"、"短剧剧本"、"微短剧"、"short drama"、"爆款剧本"时使用。"
 ---
 
-# 微短剧剧本创作 Skill
+# 爆款剧本工坊 | Drama Workshop
 
 > 基于 [0xsline/short-drama](https://github.com/0xsline/short-drama)（MIT License）定制，由 gobuildit 社区维护。
 
