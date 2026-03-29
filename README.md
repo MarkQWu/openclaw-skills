@@ -51,6 +51,8 @@
 
 前置条件：已安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 或 [OpenClaw](https://github.com/nicekate/OpenClaw) + [git](https://git-scm.com)。
 
+### 方式一：一键安装（推荐）
+
 **Mac / Linux：**
 
 ```bash
@@ -63,9 +65,85 @@ curl -fsSL https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/instal
 irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 | iex
 ```
 
-安装后重新打开 Claude Code / OpenClaw，输入 `/开始` 即可。
+脚本会自动检测你装了 Claude Code 还是 OpenClaw（或两个都装了），把 skill 文件放到对应目录。
 
-> 再跑一次同样的命令即可更新到最新版。
+### 方式二：手动安装
+
+如果你不想跑脚本，手动复制也行：
+
+**Claude Code 用户：**
+
+```bash
+git clone https://github.com/MarkQWu/openclaw-skills.git
+cp -r openclaw-skills/short-drama ~/.claude/skills/short-drama
+```
+
+**OpenClaw 用户：**
+
+```bash
+git clone https://github.com/MarkQWu/openclaw-skills.git
+cp -r openclaw-skills/short-drama ~/.openclaw/skills/short-drama
+```
+
+> 没有 `~/.openclaw/skills/` 目录？先 `mkdir -p ~/.openclaw/skills` 创建。
+
+### 安装完成后
+
+1. **关闭**当前 Claude Code / OpenClaw 会话
+2. **重新打开**一个新会话
+3. 输入 `/开始`，看到「选题定位」的引导就说明装好了
+
+### 更新
+
+再跑一次安装命令即可更新到最新版。手动安装的用户重新 `git pull` + 复制覆盖。
+
+## 使用教程
+
+### 第一次用：5 分钟写出第一集
+
+```
+你：/开始
+AI：问你想写什么题材的短剧（霸总？甜宠？逆袭？），有故事想法可以直接说
+
+你：我想写一个霸总剧，女主是替嫁新娘
+AI：确认题材、受众、集数等配置
+
+你：/创作方案
+AI：生成完整故事骨架——三幕结构、付费卡点、爽点分布
+
+你：/角色开发
+AI：生成角色档案——每个角色的性格、语言风格、视觉描述、关系图
+
+你：/目录
+AI：生成全剧 50-100 集的分集目录，标注哪些是关键集、哪些是付费卡点
+
+你：/分集 1
+AI：写出第一集完整剧本——场景、台词、镜头提示全部到位
+
+你：/自检 1
+AI：7 个维度打分，告诉你哪里写得好、哪里要改、怎么改
+```
+
+### 从剧本到视频素材
+
+```
+你：/角色卡
+AI：为每个角色生成视觉描述（外貌、穿搭），锁定角色形象一致性
+
+你：/分镜 1
+AI：把第一集拆成逐镜头的分镜表，每个镜头附带即梦 AI 的 prompt
+
+→ 复制 prompt → 粘贴到即梦 AI → 生成视频画面
+→ 用剪映按分镜表顺序排列 → 加字幕配音 → 成片
+```
+
+### 常用技巧
+
+- **批量写**：`/分集 5-8` 一次写 4 集
+- **续写**：`/分集 next` 自动写下一集
+- **自动修复**：`/自检 3 --fix` 检查完直接帮你改
+- **出海模式**：`/出海` 切换英文 + 好莱坞剧本格式
+- **只拆分镜**：`/分镜` 可以独立使用，不需要走完剧本全流程，直接粘贴任意文本就能拆
 
 ## 命令速查
 
