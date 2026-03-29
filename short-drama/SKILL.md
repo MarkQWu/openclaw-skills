@@ -22,6 +22,9 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 /自检 1      → 检查质量（可选）
 /合规        → 审核合规（国内发行必做）
 /导出        → 打包完整剧本
+/角色卡      → 生成或导入角色视觉描述（供 /分镜 使用）
+/分镜 1      → 拆分镜 + 生成即梦 AI prompt
+/工作流      → 打印完整创作→视频链路说明
 ```
 
 ## 工作目录
@@ -38,6 +41,16 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 │   ├── ep002.md
 │   └── ...
 ├── compliance-report.md      # 合规报告（如生成）
+├── character-cards/          # 角色视觉卡（/角色卡 生成）
+│   ├── {角色名}.md
+│   └── ...
+├── storyboards/              # 分镜表（/分镜 生成）
+│   ├── ep001-storyboard.md
+│   ├── prompts-only.txt      # 纯 prompt 列表（脚本提取）
+│   └── merged-storyboard.md  # 合并分镜（脚本生成）
+├── scripts/                  # Python 工具脚本
+│   ├── merge_storyboard.py
+│   └── character_card_validator.py
 └── export/                   # 导出目录
     └── {剧名}-完整剧本.md
 ```
@@ -55,6 +68,8 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
   "tone": "",
   "totalEpisodes": 0,
   "completedEpisodes": [],
+  "characterCardsGenerated": [],
+  "storyboardedEpisodes": [],
   "language": "zh-CN",
   "mode": "domestic|overseas",
   "dramaTitle": ""
@@ -76,6 +91,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 | hook-design.md | 5种钩子类型 | /分集 |
 | compliance-checklist.md | 合规审核清单 | /合规 |
 | realism-checklist.md | 真实感检查清单（称呼/触发/关系/转折/场景逻辑） | /角色开发, /分集, /自检 |
+| storyboard-guide.md | 分镜拆解指南 + 即梦 prompt 工程 + 情绪→动作对照表 | /分镜 |
 
 **加载方式：** 进入对应阶段时，读取 references/ 目录下的对应文件作为创作指导。
 
@@ -557,6 +573,215 @@ CLOSE-UP - {key detail}
 ## 修改优先级
 1. {最紧急的修改}
 2. ...
+```
+
+---
+
+### /角色卡
+
+**功能：** 管理角色视觉描述，供 `/分镜` 自动引用生成 prompt。
+
+**独立可用：** 不需要先跑 `/开始`→`/角色开发`，可直接使用。
+
+**两种模式：**
+
+**模式一：生成**（从 characters.md 提取）
+- 前置条件：已有 `characters.md`（通过 `/角色开发` 生成）
+- 自动提取每个角色的外貌特征，生成视觉描述卡
+- 逐角色确认后保存
+
+**模式二：导入**（用户已有角色设定）
+- 用户直接粘贴角色的视觉描述 / prompt（已在即梦/Seedance/ComfyUI 调好的）
+- 解析并保存为标准格式
+
+**启动流程：**
+
+1. 检查是否已有 `characters.md`
+   - 有 → 提示：「检测到角色档案，是否从中生成角色卡？输入 Y 生成，或直接粘贴角色描述进入导入模式」
+   - 无 → 提示：「请粘贴你的角色视觉描述，格式不限」
+2. 生成模式：逐角色提取外貌→生成 prompt 前缀→确认
+3. 导入模式：解析用户粘贴内容→补全缺失字段→确认
+
+**输出格式：** `character-cards/{角色名}.md`
+
+```markdown
+# 角色视觉卡：{角色名}
+
+## 基础外观
+{中文描述，2-3 句：性别、年龄段、体型、发型发色、标志性特征}
+
+## Prompt 前缀（即梦/Seedance 用）
+{固定 prompt 片段，15-40 词，每次生成该角色画面时自动拼接}
+示例：二十五岁中国女性，齐肩黑色直发，圆脸杏眼，穿白色衬衫黑色西装裤
+
+## 服装方案
+- 日常：{描述}
+- 正式：{描述}
+- 特殊：{描述}（如有）
+
+## 参考图路径（可选）
+{本地图片路径，用户自行填写}
+
+## 来源
+{生成/导入} | {日期}
+```
+
+**Prompt 前缀要求：**
+- 15-40 词中文
+- 只写可直接拍摄的外观特征
+- 不写性格、情绪、背景故事
+- 可用 `python scripts/character_card_validator.py` 校验
+
+**更新 `.drama-state.json`：** 将角色名加入 `characterCardsGenerated` 数组
+
+**结束提示：**
+```
+✅ 角色卡已保存！
+
+📁 位置：character-cards/
+📋 已生成：{角色列表}
+
+💡 使用 /分镜 时会自动加载角色卡，确保每个镜头的角色描述一致
+💡 校验：python scripts/character_card_validator.py
+```
+
+---
+
+### /分镜 {N}
+
+**功能：** 核心命令——将剧本/文本拆解为逐镜分镜表 + 即梦 AI 可用 prompt。
+
+**独立可用：** 不需要走完剧本全流程，可直接传入任意文本。
+
+**加载参考：** storyboard-guide.md
+
+**输入灵活性：**
+- `/分镜 3` → 读取 `episodes/ep003.md`
+- `/分镜 3-5` → 批量处理第 3-5 集
+- `/分镜 /path/to/script.md` → 读取任意文件
+- `/分镜` + 用户直接粘贴文本 → 拆解粘贴内容
+
+**处理流程：**
+
+1. **读取输入**：
+   - 集数模式 → 读取 `episodes/ep{NNN}.md`
+   - 文件路径模式 → 读取指定文件
+   - 粘贴模式 → 等待用户粘贴，提示：「请粘贴要拆分镜的剧本/文本」
+2. **加载角色卡**（如有 `character-cards/` 目录）：
+   - 读取所有角色卡的 Prompt 前缀
+   - 提示已加载的角色列表
+   - 未找到角色卡 → 继续，但提示可用 `/角色卡` 提升一致性
+3. **拆解为镜头序列**：
+   - 逐场次分析
+   - 每个场次根据动作节点拆为 3-8 个镜头
+   - 每个镜头标注：景别、画面描述、角色动作、台词/音效、时长
+4. **生成即梦 Prompt**：
+   - 按 Director's Formula：`{角色外观前缀} + {场景环境} + {角色动作（物理化）} + {镜头运动} + {光影/氛围}`
+   - One-Move Rule：每个镜头只描述一个核心动作
+   - 情绪描述 → 自动转换为物理动作（参考 storyboard-guide.md 对照表）
+   - 30-80 词中文
+   - 如有角色卡 → 自动拼接 Prompt 前缀
+5. **输出分镜表 + Prompt 汇总**
+
+**输出：** `storyboards/ep{NNN}-storyboard.md` 或 `storyboards/{自定义名}-storyboard.md`
+
+```markdown
+# 分镜表：第{N}集 - {集标题}
+
+> 总镜头数：{X} | 预估时长：{Y}s | 角色卡：{已加载 N 张/未找到}
+
+## 场次一：{场景名}
+
+**场景：** 内景/外景 · {地点} · 日/夜
+
+| 镜号 | 景别 | 画面描述 | 角色动作 | 台词/音效 | 时长 | 即梦 Prompt |
+|------|------|---------|---------|----------|------|------------|
+| 1 | 全景 | 雨夜，高级写字楼落地窗，城市灯光倒映 | — | ♪ 低沉钢琴 | 3s | {prompt} |
+| 2 | 中景→特写 | 办公桌前 | 男主背对镜头，手指敲桌面 | （无） | 4s | {prompt} |
+| ... | | | | | | |
+
+## 场次二：{场景名}
+...
+
+---
+
+## Prompt 汇总（复制粘贴区）
+
+> 以下 prompt 可直接粘贴到即梦 AI / Seedance 使用
+
+### 镜头 1
+{完整 prompt，含角色前缀}
+
+### 镜头 2
+{完整 prompt}
+
+...
+```
+
+**Prompt 质量自检（生成后自动执行）：**
+- [ ] 每条 prompt 是否在 30-80 词？
+- [ ] 每条 prompt 是否只有一个核心动作？
+- [ ] 包含角色的镜头是否拼接了角色外观描述？
+- [ ] 是否有抽象描述未转为物理动作？
+
+如有不合格项，自动修正后输出。
+
+**批量处理：** `/分镜 3-5` 时逐集生成，每集一个独立文件。完成后提示可用 `python scripts/merge_storyboard.py --episodes 3-5` 合并。
+
+**更新 `.drama-state.json`：** 将集数加入 `storyboardedEpisodes` 数组
+
+**结束提示：**
+```
+✅ 分镜表已保存！
+
+📁 位置：storyboards/ep{NNN}-storyboard.md
+🎬 镜头数：{X} | 预估时长：{Y}s
+🎭 角色卡：{加载情况}
+
+💡 Prompt 汇总区可直接复制到即梦 AI 使用
+💡 合并多集：python scripts/merge_storyboard.py --episodes {N}-{M}
+💡 提取纯 prompt：合并后见 storyboards/prompts-only.txt
+```
+
+---
+
+### /工作流
+
+**功能：** 打印完整创作→视频全链路说明。极轻量，不读取任何文件。
+
+**输出：**
+
+```
+📋 短剧全链路工作流
+
+Step 1: 剧本创作（本 Skill 内完成）
+  /开始 → /创作方案 → /角色开发 → /目录 → /分集 → /自检
+  输出：episodes/ep{N}.md
+
+Step 2: 角色视觉设定
+  /角色卡（从剧本生成 或 导入已有设定）
+  输出：character-cards/{角色名}.md
+
+Step 3: 分镜拆解 + Prompt 生成
+  /分镜 {N}
+  输出：storyboards/ep{N}-storyboard.md
+  → 复制 Prompt 汇总区的内容
+
+Step 4: 视频生成（外部工具）
+  推荐：即梦 AI（免费，jimeng.jianying.com）
+       Seedance 2.0 / 可灵 / Pika
+  操作：粘贴 prompt → 选风格 → 生成
+  技巧：先生关键帧图片（img2vid），再图生视频
+
+Step 5: 剪辑成片（外部工具）
+  推荐：剪映 / CapCut
+  操作：按分镜表顺序排列视频片段 → 加字幕/配音/BGM
+
+💡 每个命令都可独立使用，不需要按顺序走完全流程
+💡 /角色卡 锁定角色外观 prompt，确保每个镜头角色一致
+💡 工具脚本：
+   python scripts/merge_storyboard.py --episodes 1-10  # 合并分镜
+   python scripts/character_card_validator.py           # 校验角色卡
 ```
 
 ---
