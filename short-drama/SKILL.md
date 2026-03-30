@@ -865,6 +865,7 @@ CLOSE-UP - {key detail}
 💡 Prompt 汇总区可直接复制到即梦 AI 使用
 💡 合并多集：python scripts/merge_storyboard.py --episodes {N}-{M}
 💡 提取纯 prompt：合并后见 storyboards/prompts-only.txt
+💡 镜头太多/太少？告诉我目标数量（如「这集要 50 个镜头」），我会重新拆
 ```
 
 ---
