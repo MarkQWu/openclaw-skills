@@ -99,9 +99,15 @@ foreach ($skillsDir in $targets) {
     }
 }
 
-# 显示版本
-$version = git -C "$cache" log -1 --format="%h %s" 2>$null
+# 写入版本文件到每个已安装的 skill 目录
+$version = & git -C "$cache" log -1 --format="%h %s" 2>$null
+$versionDate = & git -C "$cache" log -1 --format="%ci" 2>$null
 if (-not $version) { $version = "unknown" }
+foreach ($skillsDir in $targets) {
+    Get-ChildItem "$skillsDir" -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } | ForEach-Object {
+        "$version ($versionDate)" | Out-File -FilePath (Join-Path $_.FullName "VERSION") -Encoding utf8
+    }
+}
 
 Write-Host ""
 if ($installed -gt 0) {
