@@ -104,8 +104,16 @@ for skills_dir in "${targets[@]}"; do
   done
 done
 
-# 显示版本
+# 写入版本文件到每个已安装的 skill 目录
 version=$(git -C "$CACHE" log -1 --format="%h %s" 2>/dev/null || echo "unknown")
+version_date=$(git -C "$CACHE" log -1 --format="%ci" 2>/dev/null || echo "unknown")
+for skills_dir in "${targets[@]}"; do
+  for d in "$skills_dir"/*/; do
+    if [ -f "$d/SKILL.md" ]; then
+      echo "$version ($version_date)" > "$d/VERSION"
+    fi
+  done
+done
 
 echo ""
 if [ "$installed" -gt 0 ]; then
