@@ -21,17 +21,18 @@ fi
 try_clone() {
   local dest="$1"
   echo "正在下载..."
-  if git clone --depth 1 "$REPO_GITHUB" "$dest" 2>/dev/null; then
+  if git clone "$REPO_GITHUB" "$dest" 2>/dev/null; then
     return 0
   fi
   echo "GitHub 连接失败，切换镜像源..."
-  if git clone --depth 1 "$REPO_MIRROR" "$dest" 2>/dev/null; then
+  if git clone "$REPO_MIRROR" "$dest" 2>/dev/null; then
     # 把 remote 改回 GitHub（镜像只用于首次下载）
     git -C "$dest" remote set-url origin "$REPO_GITHUB"
     return 0
   fi
   echo ""
-  echo "错误：下载失败。请检查网络连接，或开启全局代理后重试。" >&2
+  echo "错误：下载失败。请开启全局代理后重试，或手动下载：" >&2
+  echo "  https://github.com/MarkQWu/openclaw-skills/archive/refs/heads/main.zip" >&2
   return 1
 }
 

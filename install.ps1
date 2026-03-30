@@ -17,33 +17,35 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 # 尝试 clone，GitHub 失败则自动切镜像
 function Try-Clone($dest) {
     Write-Host "正在下载..."
-    $result = Start-Process git -ArgumentList "clone","--depth","1",$repoGitHub,$dest -Wait -PassThru -NoNewWindow 2>$null
-    if ($result.ExitCode -eq 0) { return $true }
+    & git clone $repoGitHub $dest 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { return $true }
 
     Write-Host "GitHub 连接失败，切换镜像源..." -ForegroundColor Yellow
-    $result = Start-Process git -ArgumentList "clone","--depth","1",$repoMirror,$dest -Wait -PassThru -NoNewWindow 2>$null
-    if ($result.ExitCode -eq 0) {
+    & git clone $repoMirror $dest 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
         # 把 remote 改回 GitHub（镜像只用于首次下载）
-        git -C "$dest" remote set-url origin $repoGitHub
+        & git -C "$dest" remote set-url origin $repoGitHub
         return $true
     }
 
     Write-Host ""
-    Write-Host "错误：下载失败。请检查网络连接，或开启全局代理后重试。" -ForegroundColor Red
+    Write-Host "错误：下载失败。请开启全局代理后重试，或手动下载：" -ForegroundColor Red
+    Write-Host "  https://github.com/MarkQWu/openclaw-skills/archive/refs/heads/main.zip" -ForegroundColor Red
     return $false
 }
 
 # 尝试 pull，GitHub 失败则通过镜像 fetch
 function Try-Pull($dir) {
     Write-Host "检测到已安装，正在更新..."
-    $result = Start-Process git -ArgumentList "-C",$dir,"pull","--ff-only" -Wait -PassThru -NoNewWindow 2>$null
-    if ($result.ExitCode -eq 0) { return $true }
+    & git -C "$dir" pull --ff-only 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { return $true }
 
     Write-Host "GitHub 连接失败，切换镜像源..." -ForegroundColor Yellow
-    git -C "$dir" remote set-url origin $repoMirror
-    $result = Start-Process git -ArgumentList "-C",$dir,"pull","--ff-only" -Wait -PassThru -NoNewWindow 2>$null
-    git -C "$dir" remote set-url origin $repoGitHub
-    if ($result.ExitCode -eq 0) { return $true }
+    & git -C "$dir" remote set-url origin $repoMirror
+    & git -C "$dir" pull --ff-only 2>&1 | Out-Null
+    $pullOk = $LASTEXITCODE -eq 0
+    & git -C "$dir" remote set-url origin $repoGitHub
+    if ($pullOk) { return $true }
 
     Write-Host "更新失败，正在重新安装..." -ForegroundColor Yellow
     Remove-Item -Recurse -Force "$dir"
