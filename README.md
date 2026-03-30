@@ -107,7 +107,25 @@ cp -r openclaw-skills/short-drama ~/.openclaw/skills/short-drama
 
 ### 更新
 
-再跑一次安装命令即可更新到最新版。手动安装的用户重新 `git pull` + 复制覆盖。
+重新跑一次安装命令即可：
+
+**Mac / Linux：**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.sh | bash
+```
+
+**Windows（PowerShell）：**
+
+```powershell
+irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 | iex
+```
+
+脚本会自动拉取最新版并覆盖旧文件。国内用户如果 GitHub 连不上，脚本会自动切镜像源；镜像也失败会提示开全局代理或提供 zip 手动下载链接。
+
+更新完**重启** Claude Code / OpenClaw / WorkBuddy 会话即可生效。
+
+手动安装的用户：重新 `git pull` + 复制覆盖。
 
 ## 使用教程
 
