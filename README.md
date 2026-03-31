@@ -143,8 +143,13 @@ irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 |
 **方式三：手动更新**
 
 ```bash
+# 1. 更新缓存（所有平台通用）
 git -C ~/.claude/.skill-repos/openclaw-skills pull
-cp -r ~/.claude/.skill-repos/openclaw-skills/short-drama ~/.claude/skills/short-drama
+
+# 2. 复制到你的 skills 目录（选对应平台的一行）
+cp -r ~/.claude/.skill-repos/openclaw-skills/short-drama ~/.claude/skills/short-drama        # Claude Code
+cp -r ~/.claude/.skill-repos/openclaw-skills/short-drama ~/.workbuddy/skills/short-drama     # WorkBuddy
+cp -r ~/.claude/.skill-repos/openclaw-skills/short-drama ~/.openclaw/skills/short-drama      # OpenClaw
 ```
 
 ### 常见问题
