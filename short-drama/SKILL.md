@@ -1089,7 +1089,11 @@ echo "升级完成：v$OLD_VER → v$NEW_VER"
 ```bash
 STATE_DIR="$HOME/.openclaw"
 SNOOZE_FILE="$STATE_DIR/update-snoozed"
+SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills -name VERSION -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname)"
 mkdir -p "$STATE_DIR"
+
+# 从缓存读取远程版本号
+REMOTE_VER="$(awk '/^UPGRADE_AVAILABLE/{print $3}' "$STATE_DIR/last-update-check" 2>/dev/null)"
 
 # 读取当前 snooze level，递增
 CURRENT_LEVEL=0
@@ -1098,7 +1102,7 @@ if [ -f "$SNOOZE_FILE" ]; then
 fi
 NEW_LEVEL=$((CURRENT_LEVEL + 1))
 
-echo "{新版本号} $NEW_LEVEL $(date +%s)" > "$SNOOZE_FILE"
+echo "$REMOTE_VER $NEW_LEVEL $(date +%s)" > "$SNOOZE_FILE"
 ```
 
 **禁用更新检测（用户选「永远不提醒」时）：**
