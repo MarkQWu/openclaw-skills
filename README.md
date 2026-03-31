@@ -120,7 +120,7 @@ cp -r openclaw-skills/short-drama ~/.workbuddy/skills/short-drama
 
 > 帮我更新爆款剧本工坊 skill：从 https://github.com/MarkQWu/openclaw-skills 拉取最新版的 short-drama 目录，覆盖到我的 skills 目录下
 
-AI 会自动执行，完成后**重启会话**即可。
+AI 会自动执行，完成后**重启会话**即可。如果提示下载失败，先开全局代理再试。
 
 **方式二：重新跑安装命令**
 
