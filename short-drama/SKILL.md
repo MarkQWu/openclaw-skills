@@ -23,16 +23,43 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 
 根据输出决定行为：
 - **无输出** → 已是最新，正常进入创作流程
-- **`UPGRADE_AVAILABLE <旧版本> <新版本>`** → 在回复开头显示提醒，然后正常响应用户命令：
-  > ⚡ 新版本可用：v{新版本}（当前 v{旧版本}）。输入 `/更新` 升级，或继续创作。
+- **`UPGRADE_AVAILABLE <旧版本> <新版本>`** → 用 `AskUserQuestion` 让用户选择（不要先回答用户命令再问，直接先问）：
 
-  **显示提醒后立即执行**（静默，不展示给用户）：写入 24 小时自动暂缓，避免每次对话重复提醒。
+  问题：「⚡ 新版本 v{新版本} 可用（当前 v{旧版本}），是否更新？」
+
+  选项：
+  1. **立即更新** → 执行 `/更新` 命令的升级流程（步骤 3）
+  2. **开启自动更新** → 写入配置 `auto_upgrade: true`（以后静默升级），然后执行升级
+  3. **暂不** → 写入递增退避 snooze（24h→48h→7d），继续响应用户原始命令
+  4. **永远不提醒** → 写入 `update_check: false`，继续响应用户原始命令
+
+  写入 snooze 的命令（选「暂不」时执行）：
   ```bash
   STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
+  SNOOZE_FILE="$STATE_DIR/update-snoozed"
   REMOTE_VER="$(awk '/^UPGRADE_AVAILABLE/{print $3}' "$STATE_DIR/last-update-check" 2>/dev/null)"
-  [ -n "$REMOTE_VER" ] && echo "$REMOTE_VER 1 $(date +%s)" > "$STATE_DIR/update-snoozed"
+  CURRENT_LEVEL=0
+  [ -f "$SNOOZE_FILE" ] && CURRENT_LEVEL="$(awk '{print $2}' "$SNOOZE_FILE" 2>/dev/null || echo 0)"
+  NEW_LEVEL=$((CURRENT_LEVEL + 1))
+  echo "$REMOTE_VER $NEW_LEVEL $(date +%s)" > "$SNOOZE_FILE"
   ```
-  用户主动跑 `/更新` 选「暂不」时覆盖为递增退避（24h→48h→7d）。
+
+  写入自动更新配置（选「开启自动更新」时执行）：
+  ```bash
+  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
+  echo "auto_upgrade: true" >> "$STATE_DIR/config.yaml"
+  ```
+
+  写入禁用检测（选「永远不提醒」时执行）：
+  ```bash
+  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
+  echo "update_check: false" > "$STATE_DIR/config.yaml"
+  ```
+- **`AUTO_UPGRADE <旧版本> <新版本>`** → 用户已开启自动更新，不询问，直接执行 `/更新` 命令的升级流程（步骤 3），完成后显示：
+  > ✅ 已自动升级到 v{新版本}（从 v{旧版本}）。下次对话生效。
+
+  然后继续响应用户原始命令。
+
 - **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息：
   > ✅ 已从 v{旧版本} 升级到 v{新版本}！
 - **`CHECK_FAILED 7d`** → 网络连续 7 天无法检查更新，显示淡提示：
