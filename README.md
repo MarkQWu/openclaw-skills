@@ -114,7 +114,17 @@ cp -r openclaw-skills/short-drama ~/.workbuddy/skills/short-drama
 
 ### 更新
 
-重新跑一次安装命令即可：
+**方式一：让 AI 帮你更新**（最简单）
+
+在 Claude Code / WorkBuddy / OpenClaw 对话框里直接说：
+
+> 帮我更新爆款剧本工坊 skill：从 https://github.com/MarkQWu/openclaw-skills 拉取最新版的 short-drama 目录，覆盖到我的 skills 目录下。必须从 GitHub 重新拉取，不要用本地缓存。完成后读取 VERSION 文件告诉我版本号
+
+AI 会自动执行并告诉你安装的版本号。确认版本号后**重启会话**即可生效。如果提示下载失败，先开全局代理再试。
+
+**方式二：重新跑安装命令**
+
+在**终端**（不是 AI 对话框）里跑：
 
 **Mac / Linux：**
 
@@ -122,7 +132,7 @@ cp -r openclaw-skills/short-drama ~/.workbuddy/skills/short-drama
 curl -fsSL https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.sh | bash
 ```
 
-**Windows（PowerShell）：**
+**Windows**（按 `Win+X` → 选「终端」）：
 
 ```powershell
 irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 | iex
@@ -130,7 +140,12 @@ irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 |
 
 脚本会自动拉取最新版并覆盖旧文件。更新完**重启会话**即可生效。
 
-手动安装的用户：重新 `git pull` + 复制覆盖。
+**方式三：手动更新**
+
+```bash
+git -C ~/.claude/.skill-repos/openclaw-skills pull
+cp -r ~/.claude/.skill-repos/openclaw-skills/short-drama ~/.claude/skills/short-drama
+```
 
 ### 常见问题
 
