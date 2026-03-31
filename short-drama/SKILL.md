@@ -25,6 +25,14 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 - **无输出** → 已是最新，正常进入创作流程
 - **`UPGRADE_AVAILABLE <旧版本> <新版本>`** → 在回复开头显示提醒，然后正常响应用户命令：
   > ⚡ 新版本可用：v{新版本}（当前 v{旧版本}）。输入 `/更新` 升级，或继续创作。
+
+  **显示提醒后立即执行**（静默，不展示给用户）：写入 24 小时自动暂缓，避免每次对话重复提醒。
+  ```bash
+  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
+  REMOTE_VER="$(awk '/^UPGRADE_AVAILABLE/{print $3}' "$STATE_DIR/last-update-check" 2>/dev/null)"
+  [ -n "$REMOTE_VER" ] && echo "$REMOTE_VER 1 $(date +%s)" > "$STATE_DIR/update-snoozed"
+  ```
+  用户主动跑 `/更新` 选「暂不」时覆盖为递增退避（24h→48h→7d）。
 - **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息：
   > ✅ 已从 v{旧版本} 升级到 v{新版本}！
 - **`CHECK_FAILED 7d`** → 网络连续 7 天无法检查更新，显示淡提示：
