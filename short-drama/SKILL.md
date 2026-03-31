@@ -997,6 +997,7 @@ Step 5: 剪辑成片（外部工具）
 
 ━━ 其他 ━━
 /帮助          你正在看的这个
+/更新          检查并安装最新版本
 
 💡 第一次用？从 /开始 走起
 💡 只想拆分镜？直接 /分镜 然后粘贴文本就行，不用走全流程
@@ -1005,7 +1006,109 @@ Step 5: 剪辑成片（外部工具）
 版本：{读取 VERSION 文件内容，不存在则显示"未知（手动安装）"}
 ```
 
-**版本查看实现：** 读取 skill 目录下的 `VERSION` 文件（安装脚本自动生成）。如文件不存在，显示"未知（手动安装）"。
+**版本查看实现：** 读取 skill 目录下的 `VERSION` 文件。如文件不存在，显示"未知（手动安装）"。
+
+---
+
+### /更新
+
+**功能：** 检查最新版本并升级。
+
+**执行步骤：**
+
+1. 强制检查版本（绕过缓存和暂缓）：
+
+```bash
+SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname | xargs dirname)"
+bash "$SKILL_DIR/bin/update-check" --force 2>/dev/null || true
+```
+
+2. 根据输出决定行为：
+
+**无输出（已是最新）：**
+> ✅ 当前已是最新版本 v{版本号}，无需更新。
+
+**`UPGRADE_AVAILABLE <旧版本> <新版本>`：**
+
+询问用户选择：
+- **立即更新** → 执行步骤 3
+- **开启自动更新**（以后不再问）→ 写入配置后执行步骤 3
+- **暂不更新** → 写入暂缓文件（递增退避：24h → 48h → 7d）
+- **永远不提醒** → 禁用更新检测
+
+3. 执行升级：
+
+```bash
+# 定位安装目录
+SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills -name SKILL.md -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname)"
+STATE_DIR="$HOME/.openclaw"
+mkdir -p "$STATE_DIR"
+
+# 记录旧版本（升级后首次检测显示 JUST_UPGRADED）
+OLD_VER="$(head -1 "$SKILL_DIR/VERSION" 2>/dev/null | sed 's/^v//' | awk '{print $1}')"
+echo "$OLD_VER" > "$STATE_DIR/just-upgraded-from"
+
+# 拉取最新代码
+CACHE="$HOME/.claude/.skill-repos/openclaw-skills"
+if [ -d "$CACHE/.git" ]; then
+  git -C "$CACHE" pull --ff-only 2>/dev/null || {
+    echo "GitHub 连接失败，尝试镜像源..."
+    git -C "$CACHE" remote set-url origin "https://ghfast.top/https://github.com/MarkQWu/openclaw-skills.git"
+    git -C "$CACHE" pull --ff-only
+    git -C "$CACHE" remote set-url origin "https://github.com/MarkQWu/openclaw-skills.git"
+  }
+else
+  mkdir -p "$(dirname "$CACHE")"
+  git clone "https://github.com/MarkQWu/openclaw-skills.git" "$CACHE" 2>/dev/null || \
+  git clone "https://ghfast.top/https://github.com/MarkQWu/openclaw-skills.git" "$CACHE"
+fi
+
+# 覆盖安装（保留用户的创作文件）
+cp -r "$CACHE/short-drama/SKILL.md" "$SKILL_DIR/"
+cp -r "$CACHE/short-drama/VERSION" "$SKILL_DIR/"
+cp -r "$CACHE/short-drama/references/" "$SKILL_DIR/" 2>/dev/null || true
+cp -r "$CACHE/short-drama/scripts/" "$SKILL_DIR/" 2>/dev/null || true
+cp -r "$CACHE/short-drama/bin/" "$SKILL_DIR/" 2>/dev/null || true
+chmod +x "$SKILL_DIR/bin/"* 2>/dev/null || true
+
+# 清除缓存
+rm -f "$STATE_DIR/last-update-check"
+rm -f "$STATE_DIR/update-snoozed"
+
+NEW_VER="$(head -1 "$SKILL_DIR/VERSION" 2>/dev/null | sed 's/^v//' | awk '{print $1}')"
+echo "升级完成：v$OLD_VER → v$NEW_VER"
+```
+
+4. 显示更新内容（读取 CHANGELOG.md 中新旧版本之间的条目）。
+
+5. 提示用户：
+> ✅ 升级完成！新版本在**下次对话**中生效（当前对话仍使用旧版 SKILL.md）。
+
+**暂缓写入（用户选「暂不更新」时）：**
+
+```bash
+STATE_DIR="$HOME/.openclaw"
+SNOOZE_FILE="$STATE_DIR/update-snoozed"
+mkdir -p "$STATE_DIR"
+
+# 读取当前 snooze level，递增
+CURRENT_LEVEL=0
+if [ -f "$SNOOZE_FILE" ]; then
+  CURRENT_LEVEL="$(awk '{print $2}' "$SNOOZE_FILE" 2>/dev/null || echo 0)"
+fi
+NEW_LEVEL=$((CURRENT_LEVEL + 1))
+
+echo "{新版本号} $NEW_LEVEL $(date +%s)" > "$SNOOZE_FILE"
+```
+
+**禁用更新检测（用户选「永远不提醒」时）：**
+
+```bash
+STATE_DIR="$HOME/.openclaw"
+CONFIG_FILE="$STATE_DIR/config.yaml"
+mkdir -p "$STATE_DIR"
+echo "update_check: false" > "$CONFIG_FILE"
+```
 
 ---
 
