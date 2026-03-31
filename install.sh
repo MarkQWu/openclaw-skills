@@ -104,16 +104,24 @@ for skills_dir in "${targets[@]}"; do
   done
 done
 
-# 写入版本文件到每个已安装的 skill 目录
-version=$(git -C "$CACHE" log -1 --format="%h %s" 2>/dev/null || echo "unknown")
-version_date=$(git -C "$CACHE" log -1 --format="%ci" 2>/dev/null || echo "unknown")
+# 设置可执行权限（bin/ 目录下的脚本）
 for skills_dir in "${targets[@]}"; do
   for d in "$skills_dir"/*/; do
-    if [ -f "$d/SKILL.md" ]; then
-      echo "$version ($version_date)" > "$d/VERSION"
+    if [ -d "$d/bin" ]; then
+      chmod +x "$d/bin/"* 2>/dev/null || true
     fi
   done
 done
+
+# 读取版本号（来自仓库 VERSION 文件，由发版流程维护）
+version=""
+for d in "$CACHE"/*/; do
+  if [ -f "$d/VERSION" ]; then
+    version="$(head -1 "$d/VERSION" 2>/dev/null)"
+    break
+  fi
+done
+[ -z "$version" ] && version=$(git -C "$CACHE" log -1 --format="%h" 2>/dev/null || echo "unknown")
 
 echo ""
 if [ "$installed" -gt 0 ]; then
