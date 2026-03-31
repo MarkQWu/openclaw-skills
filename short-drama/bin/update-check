@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+# openclaw-skills update-check — 版本更新检测
+#
+# 输出（单行，或无输出）：
+#   JUST_UPGRADED <old> <new>       — 刚完成升级
+#   UPGRADE_AVAILABLE <old> <new>   — 有新版本可用
+#   (无输出)                        — 已是最新 / 已暂缓 / 已禁用 / 跳过检查
+#
+# 环境变量覆盖（测试用）：
+#   OPENCLAW_SKILL_DIR    — 覆盖 skill 根目录
+#   OPENCLAW_REMOTE_URL   — 覆盖远程 VERSION URL
+#   OPENCLAW_STATE_DIR    — 覆盖状态目录
+set -euo pipefail
+
+SKILL_DIR="${OPENCLAW_SKILL_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+STATE_DIR="${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
+CACHE_FILE="$STATE_DIR/last-update-check"
+MARKER_FILE="$STATE_DIR/just-upgraded-from"
+SNOOZE_FILE="$STATE_DIR/update-snoozed"
+CONFIG_FILE="$STATE_DIR/config.yaml"
+VERSION_FILE="$SKILL_DIR/VERSION"
+REMOTE_URL="${OPENCLAW_REMOTE_URL:-https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/short-drama/VERSION}"
+
+# ─── Force flag（/更新 命令使用）──────────────────────
+if [ "${1:-}" = "--force" ]; then
+  rm -f "$CACHE_FILE"
+  rm -f "$SNOOZE_FILE"
+fi
+
+# ─── Step 0: 检查是否禁用更新 ─────────────────────────
+if [ -f "$CONFIG_FILE" ]; then
+  _UC=$(grep -E '^update_check:' "$CONFIG_FILE" 2>/dev/null | awk '{print $2}' || true)
+  if [ "$_UC" = "false" ]; then
+    exit 0
+  fi
+fi
+
+# ─── Snooze 检查 ──────────────────────────────────────
+# check_snooze <remote_version>
+#   返回 0 = 已暂缓（静默），返回 1 = 未暂缓（输出）
+#   暂缓文件格式：<version> <level> <epoch>
+#   退避时长：1=24h, 2=48h, 3+=7d
+#   新版本（版本不匹配）重置暂缓
+check_snooze() {
+  local remote_ver="$1"
+  if [ ! -f "$SNOOZE_FILE" ]; then
+    return 1
+  fi
+  local snoozed_ver snoozed_level snoozed_epoch
+  snoozed_ver="$(awk '{print $1}' "$SNOOZE_FILE" 2>/dev/null || true)"
+  snoozed_level="$(awk '{print $2}' "$SNOOZE_FILE" 2>/dev/null || true)"
+  snoozed_epoch="$(awk '{print $3}' "$SNOOZE_FILE" 2>/dev/null || true)"
+
+  # 三个字段都不能为空
+  if [ -z "$snoozed_ver" ] || [ -z "$snoozed_level" ] || [ -z "$snoozed_epoch" ]; then
+    return 1
+  fi
+
+  # level 和 epoch 必须是数字
+  case "$snoozed_level" in *[!0-9]*) return 1 ;; esac
+  case "$snoozed_epoch" in *[!0-9]*) return 1 ;; esac
+
+  # 有新版本？忽略暂缓
+  if [ "$snoozed_ver" != "$remote_ver" ]; then
+    return 1
+  fi
+
+  # 计算退避时长
+  local duration
+  case "$snoozed_level" in
+    1) duration=86400 ;;   # 24 小时
+    2) duration=172800 ;;  # 48 小时
+    *) duration=604800 ;;  # 7 天（level 3+）
+  esac
+
+  local now
+  now="$(date +%s)"
+  local expires=$(( snoozed_epoch + duration ))
+  if [ "$now" -lt "$expires" ]; then
+    return 0  # 仍在暂缓期
+  fi
+
+  return 1  # 暂缓已过期
+}
+
+# ─── Step 1: 读取本地版本 ────────────────────────────
+LOCAL=""
+if [ -f "$VERSION_FILE" ]; then
+  # 只取第一行，去除空白（VERSION 文件可能有描述行）
+  LOCAL="$(head -1 "$VERSION_FILE" 2>/dev/null | sed 's/^v//' | awk '{print $1}' | tr -d '[:space:]')"
+fi
+if [ -z "$LOCAL" ]; then
+  exit 0  # 没有 VERSION 文件 → 跳过
+fi
+
+# ─── Step 2: 检查「刚升级」标记 ──────────────────────
+if [ -f "$MARKER_FILE" ]; then
+  OLD="$(cat "$MARKER_FILE" 2>/dev/null | tr -d '[:space:]')"
+  rm -f "$MARKER_FILE"
+  rm -f "$SNOOZE_FILE"
+  if [ -n "$OLD" ]; then
+    echo "JUST_UPGRADED $OLD $LOCAL"
+    exit 0
+  fi
+fi
+
+# ─── Step 3: 检查缓存 ───────────────────────────────
+# UP_TO_DATE: 60 分钟 TTL（快速发现新版）
+# UPGRADE_AVAILABLE: 720 分钟 TTL（持续提醒）
+if [ -f "$CACHE_FILE" ]; then
+  CACHED="$(cat "$CACHE_FILE" 2>/dev/null || true)"
+  case "$CACHED" in
+    UP_TO_DATE*)        CACHE_TTL=60 ;;
+    UPGRADE_AVAILABLE*) CACHE_TTL=720 ;;
+    *)                  CACHE_TTL=0 ;;
+  esac
+
+  STALE=$(find "$CACHE_FILE" -mmin +$CACHE_TTL 2>/dev/null || true)
+  if [ -z "$STALE" ] && [ "$CACHE_TTL" -gt 0 ]; then
+    case "$CACHED" in
+      UP_TO_DATE*)
+        CACHED_VER="$(echo "$CACHED" | awk '{print $2}')"
+        if [ "$CACHED_VER" = "$LOCAL" ]; then
+          exit 0
+        fi
+        ;;
+      UPGRADE_AVAILABLE*)
+        CACHED_OLD="$(echo "$CACHED" | awk '{print $2}')"
+        if [ "$CACHED_OLD" = "$LOCAL" ]; then
+          CACHED_NEW="$(echo "$CACHED" | awk '{print $3}')"
+          if check_snooze "$CACHED_NEW"; then
+            exit 0
+          fi
+          echo "$CACHED"
+          exit 0
+        fi
+        ;;
+    esac
+  fi
+fi
+
+# ─── Step 4: 慢路径 — 拉取远程版本 ─────────────────
+mkdir -p "$STATE_DIR"
+
+REMOTE=""
+REMOTE="$(curl -sf --max-time 3 "$REMOTE_URL" 2>/dev/null || true)"
+# GitHub 失败（中国大陆被墙），走镜像
+if [ -z "$REMOTE" ]; then
+  MIRROR_URL="https://ghfast.top/$REMOTE_URL"
+  REMOTE="$(curl -sf --max-time 5 "$MIRROR_URL" 2>/dev/null || true)"
+fi
+# 只取第一行的版本号
+REMOTE="$(echo "$REMOTE" | head -1 | sed 's/^v//' | awk '{print $1}' | tr -d '[:space:]')"
+
+# 校验：必须像版本号（防 HTML 错误页污染）
+if ! echo "$REMOTE" | grep -qE '^[0-9]+\.[0-9.]+'; then
+  # 网络失败 — 不写 UP_TO_DATE 缓存（下次重试）
+  # 检查上次成功检测距今是否超过 7 天
+  if [ -f "$CACHE_FILE" ]; then
+    STALE_7D=$(find "$CACHE_FILE" -mmin +10080 2>/dev/null || true)
+    if [ -n "$STALE_7D" ]; then
+      echo "CHECK_FAILED 7d"
+    fi
+  fi
+  exit 0
+fi
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+  echo "UP_TO_DATE $LOCAL" > "$CACHE_FILE"
+  exit 0
+fi
+
+# 版本不同 → 有更新
+echo "UPGRADE_AVAILABLE $LOCAL $REMOTE" > "$CACHE_FILE"
+if check_snooze "$REMOTE"; then
+  exit 0
+fi
+
+echo "UPGRADE_AVAILABLE $LOCAL $REMOTE"
