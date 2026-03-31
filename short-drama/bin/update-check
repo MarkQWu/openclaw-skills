@@ -131,7 +131,16 @@ if [ -f "$CACHE_FILE" ]; then
           if check_snooze "$CACHED_NEW"; then
             exit 0
           fi
-          echo "$CACHED"
+          # 检查是否开启自动更新
+          _AU_CACHED=""
+          if [ -f "$CONFIG_FILE" ]; then
+            _AU_CACHED=$(grep -E '^auto_upgrade:' "$CONFIG_FILE" 2>/dev/null | awk '{print $2}' || true)
+          fi
+          if [ "$_AU_CACHED" = "true" ]; then
+            echo "AUTO_UPGRADE $CACHED_OLD $CACHED_NEW"
+          else
+            echo "$CACHED"
+          fi
           exit 0
         fi
         ;;
