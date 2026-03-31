@@ -176,4 +176,13 @@ if check_snooze "$REMOTE"; then
   exit 0
 fi
 
-echo "UPGRADE_AVAILABLE $LOCAL $REMOTE"
+# 检查是否开启了自动更新
+_AU=""
+if [ -f "$CONFIG_FILE" ]; then
+  _AU=$(grep -E '^auto_upgrade:' "$CONFIG_FILE" 2>/dev/null | awk '{print $2}' || true)
+fi
+if [ "$_AU" = "true" ]; then
+  echo "AUTO_UPGRADE $LOCAL $REMOTE"
+else
+  echo "UPGRADE_AVAILABLE $LOCAL $REMOTE"
+fi
