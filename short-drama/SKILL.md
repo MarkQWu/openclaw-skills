@@ -11,8 +11,14 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **本 skill 被激活时（用户输入任何命令前），必须先执行以下检测：**
 
+Mac/Linux：
 ```bash
-bash "$(dirname "$(find ~/.claude/skills ~/.openclaw/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1)")/update-check" 2>/dev/null || true
+bash "$(dirname "$(find ~/.claude/skills ~/.openclaw/skills ~/.workbuddy/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1)")/update-check" 2>/dev/null || true
+```
+
+Windows（PowerShell）：
+```powershell
+$s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workbuddy\skills" -Recurse -Filter "VERSION" -ErrorAction SilentlyContinue | Where-Object { $_.FullName -match "short-drama" } | Select-Object -First 1; if ($s) { $local = (Get-Content $s.FullName -TotalCount 1).Trim() -replace '^v',''; try { $remote = ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/short-drama/VERSION" -TimeoutSec 5 -ErrorAction Stop).Content -split "`n")[0].Trim() -replace '^v',''; if ($remote -match '^\d+\.\d' -and $remote -ne $local) { "UPGRADE_AVAILABLE $local $remote" } } catch {} }
 ```
 
 根据输出决定行为：
@@ -1021,7 +1027,7 @@ Step 5: 剪辑成片（外部工具）
 1. 强制检查版本（绕过缓存和暂缓）：
 
 ```bash
-SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname | xargs dirname)"
+SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills ~/.workbuddy/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname | xargs dirname)"
 bash "$SKILL_DIR/bin/update-check" --force 2>/dev/null || true
 ```
 
@@ -1042,7 +1048,7 @@ bash "$SKILL_DIR/bin/update-check" --force 2>/dev/null || true
 
 ```bash
 # 定位安装目录
-SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills -name SKILL.md -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname)"
+SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills ~/.workbuddy/skills -name SKILL.md -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname)"
 STATE_DIR="$HOME/.openclaw"
 mkdir -p "$STATE_DIR"
 
@@ -1091,7 +1097,7 @@ echo "升级完成：v$OLD_VER → v$NEW_VER"
 ```bash
 STATE_DIR="$HOME/.openclaw"
 SNOOZE_FILE="$STATE_DIR/update-snoozed"
-SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills -name VERSION -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname)"
+SKILL_DIR="$(find ~/.claude/skills ~/.openclaw/skills ~/.workbuddy/skills -name VERSION -path "*/short-drama/*" 2>/dev/null | head -1 | xargs dirname)"
 mkdir -p "$STATE_DIR"
 
 # 从缓存读取远程版本号
