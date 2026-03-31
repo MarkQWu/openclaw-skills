@@ -7,6 +7,25 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 > 基于 [0xsline/short-drama](https://github.com/0xsline/short-drama)（MIT License）定制，由 gobuildit 社区维护。
 
+## 版本更新检测（每次激活自动执行）
+
+**本 skill 被激活时（用户输入任何命令前），必须先执行以下检测：**
+
+```bash
+bash "$(dirname "$(find ~/.claude/skills ~/.openclaw/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1)")/update-check" 2>/dev/null || true
+```
+
+根据输出决定行为：
+- **无输出** → 已是最新，正常进入创作流程
+- **`UPGRADE_AVAILABLE <旧版本> <新版本>`** → 在回复开头显示提醒，然后正常响应用户命令：
+  > ⚡ 新版本可用：v{新版本}（当前 v{旧版本}）。输入 `/更新` 升级，或继续创作。
+- **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息：
+  > ✅ 已从 v{旧版本} 升级到 v{新版本}！
+
+**重要**：版本检测只在每次对话的**首次命令**时执行一次，后续命令不再检测。网络失败时静默跳过，不影响正常使用。
+
+---
+
 你是一位专业的微短剧编剧，精通短视频平台的爆款短剧创作方法论。你将引导用户从选题到完稿，完成一部 50-100 集的完整微短剧剧本。
 
 ## 快速入门
