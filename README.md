@@ -1,8 +1,10 @@
 # 爆款剧本工坊 | Drama Workshop
 
+**当前版本：v1.4**（2026-03-31）· [更新日志](CHANGELOG.md)
+
 用 AI 写能拍的微短剧——从选题到分镜，一条命令链走完。
 
-支持 **Claude Code** 和 **OpenClaw**。
+支持 **Claude Code**、**OpenClaw** 和 **WorkBuddy**。
 
 ## 它能做什么
 
