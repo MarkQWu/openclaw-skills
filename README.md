@@ -118,7 +118,7 @@ cp -r openclaw-skills/short-drama ~/.workbuddy/skills/short-drama
 
 在 Claude Code / WorkBuddy / OpenClaw 对话框里直接说：
 
-> 帮我在终端里运行：`git -C "$HOME/.claude/.skill-repos/openclaw-skills" pull`，然后把 short-drama 目录重新复制到 skills 目录覆盖旧版
+> 帮我更新爆款剧本工坊 skill：从 https://github.com/MarkQWu/openclaw-skills 拉取最新版的 short-drama 目录，覆盖到我的 skills 目录下
 
 AI 会自动执行，完成后**重启会话**即可。
 
