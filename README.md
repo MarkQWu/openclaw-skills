@@ -118,7 +118,7 @@ cp -r openclaw-skills/short-drama ~/.workbuddy/skills/short-drama
 
 在 Claude Code / WorkBuddy / OpenClaw 对话框里直接说：
 
-> 帮我更新爆款剧本工坊 skill：从 https://github.com/MarkQWu/openclaw-skills 拉取最新版的 short-drama 目录，覆盖到我的 skills 目录下。必须从 GitHub 重新拉取，不要用本地缓存。完成后读取 VERSION 文件告诉我版本号
+> 帮我更新爆款剧本工坊 skill：从 https://github.com/MarkQWu/openclaw-skills 拉取最新版，覆盖到我的 skills 目录下。必须从 GitHub 重新拉取，不要用本地缓存。完成后读取 VERSION 文件告诉我版本号
 
 AI 会自动执行并告诉你安装的版本号。确认版本号后**重启会话**即可生效。如果提示下载失败，先开全局代理再试。
 
