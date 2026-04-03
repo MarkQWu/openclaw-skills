@@ -1,3 +1,5 @@
+<!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
+
 # 分镜拆解指南 | Storyboard Guide
 
 > `/分镜` 命令执行时加载本文件。

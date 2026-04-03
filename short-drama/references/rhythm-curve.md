@@ -1,3 +1,5 @@
+<!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
+
 # 节奏曲线设计
 
 ## 核心理念：张弛有度，让观众上瘾

@@ -1,3 +1,5 @@
+<!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
+
 # 真实感检查清单
 
 > 来源：甲方反馈提炼（2026-03）。每条规则标注了题材适用性。
