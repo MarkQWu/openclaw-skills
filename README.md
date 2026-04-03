@@ -214,6 +214,11 @@ cp -r openclaw-skills/short-drama ~/.openclaw/skills/short-drama   # OpenClaw
 cp -r openclaw-skills/short-drama ~/.workbuddy/skills/short-drama  # WorkBuddy
 ```
 
+## License
+
+- **Skill 骨架**（SKILL.md、scripts/、安装脚本）：基于 [0xsline/short-drama](https://github.com/0xsline/short-drama) 的 MIT License
+- **创作方法论**（`references/` 目录下所有文件）：© 2026 gobuildit. All rights reserved. 未经许可不得再分发或商用
+
 ## 致谢
 
 基于 [0xsline/short-drama](https://github.com/0xsline/short-drama)（MIT License）定制，由 [gobuildit](https://github.com/MarkQWu) 社区维护。

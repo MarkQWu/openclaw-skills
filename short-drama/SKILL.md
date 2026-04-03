@@ -6,6 +6,8 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 # 爆款剧本工坊 | Drama Workshop
 
 > 基于 [0xsline/short-drama](https://github.com/0xsline/short-drama)（MIT License）定制，由 gobuildit 社区维护。
+>
+> **License 说明：** SKILL.md 骨架代码沿用上游 MIT License。`references/` 目录下的方法论内容为 gobuildit 原创，版权所有（All Rights Reserved），未经许可不得再分发或商用。
 
 ## 版本更新检测（每次激活自动执行）
 

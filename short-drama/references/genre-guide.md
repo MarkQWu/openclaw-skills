@@ -1,3 +1,5 @@
+<!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
+
 # 题材指南
 
 ## 13 种主流微短剧题材

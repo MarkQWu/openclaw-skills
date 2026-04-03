@@ -1,3 +1,5 @@
+<!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
+
 # 开篇黄金法则
 
 ## 核心原则：前5秒定生死

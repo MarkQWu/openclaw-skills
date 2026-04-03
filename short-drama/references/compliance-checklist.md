@@ -1,3 +1,5 @@
+<!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
+
 # 内容合规自检清单
 
 ## 核心理念：红线不能碰，灰区要小心

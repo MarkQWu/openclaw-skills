@@ -1,3 +1,5 @@
+<!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
+
 # 付费卡点设计策略
 
 ## 核心理念：让观众"不得不付"
