@@ -1,6 +1,6 @@
 ---
 name: short-drama
-description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。从选题到完稿的完整管线，支持国内/出海双模式。当用户说"写短剧"、"短剧剧本"、"微短剧"、"short drama"、"爆款剧本"时使用。"
+description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。从选题到完稿的完整管线，支持国内/出海双模式。当用户说"写短剧"、"短剧剧本"、"微短剧"、"short drama"、"爆款剧本"、"写剧本"、"剧本创作"、"编剧"、"竖屏短剧"、"网络短剧"、"drama script"、"write script"时使用。"
 ---
 
 # 爆款剧本工坊 | Drama Workshop
