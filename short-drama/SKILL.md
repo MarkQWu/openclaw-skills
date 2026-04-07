@@ -9,68 +9,6 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 >
 > **License 说明：** SKILL.md 骨架代码沿用上游 MIT License。`references/` 目录下的方法论内容为 gobuildit 原创，版权所有（All Rights Reserved），未经许可不得再分发或商用。
 
-## 版本更新检测（每次激活自动执行）
-
-**本 skill 被激活时（用户输入任何命令前），必须先执行以下检测：**
-
-Mac/Linux：
-```bash
-bash "$(dirname "$(find ~/.claude/skills ~/.openclaw/skills ~/.workbuddy/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1)")/update-check" 2>/dev/null || true
-```
-
-Windows（PowerShell）：
-```powershell
-$s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workbuddy\skills" -Recurse -Filter "VERSION" -ErrorAction SilentlyContinue | Where-Object { $_.FullName -match "short-drama" } | Select-Object -First 1; if ($s) { $local = (Get-Content $s.FullName -TotalCount 1).Trim() -replace '^v',''; try { $remote = ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/short-drama/VERSION" -TimeoutSec 5 -ErrorAction Stop).Content -split "`n")[0].Trim() -replace '^v',''; if ($remote -match '^\d+\.\d' -and $remote -ne $local) { "UPGRADE_AVAILABLE $local $remote" } } catch {} }
-```
-
-根据输出决定行为：
-- **无输出** → 已是最新，正常进入创作流程
-- **`UPGRADE_AVAILABLE <旧版本> <新版本>`** → 用 `AskUserQuestion` 让用户选择（不要先回答用户命令再问，直接先问）：
-
-  问题：「[锚点] 新版本 v{新版本} 可用（当前 v{旧版本}），是否更新？」
-
-  选项：
-  1. **立即更新** → 执行 `/更新` 命令的升级流程（步骤 3）
-  2. **开启自动更新** → 写入配置 `auto_upgrade: true`（以后静默升级），然后执行升级
-  3. **暂不** → 写入递增退避 snooze（24h→48h→7d），继续响应用户原始命令
-  4. **永远不提醒** → 写入 `update_check: false`，继续响应用户原始命令
-
-  写入 snooze 的命令（选「暂不」时执行）：
-  ```bash
-  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
-  SNOOZE_FILE="$STATE_DIR/update-snoozed"
-  REMOTE_VER="$(awk '/^UPGRADE_AVAILABLE/{print $3}' "$STATE_DIR/last-update-check" 2>/dev/null)"
-  CURRENT_LEVEL=0
-  [ -f "$SNOOZE_FILE" ] && CURRENT_LEVEL="$(awk '{print $2}' "$SNOOZE_FILE" 2>/dev/null || echo 0)"
-  NEW_LEVEL=$((CURRENT_LEVEL + 1))
-  echo "$REMOTE_VER $NEW_LEVEL $(date +%s)" > "$SNOOZE_FILE"
-  ```
-
-  写入自动更新配置（选「开启自动更新」时执行）：
-  ```bash
-  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
-  echo "auto_upgrade: true" >> "$STATE_DIR/config.yaml"
-  ```
-
-  写入禁用检测（选「永远不提醒」时执行）：
-  ```bash
-  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
-  echo "update_check: false" > "$STATE_DIR/config.yaml"
-  ```
-- **`AUTO_UPGRADE <旧版本> <新版本>`** → 用户已开启自动更新，不询问，直接执行 `/更新` 命令的升级流程（步骤 3），完成后显示：
-  > [完成] 已自动升级到 v{新版本}（从 v{旧版本}）。下次对话生效。
-
-  然后继续响应用户原始命令。
-
-- **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息：
-  > [完成] 已从 v{旧版本} 升级到 v{新版本}！
-- **`CHECK_FAILED 7d`** → 网络连续 7 天无法检查更新，显示淡提示：
-  > [提示] 已超过 7 天未能检查更新（网络问题）。可手动运行 `/更新` 检查，或确认网络连通后自动恢复。
-
-**重要**：版本检测只在每次对话的**首次命令**时执行一次，后续命令不再检测。网络失败时静默跳过，不影响正常使用。
-
----
-
 你是一位专业的微短剧编剧，精通短视频平台的爆款短剧创作方法论。你将引导用户从选题到完稿，完成一部 50-100 集的完整微短剧剧本。
 
 ## 快速入门
@@ -320,8 +258,8 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 - **终极对决**：{对决描述}
 - **结局处理**：{结局描述}
 
-<!-- 如果用户选择了反套路/双层结构，追加以下表格 -->
-<!--
+（以下区块仅在用户选择了反套路/双层结构时输出，否则跳过）
+
 ### 双层结构对照
 
 | 阶段 | 观众以为的走向 | 真实走向 |
@@ -331,7 +269,8 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 | 第三幕 | {期待的结局} | {真实反转} |
 
 > 注意：选择双层结构时，故事骨架必须一次性完成两层，不支持后补反转层。前期阶段仍按爽点矩阵执行，反转在设计好的节点触发。
--->
+
+（双层结构区块结束）
 
 ## 全剧节奏波形图
 
@@ -1417,3 +1356,65 @@ echo "update_check: false" > "$CONFIG_FILE"
 3. **上下文连贯：** 写后续集数时必须参考已有内容，避免前后矛盾
 4. **质量可控：** 每集写完可跑自检，不满意就重写
 5. **专业格式：** 输出的是文学剧本格式，导演拿到手能直接拍
+
+---
+
+## 版本更新检测（每次激活自动执行）
+
+**本 skill 被激活时（用户输入任何命令前），必须先执行以下检测：**
+
+Mac/Linux：
+```bash
+bash "$(dirname "$(find ~/.claude/skills ~/.openclaw/skills ~/.workbuddy/skills -name update-check -path "*/short-drama/*" 2>/dev/null | head -1)")/update-check" 2>/dev/null || true
+```
+
+Windows（PowerShell）：
+```powershell
+$s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workbuddy\skills" -Recurse -Filter "VERSION" -ErrorAction SilentlyContinue | Where-Object { $_.FullName -match "short-drama" } | Select-Object -First 1; if ($s) { $local = (Get-Content $s.FullName -TotalCount 1).Trim() -replace '^v',''; try { $remote = ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/short-drama/VERSION" -TimeoutSec 5 -ErrorAction Stop).Content -split "`n")[0].Trim() -replace '^v',''; if ($remote -match '^\d+\.\d' -and $remote -ne $local) { "UPGRADE_AVAILABLE $local $remote" } } catch {} }
+```
+
+根据输出决定行为：
+- **无输出** → 已是最新，正常进入创作流程
+- **`UPGRADE_AVAILABLE <旧版本> <新版本>`** → 用 `AskUserQuestion` 让用户选择（不要先回答用户命令再问，直接先问）：
+
+  问题：「[锚点] 新版本 v{新版本} 可用（当前 v{旧版本}），是否更新？」
+
+  选项：
+  1. **立即更新** → 执行 `/更新` 命令的升级流程（步骤 3）
+  2. **开启自动更新** → 写入配置 `auto_upgrade: true`（以后静默升级），然后执行升级
+  3. **暂不** → 写入递增退避 snooze（24h→48h→7d），继续响应用户原始命令
+  4. **永远不提醒** → 写入 `update_check: false`，继续响应用户原始命令
+
+  写入 snooze 的命令（选「暂不」时执行）：
+  ```bash
+  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
+  SNOOZE_FILE="$STATE_DIR/update-snoozed"
+  REMOTE_VER="$(awk '/^UPGRADE_AVAILABLE/{print $3}' "$STATE_DIR/last-update-check" 2>/dev/null)"
+  CURRENT_LEVEL=0
+  [ -f "$SNOOZE_FILE" ] && CURRENT_LEVEL="$(awk '{print $2}' "$SNOOZE_FILE" 2>/dev/null || echo 0)"
+  NEW_LEVEL=$((CURRENT_LEVEL + 1))
+  echo "$REMOTE_VER $NEW_LEVEL $(date +%s)" > "$SNOOZE_FILE"
+  ```
+
+  写入自动更新配置（选「开启自动更新」时执行）：
+  ```bash
+  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
+  echo "auto_upgrade: true" >> "$STATE_DIR/config.yaml"
+  ```
+
+  写入禁用检测（选「永远不提醒」时执行）：
+  ```bash
+  STATE_DIR="$HOME/.openclaw"; mkdir -p "$STATE_DIR"
+  echo "update_check: false" > "$STATE_DIR/config.yaml"
+  ```
+- **`AUTO_UPGRADE <旧版本> <新版本>`** → 用户已开启自动更新，不询问，直接执行 `/更新` 命令的升级流程（步骤 3），完成后显示：
+  > [完成] 已自动升级到 v{新版本}（从 v{旧版本}）。下次对话生效。
+
+  然后继续响应用户原始命令。
+
+- **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息：
+  > [完成] 已从 v{旧版本} 升级到 v{新版本}！
+- **`CHECK_FAILED 7d`** → 网络连续 7 天无法检查更新，显示淡提示：
+  > [提示] 已超过 7 天未能检查更新（网络问题）。可手动运行 `/更新` 检查，或确认网络连通后自动恢复。
+
+**重要**：版本检测只在每次对话的**首次命令**时执行一次，后续命令不再检测。网络失败时静默跳过，不影响正常使用。
