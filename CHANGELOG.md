@@ -1,5 +1,18 @@
 # 更新日志
 
+## 2026-04-07 · v1.7
+
+**SKILL.md 渐进披露瘦身 — 适配小窗口模型**
+
+- SKILL.md 从 1420 行瘦身到 436 行（减少 69%），符合 skill-creator 的 <500 行标准
+- 拆出 4 个 reference 文件（按需加载，不占用基础上下文）：
+  - `output-templates.md`：所有 13 个命令的完整输出格式模板
+  - `quality-rules.md`：分集质量要求 + 自检 7 维度细则
+  - `storyboard-rules.md`：分镜密度/景别/prompt 规则
+  - `update-mechanism.md`：版本检测和更新逻辑
+- 每个命令保留骨架（功能+流程+引用链接），执行时动态加载对应 reference
+- 零信息丢失，所有规则和模板完整保留在 references/ 中
+
 ## 2026-04-07 · v1.6
 
 **格式统一修复 — 解决长对话输出格式漂移**
