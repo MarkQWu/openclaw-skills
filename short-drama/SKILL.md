@@ -24,7 +24,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 /分集 1      → 开始写第一集（之后 /分集 2, /分集 3 ...）
 /自检 1      → 检查质量（可选）
 /合规        → 审核合规（国内发行必做）
-/导出        → 打包完整剧本
+/导出        → 打包完整剧本（支持 Word 导出：/导出 --docx）
 /角色卡      → 生成或导入角色视觉描述（供 /分镜 使用）
 /分镜        → 拆分镜 + 生成即梦 AI prompt（如 /分镜 1）
 /工作流      → 打印完整创作→视频链路说明
@@ -53,9 +53,12 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 │   └── merged-storyboard.md  # 合并分镜（脚本生成）
 ├── scripts/                  # Python 工具脚本
 │   ├── merge_storyboard.py
-│   └── character_card_validator.py
+│   ├── character_card_validator.py
+│   ├── generate_reference_doc.py
+│   └── export_docx.py
 └── export/                   # 导出目录
-    └── {剧名}-完整剧本.md
+    ├── {剧名}-完整剧本.md
+    └── {剧名}-完整剧本.docx  # Word 版（可选）
 ```
 
 ## 创作状态追踪
@@ -285,7 +288,11 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### /导出
 
-**功能：** 将完成的剧本导出为专业排版的完整文件。
+**功能：** 将完成的剧本导出为专业排版的完整文件。支持 Markdown 和 Word (.docx) 格式。
+
+**用法：**
+- `/导出` → 生成 Markdown，完成后询问是否需要 Word 版本
+- `/导出 --docx` → 同时生成 Markdown + Word，跳过询问
 
 **前置条件：** 至少完成部分集数
 
@@ -296,7 +303,23 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **输出格式：** 见 `references/output-templates.md#导出`
 
-**输出：** 保存为 `export/{剧名}-完整剧本.md`
+**Markdown 导出：** 保存为 `export/{剧名}-完整剧本.md`
+
+**Word 导出流程（用户确认 Y 或使用 --docx 时触发）：**
+
+调用导出脚本（跨平台，自动处理 pandoc 检测与安装）：
+```
+python3 {skill目录}/scripts/export_docx.py "export/{剧名}-完整剧本.md" "export/{剧名}-完整剧本.docx"
+```
+
+脚本自动完成：
+1. 检测 pandoc → 未安装则按系统自动安装（brew/winget/choco/apt）
+2. 用 reference-doc 模板转换 MD → DOCX
+3. 自动安装也失败时，输出手动安装指引 + 在线转换备选链接
+
+**输出：**
+- Markdown：`export/{剧名}-完整剧本.md`（始终生成）
+- Word：`export/{剧名}-完整剧本.docx`（可选）
 
 ---
 
