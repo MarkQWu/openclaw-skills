@@ -1,0 +1,12 @@
+#!/bin/bash
+# pre-commit: 阻断 short-drama/ 内容变更但未更新 VERSION 的提交
+
+staged=$(git diff --cached --name-only)
+has_content=$(echo "$staged" | grep -E '^short-drama/(SKILL\.md|scripts/|references/)' || true)
+has_version=$(echo "$staged" | grep -q '^short-drama/VERSION$' && echo yes || true)
+
+if [ -n "$has_content" ] && [ "$has_version" != "yes" ]; then
+  echo "❌ 改了 short-drama/ skill 内容但没更新 VERSION"
+  echo "   请先运行 bin/release.sh <版本号> 再提交"
+  exit 1
+fi
