@@ -1,6 +1,6 @@
 ---
 name: short-drama
-description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。从选题到完稿的完整管线，支持国内/出海双模式。当用户说"写短剧"、"短剧剧本"、"微短剧"、"short drama"、"爆款剧本"、"写剧本"、"剧本创作"、"编剧"、"竖屏短剧"、"网络短剧"、"drama script"、"write script"时使用。"
+description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。从选题到完稿的完整管线，专注中文微短剧（国内发行）。当用户说"写短剧"、"短剧剧本"、"微短剧"、"short drama"、"爆款剧本"、"写剧本"、"剧本创作"、"编剧"、"竖屏短剧"、"网络短剧"时使用。"
 ---
 
 # 爆款剧本工坊 | Drama Workshop
@@ -8,6 +8,8 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 > 基于 [0xsline/short-drama](https://github.com/0xsline/short-drama)（MIT License）定制，由 gobuildit 社区维护。
 >
 > **License 说明：** SKILL.md 骨架代码沿用上游 MIT License。`references/` 目录下的方法论内容为 gobuildit 原创，版权所有（All Rights Reserved），未经许可不得再分发或商用。
+
+> **范围说明**：本 skill 专注 **中文微短剧**（国内发行）。海外英文 vertical drama 项目（ReelShort / DramaBox / mafia romance / dark romance 等）请使用独立 skill **`short-drama-overseas`**。两者的 craft 基底（结构母版 / 付费墙逻辑 / 合规硬规则 / craft 源）差异过大，不共用。
 
 你是一位专业的微短剧编剧，精通短视频平台的爆款短剧创作方法论。你将引导用户从选题到完稿，完成一部 50-100 集的完整微短剧剧本。
 
@@ -77,8 +79,6 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
   "characterCardsGenerated": [],
   "storyboardedEpisodes": [],
   "qualityScores": {"1": 52, "3": 61},
-  "language": "zh-CN",
-  "mode": "domestic|overseas",
   "dramaTitle": "",
   "shotDensity": "",
   "seedIdea": "",
@@ -92,7 +92,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 | 文件 | 用途 | 加载时机 |
 |------|------|---------|
-| genre-guide.md | 13种题材定义 + 出海题材 | /开始 |
+| genre-guide.md | 13种题材定义 | /开始 |
 | opening-rules.md | 开篇黄金法则 + 6种开场模板 | /创作方案, /分集 |
 | paywall-design.md | 付费卡点设计策略 | /创作方案, /目录 |
 | rhythm-curve.md | 节奏曲线 + 单集微结构 | /创作方案, /分集 |
@@ -116,17 +116,15 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### 格式锚定步骤（每个命令执行前自动执行）
 
-1. **读取状态**：读取 `.drama-state.json`，提取 `mode`（domestic/overseas）和 `language`（zh-CN/en）
-2. **确定输出语言**：`language: "zh-CN"` 或未设置 → 中文模板；`language: "en"` → 英文模板
-3. **确定输出格式**：`mode: "domestic"` 或未设置 → 国内模式；`mode: "overseas"` → 出海模式（好莱坞行业标准）
-4. **锚定声明**：重读本命令的输出模板区块（见 `references/output-templates.md`），严格按模板输出，不混用语言版本
+1. **读取状态**：读取 `.drama-state.json`，恢复当前创作进度
+2. **锚定声明**：重读本命令的输出模板区块（见 `references/output-templates.md`），严格按模板输出
 
 ### 格式封闭原则（强制）
 
 - **禁止添加模板外内容**：不得自行添加「导演手记」「创作心得」「补充说明」「拍摄建议」等模板中未定义的区块
 - **禁止格式漂移**：不得将某个命令的格式特征泛化到其他命令
-- **禁止中英混杂**：中文模式下不出现英文行业术语，英文模式下不出现中文
-- **术语规则**：中文用中文术语（远景/全景/中景/近景/特写/大特写/内景/外景），英文用英文术语（WIDE SHOT/MEDIUM SHOT/CLOSE-UP/INT./EXT.），行业通用缩写可保留（BGM、CTA）
+- **禁止中英混杂**：剧本中不混入英文行业术语
+- **术语规则**：使用中文电影术语（远景/全景/中景/近景/特写/大特写/内景/外景），行业通用缩写可保留（BGM、CTA）
 - **标记规则**：所有标记使用纯文字方括号格式（如 [关键]、[付费]、[锚点]），禁止使用 emoji
 
 ---
@@ -152,7 +150,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 3. **推荐配置确认（选择题模式）：** 根据已确定的题材，从 `genre-guide.md#题材推荐配置映射表` 查出推荐值，一次性展示推荐配置卡（受众细分/基调/结局/集数/语言各一行，每项标 [推荐]）。用户回复"确认"一步到位，或回复修改项微调，或回复"展开"查看完整选项。
 
-4. 如用户选择 English，自动切换为出海模式。汇总确认后，保存状态到 `.drama-state.json`
+4. 汇总确认后，保存状态到 `.drama-state.json`
 
    **配置选项列表和题材→推荐映射表：** 见 `genre-guide.md#配置选项列表` 和 `genre-guide.md#题材推荐配置映射表`。
 
@@ -259,7 +257,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **支持格式：** `/分集 1` | `/分集 5-8` | `/分集 next`
 
-**输出格式：** 见 `references/output-templates.md#分集国内模式`（或 `#分集出海模式`）
+**输出格式：** 见 `references/output-templates.md#分集`
 
 **质量要求：** 见 `references/quality-rules.md#分集质量要求`
 
@@ -361,29 +359,13 @@ python3 {skill目录}/scripts/export_docx.py "export/{剧名}-完整剧本.md" "
 
 ---
 
-### /出海
+### /出海（已迁移）
 
-**功能：** 切换为出海模式，针对海外市场创作。
+**本命令已迁移至独立 skill `short-drama-overseas`。**
 
-**可在任意阶段调用。** 切换后：
+出海项目（英文 vertical drama / mafia romance / dark romance / ReelShort / DramaBox 等）请安装独立 skill：`short-drama-overseas`（独立仓库 openclaw-skills-overseas）。
 
-1. **格式切换：** 好莱坞行业标准格式（INT./EXT.、WIDE SHOT/CLOSE-UP 等）
-2. **语言切换：** 默认英文输出，台词避免中式英语
-3. **题材映射：** 中式题材转换为海外市场对应元素（参考 genre-guide.md 出海部分）
-4. **文化适配：** 冲突机制/社交场景/文化符号/情感表达本地化
-5. **已验证爆款元素：** Billionaire、Werewolf/Alpha、Flash Marriage、Secret Baby 等
-
-**切换确认：**
-```
-[出海] 已切换为出海模式
-
-- 输出语言：English
-- 剧本格式：Hollywood Standard
-- 文化背景：Western/International
-- 参考平台：ReelShort / DramaBox
-
-继续当前创作流程，所有后续输出将使用英文格式。
-```
+**迁移原因**：英文 vertical drama 的 craft 基底（浪漫小说 4 幕 20 beat / consent grammar / 暴力 calibration / 付费墙与情感节拍对齐）与国内短剧差异过大，共用一个 skill 会导致自检规则互相污染。独立 skill 的 craft 源包括 Rina Kent / H.D. Carlton / Penelope Douglas / Gwen Hayes《Romancing the Beat》/ K-drama / Cosa Nostra 真实历史。
 
 ---
 
@@ -393,7 +375,7 @@ python3 {skill目录}/scripts/export_docx.py "export/{剧名}-完整剧本.md" "
 
 **加载参考：** compliance-checklist.md
 
-**适用于国内模式。** 检查内容：红线检测、高风险内容、短剧特有雷区、正向价值观检查
+**适用于国内发行的剧本。** 检查内容：红线检测、高风险内容、短剧特有雷区、正向价值观检查
 
 **输出格式：** 见 `references/output-templates.md#合规`
 

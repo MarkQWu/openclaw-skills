@@ -8,8 +8,7 @@
 - [/创作方案](#创作方案)
 - [/角色开发](#角色开发)
 - [/目录](#目录)
-- [/分集（国内模式）](#分集国内模式)
-- [/分集（出海模式）](#分集出海模式)
+- [/分集](#分集)
 - [/自检](#自检)
 - [/导出](#导出)
 - [/合规](#合规)
@@ -30,8 +29,6 @@
 - **故事基调：** {基调}
 - **结局类型：** {结局}
 - **集数规模：** {集数}集
-- **输出模式：** {国内/出海}
-- **输出语言：** {语言}
 
 [完成] 方向已锁定！输入 /创作方案 开始构建故事骨架
 ```
@@ -262,7 +259,7 @@ graph TD
 
 ---
 
-## /分集（国内模式）
+## /分集
 
 > **格式提醒：** 严格按以下模板输出，不添加模板外区块，不混用中英文。
 
@@ -326,40 +323,6 @@ graph TD
 > **集末自查**
 > [锚点] 节奏锚点：0-3s 冲突 [完成]/-- | 30s 爆破 [完成]/-- | 结尾钩子 [完成]/--
 > [爽点] 爽点清单（≥3）：1.{类型} 2.{类型} 3.{类型}
-```
-
----
-
-## /分集（出海模式）
-
-```markdown
-# Episode {N}: {Title}
-
-> Key Words: {3 keywords}
-> Hook Type: {hook type}
-> Previously: {last episode cliffhanger, 1-2 sentences}
-
----
-
-## Scene 1
-
-**INT./EXT. {LOCATION} - DAY/NIGHT**
-**Characters: {character list}**
-
-WIDE SHOT - {scene description}
-
-MEDIUM SHOT - {action description}
-
-**{CHARACTER NAME}** ({tone/action direction}): "{dialogue}"
-
-CLOSE-UP - {key detail}
-
-[音乐] Music cue: {atmosphere description}
-
----
-
-> [钩子] End Hook: {cliffhanger}
-> [预告] Next: {next episode preview}
 ```
 
 ---
@@ -673,7 +636,7 @@ Step 5: 剪辑成片（外部工具）
 /自检 1        质检打分（自动修复：/自检 1 --fix）
 /合规          国内发行合规审核
 /导出          打包完整剧本，支持 Word 格式（/导出 --docx）
-/出海          切换英文 + 好莱坞格式
+/出海          [已迁移至 short-drama-overseas skill]
 
 ━━ 分镜 & 视频 ━━
 /角色卡        锁定角色视觉描述，保证每个镜头长得一样
