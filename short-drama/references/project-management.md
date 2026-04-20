@@ -137,15 +137,48 @@ json.dump({"currentStep": "创作方案", "genre": ["古装"]}, open(path, "w"))
 
 ## 向后兼容 fallback（v1.10-v1.12 老用户迁移）
 
-`/开始` 扫描为空但 cwd 有 `.drama-state.json`（<USER_REDACTED>《<PROJECT_REDACTED>》等老项目）：
+`/开始` 触发 fallback 的条件（宽松版，防<USER_REDACTED>失联）：
+
+- **条件 A**：扫描 `~/short-drama-projects/*/` 为空 AND cwd 有合法 `.drama-state.json`
+- **条件 B**：扫描结果中没有匹配 cwd 路径的项目，但 cwd 本身有合法 `.drama-state.json`（例：<USER_REDACTED>在别处手动建过 `~/short-drama-projects/测试/`，但真实 25 集项目仍在另一 cwd）
+
+满足 A 或 B → fallback 流程：
 
 1. 加载 cwd state，展示进度
 2. 询问两个选项：
-   - **[1] 就地继续（兼容模式）**：保留在原 cwd，不迁移。但 `/项目列表` 看不到此项目，后续切换项目会错位
-   - **[2] 迁移到标准位置（推荐）**：将 cwd 所有项目文件（`.drama-state.json` + `episodes/` + `creative-plan.md` + 其他）移到 `~/short-drama-projects/<dramaTitle>/`，state 追加 `projectName` 字段
-3. 选 2 后继续"欢迎回来"流程
+   - **[1] 就地继续（兼容模式）**：保留在原 cwd，不迁移。仅当会话内 `/分集` 等命令需要时，LLM 用 cwd 绝对路径读写。**警告**：`/项目列表` 看不到此项目；本会话一结束，下次 `/开始` 再问一次
+   - **[2] 迁移到标准位置（推荐）**：按「迁移白名单 + 目标冲突检查」流程执行
 
-**老 state 补齐 `projectName`**：v1.10-v1.12 的 state 没有 `projectName` 字段。迁移时用 `dramaTitle` 值填入，确保新版架构识别。
+### 迁移操作规范（强制，防数据破坏）
+
+**目标冲突检查**：`mv` 之前检查 `~/short-drama-projects/<dramaTitle>/` 是否已存在：
+- 不存在 → `mkdir -p` 后 mv
+- 存在且 state 合法 + `currentStep` 非空 → 目标已有真实项目，**拒绝迁移**，建议改名（`<dramaTitle>-from-cwd-YYYYMMDD`）让用户确认
+- 存在但为空/仅 stub state → 可覆盖（安全）
+
+**迁移文件白名单**（严格，只 mv 以下项，其他文件**不移动**）：
+
+| 文件/目录 | 说明 |
+|---|---|
+| `.drama-state.json` | 项目状态 |
+| `brainstorm.md` | 构思记录 |
+| `creative-plan.md` | 创作方案 |
+| `characters.md` | 角色档案 |
+| `setting-bible.md` | 考据 bible |
+| `episode-directory.md` | 分集目录 |
+| `compliance-report.md` | 合规报告 |
+| `README.md` | 项目自述（/项目状态 生成的才 mv，项目目录里其他同名 README.md 谨慎）|
+| `episodes/` | 分集剧本目录 |
+| `character-cards/` | 角色视觉卡 |
+| `storyboards/` | 分镜目录 |
+| `research-cache/` | 考据缓存 |
+| `export/` | 导出目录 |
+
+**白名单外**（例 SKILL.md、scripts/、references/、LICENSE 等 skill 源文件，或用户桌面其他文件）→ **绝不移动**。
+
+**迁移前强制用户确认**：LLM 列出待 mv 的具体文件清单（包括跳过的非白名单文件）+ 目标路径 + state 变更（补 `projectName` 字段），让用户回复 "确认" 后才执行。
+
+**老 state 补齐 `projectName`**：v1.10-v1.12 的 state 没有 `projectName` 字段。迁移执行时用 `dramaTitle` 值填入（走 State 写入协议 Read-Modify-Write）。
 
 ## /项目列表 实现约定
 

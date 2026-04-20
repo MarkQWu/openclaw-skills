@@ -33,7 +33,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## 工作目录
 
-**默认项目目录：** `~/short-drama-projects/<项目名>/`（新项目由 `/开始` 自动创建；老项目 cwd 下已有 `.drama-state.json` 时就地继续，零迁移）。所有产物保存在项目目录下：
+**默认项目目录：** `~/short-drama-projects/<项目名>/`（所有项目统一此位置；v1.10-v1.12 老用户的 cwd state 由 `/开始` 扫描 fallback 引导迁移）。所有产物保存在项目目录下：
 
 ```
 {项目目录}/
@@ -68,7 +68,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## 创作状态追踪
 
-`/开始` 扫描 `~/short-drama-projects/*/` 让用户选项目，选中后该项目的 `.drama-state.json` 即本会话活跃 state。详细规则（state schema 18 字段 / State 写入协议强制 Read-Modify-Write / 活跃项目识别 fallback）见 `references/project-management.md`。
+`/开始` 扫描 `~/short-drama-projects/*/` 让用户选项目，选中后该 `.drama-state.json` 即活跃 state。详细规则（state schema / fallback / 迁移白名单）见 `references/project-management.md`。**强制全局规则**：所有修改 state 的命令（`/开始` `/考据` `/角色开发` `/目录` `/分集` `/自检` `/角色卡` `/分镜`）必须 Read-Modify-Write，**严禁** overwrite（见 `project-management.md#state-写入协议`）。
 
 ## 参考资料
 
@@ -102,12 +102,12 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 **流程：**
 
 1. **扫描 + 列表（不依赖 cwd）：** 执行 `python3 {skill目录}/scripts/list_projects.py --format json` 扫 `~/short-drama-projects/*/` 收集合法 state（含 `projectName` 或 `dramaTitle`）。分支：
-   - **0 项目 + cwd 有 state**（v1.10-v1.12 老用户兼容）→ 加载 cwd state，询问"[1] 就地继续 / [2] 迁移到 `~/short-drama-projects/<X>/`（推荐，启用多项目切换）"。选 2 则 mv 文件 + state 加 `projectName`
-   - **0 项目 + cwd 无 state** → 询问"项目名？" → 走 `/新建` 语义
-   - **1 项目** → 输出"欢迎回来《X》，阶段 Y，进度 N/M。继续？[Y/新建]"
-   - **≥2 项目** → 按 mtime 降序列表，每行 `N. 《X》阶段Y（mtime）`，末尾加"N+1. 新建一本"。回复数字或新剧名
+   - **cwd 有 state 且 cwd 不在扫描结果中**（v1.10-v1.12 老用户兼容，宽松 fallback 条件，详见 `project-management.md#向后兼容-fallback`）→ 触发迁移 fallback（不管扫描结果有几项）
+   - **扫描空 + cwd 无 state** → 询问"项目名？" → 走 `/新建` 语义
+   - **扫描 1 项目（且无 cwd 孤立 state）** → "欢迎回来《X》，阶段 Y，进度 N/M。继续？[Y/新建]"
+   - **扫描 ≥2 项目** → 按 mtime 降序列表，每行 `N. 《X》阶段Y（mtime）`，末尾加 "N+1. 新建一本"。用户回复**必须是纯数字**对应项目/新建，**新剧名须用 `/新建 <项目名>` 显式表达**（避免"数字 vs 同名项目"歧义）
 2. **加载后分支**：`currentStep` 非空 → 欢迎回来 + 进度 + 等命令，不进 Step 3；`currentStep` 为空（stub）→ "欢迎来到《X》" + 直接进 Step 3
-3. **活跃项目锚定（强制）**：选中后 LLM 用绝对路径 `~/short-drama-projects/<projectName>/` 读写所有产出，**不依赖 cwd**。WorkBuddy 用户零切换
+3. **活跃项目锚定 + 重入**：选中后 LLM 用绝对路径 `~/short-drama-projects/<projectName>/` 读写所有产出，**不依赖 cwd**。WorkBuddy 用户零切换。已加载活跃项目时再次 `/开始` → 重走扫描列表（允许切换），老 state 已持久化安全
 
 4. **锁定观众：** "这个故事给谁看？男性向 / 女性向 / 男女通吃？"——短剧创作的第一步不是构思剧情，是锁定观众。
 
@@ -203,7 +203,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **输出格式：** 见 `references/output-templates.md#考据`
 
-**输出：** `setting-bible.md` + `research-cache/`（auto 模式）+ 更新 `.drama-state.json` 的 `settingBibleStatus`/`bibleScope`
+**输出：** `setting-bible.md` + `research-cache/`（auto 模式）+ 更新 `.drama-state.json` 的 `settingBibleStatus`/`bibleScope`（按 `project-management.md#state-写入协议` Read-Modify-Write）
 
 **结束提示：** `[完成] setting-bible.md 已建立（{N} verified / {M} 待核源）。输入 /目录 继续`
 
@@ -390,7 +390,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **输出格式：** 见 `references/output-templates.md#角色卡`
 
-**更新 `.drama-state.json`：** 将角色名加入 `characterCardsGenerated` 数组
+**更新 `.drama-state.json`：** 将角色名加入 `characterCardsGenerated` 数组（按 `project-management.md#state-写入协议` Read-Modify-Write）
 
 ---
 
@@ -424,7 +424,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **批量处理：** `/分镜 3-5` 时逐集生成，每集一个独立文件。完成后提示可用 `python scripts/merge_storyboard.py --episodes 3-5` 合并。
 
-**更新 `.drama-state.json`：** 将集数加入 `storyboardedEpisodes` 数组
+**更新 `.drama-state.json`：** 将集数加入 `storyboardedEpisodes` 数组（按 `project-management.md#state-写入协议` Read-Modify-Write）
 
 ---
 
@@ -469,13 +469,13 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### /项目状态
 
-**功能：** 生成/更新当前项目的 `README.md`（剧名 + 当前阶段 + 进度 + 下一步命令建议）。
+**功能：** 生成/更新当前活跃项目的 `README.md`（剧名 + 当前阶段 + 进度 + 下一步命令建议）。
 
-**前置条件：** cwd 为含 `.drama-state.json` 的项目目录。
+**前置条件：** 已有活跃项目（`/开始` 选过或 mtime fallback 加载，**不依赖 cwd**）。
 
 **输出格式：** 见 `references/output-templates.md#README`
 
-**输出：** 当前项目根的 `README.md`（覆盖写入）。
+**输出：** `~/short-drama-projects/<projectName>/README.md`（绝对路径，覆盖写入）。
 
 ---
 
