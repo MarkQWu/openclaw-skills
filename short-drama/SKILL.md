@@ -68,7 +68,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## 创作状态追踪
 
-每次对话开始时，检查项目目录下是否已有 `.drama-state.json` 自动恢复进度。state schema 完整字段定义（17 字段，含 currentStep/genre/audience/tone/totalEpisodes/completedEpisodes/characterCardsGenerated/storyboardedEpisodes/qualityScores/language/mode/dramaTitle/shotDensity/seedIdea/logline/settingBibleStatus/bibleScope/researchIntensity）见 `references/project-management.md#state-schema`。
+`/开始` 扫描 `~/short-drama-projects/*/` 让用户选项目，选中后该项目的 `.drama-state.json` 即本会话活跃 state。详细规则（state schema 18 字段 / State 写入协议强制 Read-Modify-Write / 活跃项目识别 fallback）见 `references/project-management.md`。
 
 ## 参考资料
 
@@ -97,31 +97,32 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### /开始
 
-**功能：** 选题定位，确定创作方向。想新建另一本剧本用 `/新建 <项目名>`。
+**功能：** 入口命令。列出所有项目让用户选（继续某本 / 新建一本）。无需用户切换工作目录。
 
 **流程：**
 
-1. **定位项目目录（先于一切其他 Step）：** 检查当前工作目录：
-   - **cwd 有 `.drama-state.json`** → 读取 state：
-     - `currentStep` 非空（真实旧项目） → 输出"欢迎回来：《{dramaTitle}》，当前阶段 {currentStep}，已完成 {completedCount}/{totalEpisodes}。继续创作：`/分集 {下一集}` 或对应阶段命令。如要新建剧本，输入 `/新建 <新项目名>`"。停在此处等用户指令，不进 Step 2
-     - `currentStep` 为空（`/新建` 预写的 stub）→ 输出"欢迎来到《{dramaTitle}》，我们来定方向。" **直接进 Step 2** 锁定观众，不再询问项目名
-   - **cwd 无 `.drama-state.json`、且目录为空/不存在** → 询问"项目名？"（支持中文）。得到项目名后 `mkdir -p ~/short-drama-projects/<项目名>/`，提示"项目目录已创建：`~/short-drama-projects/<项目名>/`，后续命令请在该目录下执行（WorkBuddy 用户需手动切换工作目录）"，进入 Step 2
-   - **cwd 无 `.drama-state.json`、但目录非空**（有其他文件）→ 警告"当前目录已有其他文件，继续会在 `~/short-drama-projects/<项目名>/` 新建子目录（不污染当前 cwd）。是否继续？（输入项目名确认 / 回复'取消'退出）"。用户给项目名则走上条分支流程
+1. **扫描 + 列表（不依赖 cwd）：** 执行 `python3 {skill目录}/scripts/list_projects.py --format json` 扫 `~/short-drama-projects/*/` 收集合法 state（含 `projectName` 或 `dramaTitle`）。分支：
+   - **0 项目 + cwd 有 state**（v1.10-v1.12 老用户兼容）→ 加载 cwd state，询问"[1] 就地继续 / [2] 迁移到 `~/short-drama-projects/<X>/`（推荐，启用多项目切换）"。选 2 则 mv 文件 + state 加 `projectName`
+   - **0 项目 + cwd 无 state** → 询问"项目名？" → 走 `/新建` 语义
+   - **1 项目** → 输出"欢迎回来《X》，阶段 Y，进度 N/M。继续？[Y/新建]"
+   - **≥2 项目** → 按 mtime 降序列表，每行 `N. 《X》阶段Y（mtime）`，末尾加"N+1. 新建一本"。回复数字或新剧名
+2. **加载后分支**：`currentStep` 非空 → 欢迎回来 + 进度 + 等命令，不进 Step 3；`currentStep` 为空（stub）→ "欢迎来到《X》" + 直接进 Step 3
+3. **活跃项目锚定（强制）**：选中后 LLM 用绝对路径 `~/short-drama-projects/<projectName>/` 读写所有产出，**不依赖 cwd**。WorkBuddy 用户零切换
 
-2. **锁定观众：** "这个故事给谁看？男性向 / 女性向 / 男女通吃？"——短剧创作的第一步不是构思剧情，是锁定观众。
+4. **锁定观众：** "这个故事给谁看？男性向 / 女性向 / 男女通吃？"——短剧创作的第一步不是构思剧情，是锁定观众。
 
-3. **一个入口：** "说说你想写什么，多少都行——可以是一个完整故事，也可以只是一个画面、一句话，甚至只说'不知道'。"
+5. **一个入口：** "说说你想写什么，多少都行——可以是一个完整故事，也可以只是一个画面、一句话，甚至只说'不知道'。"
 
    AI 根据用户输入的丰富度自动判断下一步（用户不需要知道有几条路径）：
    - **输入丰富**（完整梗概/甲方需求）→ AI 提取题材/基调，直接展示推荐配置确认
    - **输入模糊**（一个念头/画面/情绪/世界观设定）→ AI 在「目标读者」约束下发散 3 个故事方向（每个含 logline + 推荐题材 + 基调），用户选一个或混搭，然后展示推荐配置确认
    - **输入为空**（"不知道"/"没想法"）→ 按读者性别展示热门题材（从 genre-guide.md 加载），用户选择后展示推荐配置确认
 
-   用户的原始输入保存到 `seedIdea`，brainstorm 选定的方向保存到 `logline`（供 /创作方案 作为故事起点）。brainstorm 发散的**全部 3 个方向**（选中 + 2 个淘汰，每个含 logline + 淘汰理由）写入 `brainstorm.md#方向草案` 供回看。
+   用户的原始输入保存到 `seedIdea`，brainstorm 选定的方向保存到 `logline`。brainstorm 发散的**全部 3 个方向**（选中 + 2 个淘汰）写入 `brainstorm.md#方向草案` 供回看。
 
-4. **推荐配置确认（选择题模式）：** 根据已确定的题材，从 `genre-guide.md#题材推荐配置映射表` 查出推荐值，一次性展示推荐配置卡（受众细分/基调/结局/集数/语言各一行，每项标 [推荐]）。用户回复"确认"一步到位，或回复修改项微调，或回复"展开"查看完整选项。每次修改配置时，把决策过程（修改项/用户回复/最终值/ISO 时间戳）追加到 `brainstorm.md#配置决策历史`。
+6. **推荐配置确认（选择题模式）：** 根据已确定的题材，从 `genre-guide.md#题材推荐配置映射表` 查出推荐值，一次性展示推荐配置卡（受众细分/基调/结局/集数/语言各一行，每项标 [推荐]）。用户回复"确认"或修改项。每次修改配置时，把决策过程追加到 `brainstorm.md#配置决策历史`。
 
-5. 如用户选择 English，自动切换为出海模式。汇总确认后，保存状态到 `.drama-state.json`
+7. 如用户选择 English，自动切换为出海模式。汇总确认后，按「state 写入协议」保存状态。
 
    **配置选项列表和题材→推荐映射表：** 见 `genre-guide.md#配置选项列表` 和 `genre-guide.md#题材推荐配置映射表`。
 
@@ -437,21 +438,22 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### /新建
 
-**功能：** 直接新建一本剧本，无论当前 cwd 状态如何（有/无 state、空/非空目录都可用）。
+**功能：** 直接新建一本剧本。**不依赖 cwd，不需要切换工作目录**。
 
-**用法：** `/新建 <项目名>`（项目名支持中文，必填）
+**用法：** `/新建 <项目名>`（必填，支持中文）
 
 **流程：**
-1. 执行 `mkdir -p ~/short-drama-projects/<项目名>/`
-2. **预写 stub `.drama-state.json`**（放在新项目目录下），内容：`{"dramaTitle": "<项目名>", "currentStep": ""}`。这样后续 `/开始` 能识别"有 state"但 currentStep 空，直接从 Step 2 锁定观众开始，不再重问项目名
-3. 输出："项目目录已创建：`~/short-drama-projects/<项目名>/`（已预写 state，剧名已记录）。请切换 WorkBuddy/终端 工作目录到此，再输入 `/开始` 继续（会直接进入选题流程，无需重输剧名）"
-4. 不自动进入 Step 2（WorkBuddy 无法代用户 cd，需用户手动切换后再 `/开始`）
 
-**`/开始` 遇到 stub state 的行为（currentStep 为空 = 刚 /新建 还没跑过选题）：** 跳过"欢迎回来"分支的全进度展示，直接打招呼"欢迎来到《{dramaTitle}》" + 进 Step 2。
+1. **参数验证**（详见 `references/project-management.md#项目名验证`）：空/分隔符 `/\`/Windows 非法 `:*?"<>|`/`.`/`..`/长度>50 → 拒绝并重输；两端空格 trim
+2. **重名保护（强制）**：检查 `~/short-drama-projects/<项目名>/.drama-state.json`：
+   - 存在 + `currentStep` 非空 → **拒绝**："《X》已存在（阶段 Y, 进度 N/M）。继续用 `/开始`，或换新名"
+   - 存在 + `currentStep` 为空（stub 残留）→ 覆盖 stub（安全）
+   - 损坏 JSON → 询问覆盖重建
+   - 不存在 → 继续
+3. **建目录 + 写完整 stub state**（18 字段）：`mkdir -p ~/short-drama-projects/<项目名>/` + 写 `.drama-state.json`，stub 模板见 `references/project-management.md#stub-state`（仅 projectName/dramaTitle 填值，其他字段初始化为空数组/对象/字符串）
+4. 输出："项目《X》已创建。输入 `/开始` 进入选题流程"
 
-**与 `/开始` 的分工：**
-- `/开始` = 继续当前项目 / 在空目录从头建 / 进入 `/新建` 刚建好的目录首次选题
-- `/新建 <项目名>` = 不管在哪，直接建一个新剧本目录（预写 state 避免重输剧名）
+**与 `/开始` 分工：** `/开始` = 入口扫描 + 让用户选；`/新建` = 显式新建，不进选择列表
 
 ---
 

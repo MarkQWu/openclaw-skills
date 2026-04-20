@@ -37,16 +37,25 @@ def scan_projects(root: Path) -> list[dict]:
         total = state.get("totalEpisodes") or 0
         mtime = datetime.fromtimestamp(child.stat().st_mtime)
 
+        current_step = state.get("currentStep") or ""
+        step_display = current_step if current_step else "-（未开始）"
+
         projects.append({
             "path": str(child),
             "name": child.name,
+            "projectName": state.get("projectName") or state.get("dramaTitle") or child.name,
             "dramaTitle": state.get("dramaTitle") or "-",
-            "currentStep": state.get("currentStep") or "-",
+            "currentStep": current_step,
+            "stepDisplay": step_display,
+            "isStub": not current_step,
             "mode": state.get("mode") or "domestic",
             "completed": len(completed) if isinstance(completed, list) else 0,
             "total": total,
             "modified": mtime.strftime("%Y-%m-%d %H:%M"),
+            "mtime": mtime.timestamp(),
         })
+
+    projects.sort(key=lambda p: p["mtime"], reverse=True)
 
     return projects
 
@@ -60,7 +69,7 @@ def print_table(projects: list[dict]) -> None:
     rows = [
         [
             p["dramaTitle"],
-            p["currentStep"],
+            p["stepDisplay"],
             p["mode"],
             f"{p['completed']}/{p['total']}" if p["total"] else f"{p['completed']}/-",
             p["modified"],
