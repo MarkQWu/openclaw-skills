@@ -292,15 +292,11 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 | 对白格式合规 | 硬约束 | 按 `.drama-state.json#mode` 分化：国内模式（含 mode 缺失/默认）扫全文对白是否含双引号；出海模式反向检查对白必须含双引号 | 违反 → 标【严重】不计入总分但阻断 /导出，提示修复 |
 | 破折号密度 | 硬约束 | 统计全集 `——` 出现次数 | <2 或 >5 → -2 分（从"格式与可拍性"维度扣）；用 `—` 或 `--` → 标【严重】 |
 
-**输出格式：** 见 `references/output-templates.md#自检`
+**输出/流程：** 输出格式 `output-templates.md#自检`；`--fix` 模式 + 分数持久化见 `quality-rules.md`。
 
-**--fix 模式：** 见 `references/quality-rules.md#--fix-模式流程`
+**评分标准：** 总分动态——厚型/中型 80（含第 8 维度），轻型 70（第 8 维度 N/A）。完整阈值+过稿预估见 `quality-rubric.md#评分标准与平台过稿预估`。
 
-**分数持久化：** 见 `references/quality-rules.md#分数持久化`
-
-**评分标准与平台过稿预估：** 总分动态——厚型/中型 满分 80（含第 8 维度），轻型满分 70（第 8 维度 N/A 不计入）。完整阈值表和过稿预估见 `references/quality-rubric.md#评分标准与平台过稿预估`。
-
-**结束提示：** 根据评分给出建议（重写/微调/通过）。不合格时额外警告：`[注意] 本集自检不合格（{X}/{满分}），/导出 将被阻断。请修改后重新 /自检`
+**结束提示：** 给出建议（重写/微调/通过）。不合格额外警告：`[注意] 本集自检不合格（{X}/{满分}），/导出 将被阻断。请修改后重新 /自检`
 
 ---
 
@@ -459,11 +455,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### /项目列表
 
-**功能：** 扫描 `~/short-drama-projects/` 下所有项目，输出表格（剧名/当前阶段/已完成集数/最近修改时间）。
-
-**实现：** 调用 `python3 {skill目录}/scripts/list_projects.py`（可选 `--dir <自定义路径>`）
-
-**输出：** 终端表格，无文件产出。
+**功能：** 扫 `~/short-drama-projects/` 输出表格（剧名/阶段/进度/mtime）。实现：`python3 {skill目录}/scripts/list_projects.py`（可选 `--dir`）。无文件产出。
 
 ---
 
@@ -476,6 +468,14 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 **输出格式：** 见 `references/output-templates.md#README`
 
 **输出：** `~/short-drama-projects/<projectName>/README.md`（绝对路径，覆盖写入）。
+
+---
+
+### /使用说明
+
+**功能：** 浏览器打开本地 HTML 版使用说明（小白零技术文档）。
+
+**实现：** 按 OS 执行打开命令：Mac `open "{skill目录}/使用说明.html"` / Windows `start "" "{skill目录}\使用说明.html"` / Linux `xdg-open "{skill目录}/使用说明.html"`。失败则 Read `{skill目录}/使用说明.md` 在对话中展示。
 
 ---
 

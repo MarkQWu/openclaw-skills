@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爆款剧本工坊 · 使用说明</title>
+<style>
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #fafaf7;
+  color: #2c2c2c;
+  line-height: 1.7;
+  font-size: 16px;
+}
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #1a1a1a;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  color: #888;
+  font-size: 15px;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #eee;
+}
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 48px 0 16px 0;
+  color: #1a1a1a;
+  padding-left: 12px;
+  border-left: 4px solid #d4a574;
+}
+h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 24px 0 8px 0;
+  color: #444;
+}
+p { margin: 12px 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+th, td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+th {
+  background: #f5f2ec;
+  font-weight: 600;
+  color: #444;
+  font-size: 14px;
+}
+td { font-size: 15px; }
+tr:last-child td { border-bottom: none; }
+code {
+  background: #f0ece3;
+  color: #8b4513;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: "SF Mono", Consolas, "Courier New", monospace;
+  font-size: 14px;
+}
+pre {
+  background: #2d2d2d;
+  color: #f0f0f0;
+  padding: 18px 22px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: "SF Mono", Consolas, "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: 14px;
+}
+.scenario {
+  background: white;
+  padding: 20px 24px;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.dialog {
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #444;
+  white-space: pre-wrap;
+}
+.dialog .user { color: #2c6cb3; font-weight: 500; }
+.dialog .assistant { color: #8b4513; }
+ul { padding-left: 24px; margin: 12px 0; }
+li { margin: 6px 0; }
+.faq {
+  margin: 24px 0;
+  padding: 16px 20px;
+  background: white;
+  border-left: 3px solid #d4a574;
+  border-radius: 4px;
+}
+.faq .q {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+.faq .a { color: #555; }
+.highlight {
+  background: #fff5e6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.command-list {
+  background: #1a1a1a;
+  color: #d4d4d4;
+  padding: 20px 24px;
+  border-radius: 8px;
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.command-list .cmd { color: #6ec9dc; }
+.command-list .desc { color: #a8a89e; }
+.heart {
+  background: linear-gradient(135deg, #fff9f0, #fff5e6);
+  padding: 24px 28px;
+  border-radius: 10px;
+  margin: 32px 0;
+  border: 1px solid #f0e6d4;
+}
+.heart ul { margin: 8px 0; }
+.ok { color: #2e8b57; font-weight: 500; }
+.no { color: #c0392b; font-weight: 500; }
+hr { border: none; border-top: 1px solid #e5e5e5; margin: 48px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>爆款剧本工坊</h1>
+<div class="subtitle">使用说明 · 零技术门槛 · 只需 2 个命令</div>
+
+<h2>只记 2 个命令就够</h2>
+<table>
+<thead><tr><th>我想做</th><th>输入</th></tr></thead>
+<tbody>
+<tr><td>开始 / 继续写剧本</td><td><code>/开始</code></td></tr>
+<tr><td>另开一本新剧本</td><td><code>/新建 剧名</code></td></tr>
+</tbody>
+</table>
+<p>其他都可以忘。</p>
+
+<h2>场景 A · 第一次用</h2>
+<div class="scenario">
+<div class="dialog">
+<span class="user">你 → /开始</span>
+
+<span class="assistant">Claude → 看起来你还没有剧本。项目名？</span>
+
+<span class="user">你 → 都市神医</span>
+
+<span class="assistant">Claude → 已创建项目《都市神医》。
+        这个故事给谁看？男性向 / 女性向 / 男女通吃？</span>
+</div>
+<p style="margin-top: 16px; color: #777;">（接下来按 Claude 一步步引导走完选题即可）</p>
+</div>
+
+<h2>场景 B · 同时写两本剧本</h2>
+<p>已经在写《<PROJECT_REDACTED>》，想开第二本：</p>
+<div class="scenario">
+<div class="dialog">
+<span class="user">你 → /新建 都市神医</span>
+
+<span class="assistant">Claude → 项目《都市神医》已创建。输入 /开始 进入</span>
+
+<span class="user">你 → /开始</span>
+
+<span class="assistant">Claude → 你的剧本：
+        1. 《<PROJECT_REDACTED>》分集 25/30（2天前）
+        2. 《都市神医》未开始（刚刚）
+        3. 新建一本剧本
+
+        回复数字或新剧名</span>
+
+<span class="user">你 → 2</span>
+
+<span class="assistant">Claude → 欢迎来到《都市神医》，我们来定方向。</span>
+</div>
+<p style="margin-top: 16px; color: #777;">两本互不干扰，随时 <code>/开始</code> 再选数字即可切换。</p>
+</div>
+
+<h2>场景 C · 回来继续写</h2>
+<div class="scenario">
+<div class="dialog">
+<span class="user">你 → /开始</span>
+
+<span class="assistant">Claude → 你的剧本：
+        1. 《<PROJECT_REDACTED>》分集 25/30（2天前）
+        2. 《都市神医》创作方案（刚刚）
+        3. 新建一本剧本
+
+        回复数字或新剧名</span>
+
+<span class="user">你 → 1</span>
+
+<span class="assistant">Claude → 欢迎回来：《<PROJECT_REDACTED>》，阶段 分集，进度 25/30。
+         继续写 /分集 26</span>
+
+<span class="user">你 → /分集 26</span>
+</div>
+</div>
+
+<h2>常用命令速查</h2>
+<div class="command-list">
+<div><span class="cmd">/开始</span>              <span class="desc">总入口：列出所有剧本让你选（继续/新建）</span></div>
+<div><span class="cmd">/新建 剧名</span>        <span class="desc">直接新建一本新剧本</span></div>
+<div><span class="cmd">/分集 1</span>            <span class="desc">写第 1 集（批量 /分集 5-8，续写 /分集 next）</span></div>
+<div><span class="cmd">/自检 1</span>            <span class="desc">质检第 1 集（自动修复 /自检 1 --fix）</span></div>
+<div><span class="cmd">/合规</span>              <span class="desc">国内发行合规审核</span></div>
+<div><span class="cmd">/导出</span>              <span class="desc">打包完整剧本（Word: /导出 --docx）</span></div>
+<div><span class="cmd">/项目列表</span>          <span class="desc">看所有剧本进度一览</span></div>
+<div><span class="cmd">/使用说明</span>          <span class="desc">打开本使用说明</span></div>
+<div><span class="cmd">/帮助</span>              <span class="desc">完整命令列表</span></div>
+</div>
+
+<h2>常见问题</h2>
+
+<div class="faq">
+<div class="q">Q1. 我刚 /新建 了，但 /开始 列表找不到？</div>
+<div class="a">确认项目名拼写。再输 <code>/项目列表</code> 看所有剧本。</div>
+</div>
+
+<div class="faq">
+<div class="q">Q2. 我在 WorkBuddy Windows 用，需要切换工作目录吗？</div>
+<div class="a"><span class="ok">不需要</span>。v1.13.0 起所有剧本自动存到统一位置 <code>~/short-drama-projects/</code>（Windows：<code>C:\Users\你的用户名\short-drama-projects\</code>）。你只管用 <code>/开始</code> 和 <code>/新建</code>，Claude 帮你处理路径。</div>
+</div>
+
+<div class="faq">
+<div class="q">Q3. 我以前用 v1.10 或 v1.12 写过剧本，升级后剧本会丢吗？</div>
+<div class="a">不会。首次 <code>/开始</code> 时，Claude 会检测到你的老剧本，询问：
+<ul>
+<li><strong>[1] 就地继续</strong>（兼容模式，以后不会在 <code>/项目列表</code> 里出现）</li>
+<li><strong>[2] 迁移到新位置</strong>（推荐，以后多剧本切换更方便）</li>
+</ul>
+选 [2] Claude 会自动把剧本文件移到新位置，集数、人物、配置全部保留。</div>
+</div>
+
+<div class="faq">
+<div class="q">Q4. /新建 <PROJECT_REDACTED>，但已经有同名项目怎么办？</div>
+<div class="a">Claude 会拒绝并提示：<code>《<PROJECT_REDACTED>》已存在（阶段 X, 进度 N/M）。继续用 /开始 选该项目，或换新名</code>。防止误覆盖。</div>
+</div>
+
+<div class="faq">
+<div class="q">Q5. 项目名有什么规则？</div>
+<div class="a">
+<p><span class="ok">✅ 可以</span>：中文、数字、英文、空格、基本标点</p>
+<p><span class="no">❌ 不能</span>：斜杠 <code>/</code> <code>\</code>、冒号 <code>:</code>、问号 <code>?</code>、星号 <code>*</code>、引号 <code>"</code>、尖括号 <code>&lt;</code> <code>&gt;</code>、竖线 <code>|</code>、单独的 <code>.</code> 或 <code>..</code></p>
+<p>长度超 50 字符会警告但可确认。</p>
+</div>
+</div>
+
+<div class="faq">
+<div class="q">Q6. 我不小心删了 .drama-state.json 怎么办？</div>
+<div class="a">集数内容（<code>episodes/*.md</code>）还在 → 可以手动重写 state（联系作者协助）。只是迷失了进度感 → <code>/开始</code> + 选该项目，Claude 会根据 <code>episodes/</code> 目录重建进度感。</div>
+</div>
+
+<div class="faq">
+<div class="q">Q7. /更新 拉不到新版本？</div>
+<div class="a">检查网络 + 确认 skill 目录可写。还不行联系作者。</div>
+</div>
+
+<div class="faq">
+<div class="q">Q8. 我想把剧本 A 的某一集复制到剧本 B？</div>
+<div class="a">目前不支持跨剧本复制。手动去 <code>~/short-drama-projects/剧本A/episodes/</code> 下找对应 <code>ep00X.md</code> 复制。</div>
+</div>
+
+<h2>剧本文件都存在哪？</h2>
+<p>统一位置：<code>~/short-drama-projects/&lt;剧名&gt;/</code></p>
+<p>每本剧包含：</p>
+<pre><code>剧名/
+├── .drama-state.json     # 进度（自动维护，别删）
+├── brainstorm.md         # 构思记录
+├── creative-plan.md      # 创作方案
+├── characters.md         # 角色档案
+├── episode-directory.md  # 分集目录
+├── episodes/             # 分集剧本
+│   ├── ep001.md
+│   └── ...
+├── export/               # 导出文件
+│   └── 剧名-完整剧本.docx
+└── README.md             # 项目自述（/项目状态 生成）</code></pre>
+<p>想备份某本剧？<span class="highlight">直接复制整个剧名文件夹即可</span>。</p>
+
+<div class="heart">
+<h3 style="margin-top: 0;">核心心法</h3>
+<ul>
+<li><strong>不用记路径</strong>：所有剧本自动在 <code>~/short-drama-projects/</code></li>
+<li><strong>不用切目录</strong>：<code>/开始</code> 让 Claude 帮你定位</li>
+<li><strong>不怕多本剧</strong>：<code>/开始</code> 列表选数字秒切换</li>
+<li><strong>不怕同名误覆盖</strong>：<code>/新建</code> 自动拒绝重名在建项目</li>
+</ul>
+<p style="margin-bottom: 0;">有问题看 <code>/帮助</code> 或联系作者。</p>
+</div>
+
+<hr>
+<p style="color: #888; font-size: 13px; text-align: center;">
+爆款剧本工坊 | 由 gobuildit 社区维护<br>
+输入 <code>/使用说明</code> 随时打开本页面
+</p>
+
+</div>
+</body>
+</html>
