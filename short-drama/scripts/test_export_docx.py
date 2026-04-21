@@ -213,7 +213,7 @@ def test_export_template_structure():
         md.write_text("""\
 # 命运的约定
 
-| 编剧 | <USER_REDACTED> | 类型 | 甜宠·逆袭 |
+| 编剧 | 示例编剧 | 类型 | 甜宠·逆袭 |
 |------|---------|------|-----------|
 | 集数 | 2/50 | 总字数 | 约3000字 |
 
@@ -258,7 +258,7 @@ def test_export_template_structure():
 
         # 三段式结构验证
         assert_true("命运的约定" in text, "剧名存在")
-        assert_true("<USER_REDACTED>" in text, "编剧信息存在")
+        assert_true("示例编剧" in text, "编剧信息存在")
         assert_true("甜宠·逆袭" in text, "类型信息存在")
         assert_true("九天玄女" in text, "故事线存在")
         assert_true("林雨欣" in text, "角色表存在")
@@ -267,7 +267,7 @@ def test_export_template_structure():
         assert_true("第2集" in text, "第2集存在")
 
         # 验证顺序：元信息在角色前，角色在剧本前
-        idx_meta = text.find("<USER_REDACTED>")
+        idx_meta = text.find("示例编剧")
         idx_role = text.find("外冷内热")
         idx_ep1 = text.find("仙女下凡")
         assert_true(idx_meta < idx_role < idx_ep1, "三段式顺序正确：元信息→角色→剧本",
