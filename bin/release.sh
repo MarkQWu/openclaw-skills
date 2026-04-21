@@ -1,120 +1,87 @@
 #!/bin/bash
-# release.sh: 一键发布 — VERSION + README + CHANGELOG检查 + commit + tag + push + 同步
+# release.sh: 一键发布 — 更新 master VERSION → sync 5 副本 → 更新 README → commit + tag + push → GH Actions 自动建 Release
 set -euo pipefail
 
-VERSION="$1"
-SUMMARY="${2:-}"  # 可选：一句话摘要（用于 README 第192行）
+VERSION="${1:-}"
+SUMMARY="${2:-}"
 
 if [ -z "$VERSION" ] || ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-  echo "用法: bin/release.sh <版本号> [一句话摘要]"
-  echo "  例: bin/release.sh 1.10.0 '红果过稿标准编码 + 自检评分校准'"
+  echo "用法: release.sh <版本号> [一句话摘要]"
+  echo "  例: release.sh 1.15.2 'release 工具链工程化'"
   exit 1
 fi
 
 TODAY=$(date +%Y-%m-%d)
+MASTER_DIR="$HOME/.claude/skills/short-drama"
+REPO_DIR="$HOME/.claude/.skill-repos/openclaw-skills"
 
-# 平台检测（sed -i 兼容）
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  SED_I="sed -i ''"
-else
-  SED_I="sed -i"
+if [ ! -d "$MASTER_DIR" ]; then
+  echo "❌ 权威 master 目录不存在：$MASTER_DIR"
+  exit 1
+fi
+
+if [ ! -d "$REPO_DIR/.git" ]; then
+  echo "❌ openclaw-skills 仓库不存在：$REPO_DIR"
+  exit 1
 fi
 
 echo "📦 发布 v${VERSION} ..."
 
-# 1. 写 VERSION
-echo "$VERSION" > short-drama/VERSION
-echo "  ✅ VERSION → ${VERSION}"
+# 1. 更新权威 master 的 VERSION
+echo "$VERSION" > "$MASTER_DIR/VERSION"
+echo "  ✅ master VERSION → ${VERSION}"
 
-# 2. 更新 README 第3行（版本号+日期）
+# 2. Sync master → 5 副本（含 openclaw-skills 仓库）
+echo ""
+echo "📂 Sync master → 5 副本..."
+bash "$MASTER_DIR/scripts/sync-all-locations.sh"
+
+# 3. 切到 openclaw-skills 仓库，更新 README 并提交
+cd "$REPO_DIR"
+
+# README 第 3 行（版本号 + 日期）
 sed -i '' "s/\*\*当前版本：v[0-9]*\.[0-9]*\.[0-9]*\*\*（[0-9-]*）/**当前版本：v${VERSION}**（${TODAY}）/" README.md
-echo "  ✅ README 第3行 → v${VERSION}（${TODAY}）"
+echo "  ✅ README 第 3 行 → v${VERSION}（${TODAY}）"
 
-# 3. 更新 README 第192行（最新版本行）
+# README 最新版本行
 if [ -n "$SUMMARY" ]; then
   sed -i '' "s/最新版本：\*\*v[0-9]*\.[0-9]*\.[0-9]*\*\*（[^）]*）—.*/最新版本：**v${VERSION}**（${TODAY}）— ${SUMMARY}/" README.md
-  echo "  ✅ README 第192行 → v${VERSION} — ${SUMMARY}"
+  echo "  ✅ README 最新版本行 → v${VERSION} — ${SUMMARY}"
 else
-  sed -i '' "s/最新版本：\*\*v[0-9]*\.[0-9]*\.[0-9]*\*\*（[^）]*）—.*/最新版本：**v${VERSION}**（${TODAY}）— 见 CHANGELOG.md/" README.md
-  echo "  ⚠️  README 第192行 → v${VERSION}（未提供摘要，默认指向 CHANGELOG）"
+  sed -i '' "s/最新版本：\*\*v[0-9]*\.[0-9]*\.[0-9]*\*\*（[^）]*）—.*/最新版本：**v${VERSION}**（${TODAY}）— 见 commit 与 GitHub Release/" README.md
+  echo "  ⚠️  README 最新版本行 → v${VERSION}（未提供摘要）"
 fi
 
-# 4. CHANGELOG 检查
-if ! grep -q "## ${TODAY} · v${VERSION%%.*}.${VERSION#*.}" CHANGELOG.md 2>/dev/null; then
-  echo ""
-  echo "  ⚠️  CHANGELOG.md 中未找到 v${VERSION} 条目"
-  echo "  请确认 CHANGELOG.md 已手动更新后继续"
-  read -p "  按回车继续，或 Ctrl+C 取消: "
-fi
-
-# 5. Stage + commit + tag
-git add short-drama/VERSION README.md CHANGELOG.md
-git commit -m "release: v${VERSION} — ${SUMMARY:-见 CHANGELOG.md}"
+# 4. Stage + commit + tag（包含 sync 带来的 short-drama/ 变化）
+git add short-drama README.md
+git commit -m "release: v${VERSION} — ${SUMMARY:-see commit and GitHub Release}"
 git tag "v${VERSION}"
 echo "  ✅ commit + tag v${VERSION}"
 
-# 6. Push
+# 5. Push main + tag（tag push 触发 GH Actions workflow 建 Release）
 git push origin main --tags
 echo "  ✅ 已推送到 GitHub"
 
-# 7. 同步安装位置
-TARGETS=(
-  "$HOME/.claude/skills/short-drama"
-  "$HOME/.workbuddy/skills/short-drama"
-  "$HOME/.openclaw/skills/short-drama"
-)
-
+# 6. 等 GH Actions workflow 并验证 Release 建立
 echo ""
-echo "📂 同步安装位置..."
+echo "⏳ 等待 GH Actions workflow 建 Release（15s）..."
+sleep 15
 
-for target in "${TARGETS[@]}"; do
-  if [ -d "$target" ]; then
-    rsync -a --delete short-drama/ "$target/"
-    echo "  ✅ $target"
-  else
-    echo "  ⏭️  跳过 $target（目录不存在）"
-  fi
-done
-
-# .tools/ 克隆（git pull）
-TOOLS_DIR="$HOME/碳基生命数据库/.tools/openclaw-skills"
-if [ -d "$TOOLS_DIR/.git" ]; then
-  (cd "$TOOLS_DIR" && git pull origin main --quiet)
-  echo "  ✅ $TOOLS_DIR (git pull)"
+if ! gh release view "v${VERSION}" --repo MarkQWu/openclaw-skills > /dev/null 2>&1; then
+  echo "  ⚠️  Release v${VERSION} 未建 — GH Actions workflow 可能失败或延迟"
+  echo "      查看运行日志：gh run list --repo MarkQWu/openclaw-skills --limit 3"
+  echo "      手动补建：gh release create v${VERSION} --repo MarkQWu/openclaw-skills --generate-notes"
 else
-  echo "  ⏭️  跳过 $TOOLS_DIR（非 git 仓库）"
+  echo "  ✅ Release v${VERSION} 已建立"
 fi
 
-# 8. 验证
-echo ""
-echo "🔍 验证版本一致性..."
-FAIL=0
-for target in "${TARGETS[@]}"; do
-  if [ -d "$target" ]; then
-    TARGET_VER=$(cat "$target/VERSION" 2>/dev/null || echo "missing")
-    if [ "$TARGET_VER" != "$VERSION" ]; then
-      echo "  ❌ $target → $TARGET_VER (期望 $VERSION)"
-      FAIL=1
-    fi
-  fi
-done
-
-if [ -d "$TOOLS_DIR" ]; then
-  TOOLS_VER=$(cat "$TOOLS_DIR/short-drama/VERSION" 2>/dev/null || echo "missing")
-  if [ "$TOOLS_VER" != "$VERSION" ]; then
-    echo "  ❌ $TOOLS_DIR → $TOOLS_VER (期望 $VERSION)"
-    FAIL=1
-  fi
-fi
-
-if [ "$FAIL" -eq 0 ]; then
-  echo "  ✅ 所有位置版本一致：v${VERSION}"
-else
-  echo "  ⚠️  存在版本不一致，请手动检查"
-fi
-
+# 7. 完工提醒
 echo ""
 echo "🎉 v${VERSION} 发布完成！"
+echo ""
+echo "🔔 人工环节提醒："
+echo "   1. 使用说明.md / 使用说明.html 是否需要同步新功能？"
+echo "   2. 飞书知识库是否同步？"
 echo ""
 echo "📣 是否需要对外宣传？"
 echo "   判断：用户可感知的功能变化？→ 宣传。纯重构/内部优化？→ 跳过。"
