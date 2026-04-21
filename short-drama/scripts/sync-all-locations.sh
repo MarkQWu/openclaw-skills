@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
-# 将 master short-drama/ 同步到 4 个已知副本位置
+# 将 master short-drama/ 同步到 5 个已知副本位置（含 master 自己，等效无操作）
 #
-# 使用场景：每次在 .tools/openclaw-skills/ 仓库 git push 后运行一次，
+# 使用场景：每次 release（git push + tag + GitHub Release）后运行一次，
 # 消除 5 副本不同步问题（详见 memory/feedback_openclaw-sync-all-locations.md）
+#
+# 5 副本清单（所有均指 short-drama/ 子目录）：
+#   1. ~/.claude/skills/                    （权威版本，主开发位置）
+#   2. ~/.claude/.skill-repos/openclaw-skills/  （git 仓库，push origin）
+#   3. ~/.workbuddy/skills/                 （WorkBuddy 运行时）
+#   4. ~/.openclaw/skills/                  （OpenClaw 运行时）
+#   5. ~/碳基生命数据库/.tools/openclaw-skills/  （vault 内独立 git 仓库，rsync 等效 git pull）
 #
 # 用法：
 #   bash scripts/sync-all-locations.sh          # 实际同步
@@ -29,6 +36,7 @@ DESTINATIONS=(
   "$HOME/.claude/skills/short-drama"
   "$HOME/.workbuddy/skills/short-drama"
   "$HOME/.openclaw/skills/short-drama"
+  "$HOME/碳基生命数据库/.tools/openclaw-skills/short-drama"
 )
 
 MASTER_VERSION=$(cat "$MASTER_DIR/VERSION" 2>/dev/null || echo "unknown")
