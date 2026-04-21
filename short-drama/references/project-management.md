@@ -97,7 +97,7 @@
 
 **关键**：必须写 **18 字段全集** 而非仅 2 字段，否则下游 Step 5 存 state 时 overwrite 会丢字段。
 
-## 重名保护（`/新建` 强制，防覆盖已有长篇项目）
+## 重名保护（`/新建` 强制，防覆盖已有项目）
 
 `/新建 X` 前检查 `~/short-drama-projects/X/.drama-state.json`：
 
@@ -140,7 +140,7 @@ json.dump({"currentStep": "创作方案", "genre": ["古装"]}, open(path, "w"))
 `/开始` 触发 fallback 的条件（宽松版，防已有项目失联）：
 
 - **条件 A**：扫描 `~/short-drama-projects/*/` 为空 AND cwd 有合法 `.drama-state.json`
-- **条件 B**：扫描结果中没有匹配 cwd 路径的项目，但 cwd 本身有合法 `.drama-state.json`（例：项目作者在别处手动建过 `~/short-drama-projects/测试/`，但真实 25 集项目仍在另一 cwd）
+- **条件 B**：扫描结果中没有匹配 cwd 路径的项目，但 cwd 本身有合法 `.drama-state.json`（例：作者在别处手动建过 `~/short-drama-projects/测试/`，但真实项目仍在另一 cwd）
 
 满足 A 或 B → fallback 流程：
 

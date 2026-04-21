@@ -28,6 +28,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 ├── setting-bible.md          # 考据 bible（/考据 生成，厚型题材必有）
 ├── research-cache/           # /考据 auto 检索原始缓存
 ├── episode-directory.md      # 分集目录
+├── used-lines.md             # 跨集台词去重清单（/分集 自动追加 + /自检 扫描）
 ├── episodes/                 # 分集剧本
 │   ├── ep001.md
 │   ├── ep002.md
@@ -57,6 +58,52 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 ## 参考资料
 
 所有方法论和模板位于 `references/` 目录。执行命令时按各命令定义中的「加载参考」字段读取对应文件；所有命令的输出格式模板统一在 `references/output-templates.md`。完整文件清单执行 `ls references/` 或见 git 仓库。
+
+---
+
+## anchor 触发机制（v1.15.0 新增 · MVP）
+
+**目的**：让模型在写本时调用对中文现象级 IP 的 implicit knowledge，提升输出调性，**但不破坏短剧节奏**。
+
+**触发哲学**：anchor 借的是 ① **想象力**（世界观厚度 / 设定颗粒度）② **角色调性** ③ **情绪锚点**。**禁止借**节奏、章节长度、铺垫密度——本剧节奏由【秒级节奏锚点】+【台词≤2 句】+【爽点≥3】等硬约束控制。
+
+### Phase 1 MVP 激活的 5 部 anchor（覆盖 5 题材）
+
+| 题材 | anchor | 借什么 hint |
+|---|---|---|
+| 都市情感 | 《何以笙箫默》（顾漫）| "克制深情"调性 |
+| 重生穿越 | 《庆余年》（猫腻）| 现代灵魂入古代权谋（优先调用范闲 + 叶轻眉遗志主轴）|
+| 古装宫廷 | 《后宫·甄嬛传》（流潋紫）| "由柔到狠"女性弧光 |
+| 励志逆袭 | 《平凡的世界》（路遥）| 反 AI slop 的真实质感 |
+| 悬疑探案 | 《隐秘的角落》（紫金陈）| 非警察视角黑色叙事 |
+
+详见 `references/anchor-library.md`（含 v2 灰度库 28 部 Phase 2 候选）。MVP 5 题材外（霸道总裁 / 甜宠 / 战神归来 / 家庭伦理 / 萌宝 / 软科幻 / 末日重生 / 喜剧 / 玄幻仙侠 / 现代都市异能 / 女频古代）**Phase 1 不触发 anchor**，正常进入下一阶段。
+
+### anchor prompt 模板（生成时 inline 到 prompt）
+
+```
+本剧创作借鉴 anchor：
+- 《[作品名]》（[作者]）：借[hint 描述]
+
+【重要】只借 anchor 的：① 想象力（世界观厚度）② 角色调性 ③ 情绪锚点
+【禁止】借 anchor 的节奏、章节长度、铺垫密度
+【硬约束优先】如与节奏锚点冲突，以节奏锚点为准
+【禁止复用】不得直接复用 anchor 原台词 / 标志性梗（详见 quality-rules.md anchor 同人化禁用词清单）
+【单集约束】本集只体现 anchor 人物**当下弧位的状态**（如"最柔"起点/"最低"低谷/"最冷"克制），不得把跨集弧光（由柔到狠、从底层到巅峰、多年等待等）压缩到单集展开
+```
+
+### 用户主动调用（C 模式）
+
+用户随时可以说：
+- 「换 anchor」/「换成《XX》」 → 修改 `creative-plan.md` 的 anchor 字段后重新写本
+- 「不用 anchor」 → 清空 anchor 字段，回到无 anchor 模式
+- 「显示 anchor 库」 → 读 `references/anchor-library.md` 列出可选 anchor 给用户
+
+### 失败模式 + 兜底（详见 quality-rules.md）
+
+- **F1 hallucinate**：禁止使用集数 / 章节号；只用人物 + 调性 + 一句话场景描述
+- **F2 节奏污染**：自检节奏维度扣分时自动追问"是否被 anchor 节奏污染" → 用户回 Y → 建议 `/分集 N --fix anchor-rhythm` 重写
+- **F4 同人化**：自检维度扫描 anchor 禁用词清单 → 命中扣分 + 标 `[anchor 同人化]`
 
 ---
 
@@ -122,7 +169,21 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 已完成 /开始
 
-**加载参考：** opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md
+**加载参考：** opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**
+
+**anchor 推荐步骤（v1.15.0 MVP，仅 5 题材触发）：**
+
+如选定题材是 MVP 5 题材之一（都市情感 / 重生穿越 / 古装宫廷 / 励志逆袭 / 悬疑探案），**生成内容前**先做 anchor 推荐：
+
+1. 从 `genre-guide.md` 的对应题材 `### anchor 参考` section 读 anchor 候选
+2. 基于 `seedIdea` + 题材 + anchor hint，生成推荐句（**严格用此模板**）：
+   > 你的 seedIdea「[seedIdea]」结合 [题材] 题材，建议借鉴《[anchor 作品名]》——借的是 [hint]，是否接受？[Y / 换 / N]
+3. 处理用户回复：
+   - **Y** → 把 anchor 写入 `creative-plan.md` 的 `anchor` 字段（含作品名 + 作者 + hint）
+   - **换** → MVP 5 题材每题材仅 1 部 anchor，"换"等同 N（直接进入 N 流程）。Phase 2 灰度库激活后才有第 2 候选
+   - **N** → 询问"想自己指定一部吗？（可选，输入作品名跳过推荐 / 回车跳过 anchor）" → 用户输入则记录到 `creative-plan.md` 的 `anchor.userSpecified=true`，不输入则清空 anchor 字段
+
+非 MVP 5 题材（霸道总裁 / 甜宠 / 战神归来 / 家庭伦理 / 萌宝 / 软科幻 / 末日重生 / 喜剧 / 玄幻仙侠 / 现代都市异能 / 女频古代）→ **跳过 anchor 推荐步骤**直接进入下方"生成内容"。
 
 **生成内容：**
 
@@ -229,7 +290,13 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 已完成 /目录
 
-**加载参考：** opening-rules.md（第1集时重点参考）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（质量要求和连贯性检查）, **setting-bible.md**（如存在，强制引用专业细节）
+**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（质量要求和连贯性检查）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）
+
+**anchor inline（v1.15.0 MVP）：** 如 `creative-plan.md` 有 `anchor` 字段（5 题材且用户接受了 anchor 推荐），把本 SKILL.md 顶部「anchor 触发机制」section 的 **anchor prompt 模板**填入实际 anchor 信息后 inline 到分集生成 prompt。如无 `anchor` 字段（用户回 N / 非 MVP 题材） → 跳过此步骤，按现有流程生成。
+
+**`--fix anchor-rhythm` 子命令：** 如 `/自检` 节奏维度扣分且诊断为 anchor 节奏污染（详见 quality-rules.md），用 `/分集 N --fix anchor-rhythm` 重写——本次生成**临时清空 anchor**（不写入 creative-plan.md，仅本次绕过 anchor），重新生成第 N 集。
+
+**破折号实时节制（硬约束，生成时边写边数）：** 单集 `——` 累计 ≤5 次。写到第 5 次后**立刻换其他停顿手段**（逗号+动作描写 / 换对话轮次 / 中文省略号「…」），不把它留给 /自检 再返工。双层防线：生成层此约束 + 自检层事后扣分（见 `/自检` 破折号密度硬约束）。
 
 **专业细节引用规则（bible 存在时强制）：** 详见 `references/quality-rules.md#考据可追溯性自检流程`。核心原则：所有专业术语/官名/制度/数字/药物剂量/法条必须映射到 bible，否则改模糊或标 `[虚构]`。
 
@@ -245,7 +312,11 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **输出：** 保存为 `episodes/ep{NNN}.md`（三位数补零）
 
+**写完后强制追加 used-lines.md（跨集台词去重）：** 本集保存后，提取 3-5 条"高复读风险台词"（情绪锚句 / 遗言告别 / 口头禅 / 3 字以上标志性形容词组合 / 特殊意象），按 Read-Modify-Write 协议追加到 `used-lines.md` 新 section `## ep{NNN}`。格式：`- "台词原文" [角色][场景 one-liner][类别]`。**硬下限 3 条**，少于 3 条视为未执行。详细判定标准/反模式见 `references/used-lines-protocol.md#写入规则`。
+
 **结束提示：** `[完成] 第{N}集已保存！输入 /分集 {N+1} 继续，或 /自检 {N} 检查质量`
+
+**关于 /导出 的门控说明**：未跑 /自检 的集数在 /导出 时只会**标黄提示不阻断**；只有 /自检 不合格（低于阈值）的集数才**阻断 /导出**。自检非强制但推荐。
 
 ---
 
@@ -269,7 +340,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 | 爽点 | /15 | 数量/强度/类型多样性 + 期待管理 + 痛点铺垫 + 困境三原则（按题材分化评判） | <3 个爽点 ≤6 分 |
 | 台词 | /10 | 功能密度 + 精简口语化 + 角色区分度 + 题材语感（参考 realism-checklist.md） | 超 2 句台词逐条标出 |
 | 格式与可拍性 | /5 | 场景头/景别/音乐 + 场景角色数量限制 + 制作难度评估（门槛型：达标即可） | — |
-| 主线与连贯性 | /10 | 灵魂三问 + 目标层层递进 + 前后一致 + 转变逻辑（参考 realism-checklist.md） | — |
+| 主线与连贯性 | /10 | 灵魂三问 + 目标层层递进 + 前后一致 + 转变逻辑（参考 realism-checklist.md）+ **跨集台词复用扫描**（本集关键台词 grep `used-lines.md`，精确/近似命中 ≥1 次 -2 分，≥3 次 -5 分。扫描规则见 `used-lines-protocol.md#自检扫描规则`，例外见"允许的例外"） | 跨集台词复用 ≥3 次该维度上限 3 分 |
 | 反抽象与镜头化 | /10 | 纯情绪词→物理动作 + 心理→行为转化 + 无上帝视角 | — |
 | AI Slop | /10 | 书面化扫描 + 情绪过平滑 + 巧合堆砌统计 + AI 生成痕迹 | 巧合词 ≥3 次扣分 |
 | 考据可追溯性 | /10 | 专业术语映射 bible / 时代领域常识 / 制度规则一致 / 虚构白名单（题材为轻型时记 N/A 不计入总分）| 厚型题材无 bible → 0 分；命中 1 条雷区 ≤6 分；命中 ≥2 条 ≤3 分 |
