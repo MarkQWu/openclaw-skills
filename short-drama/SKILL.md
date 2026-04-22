@@ -17,39 +17,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## 工作目录
 
-**默认项目目录：** `~/short-drama-projects/<项目名>/`（所有项目统一此位置；v1.10-v1.12 老用户的 cwd state 由 `/开始` 扫描 fallback 引导迁移）。所有产物保存在项目目录下：
-
-```
-{项目目录}/
-├── brainstorm.md            # 构思记录（选中+淘汰方向 + 配置决策历史，/开始 写入）
-├── README.md                # 项目自述（/项目状态 生成/更新）
-├── creative-plan.md          # 创作方案
-├── characters.md             # 角色档案
-├── setting-bible.md          # 考据 bible（/考据 生成，厚型题材必有）
-├── research-cache/           # /考据 auto 检索原始缓存
-├── episode-directory.md      # 分集目录
-├── used-lines.md             # 跨集台词去重清单（/分集 自动追加 + /自检 扫描）
-├── episodes/                 # 分集剧本
-│   ├── ep001.md
-│   ├── ep002.md
-│   └── ...
-├── compliance-report.md      # 合规报告（如生成）
-├── character-cards/          # 角色视觉卡（/角色卡 生成）
-│   ├── {角色名}.md
-│   └── ...
-├── storyboards/              # 分镜表（/分镜 生成）
-│   ├── ep001-storyboard.md
-│   ├── prompts-only.txt      # 纯 prompt 列表（脚本提取）
-│   └── merged-storyboard.md  # 合并分镜（脚本生成）
-├── scripts/                  # Python 工具脚本
-│   ├── merge_storyboard.py
-│   ├── character_card_validator.py
-│   ├── generate_reference_doc.py
-│   └── export_docx.py
-└── export/                   # 导出目录
-    ├── {剧名}-完整剧本.md
-    └── {剧名}-完整剧本.docx  # Word 版（可选）
-```
+**默认项目目录：** `~/short-drama-projects/<项目名>/`（所有项目统一此位置；v1.10-v1.12 老用户的 cwd state 由 `/开始` 扫描 fallback 引导迁移）。项目内文件清单（episodes/ / characters.md / creative-plan.md / setting-bible.md / storyboards/ / export/ 等）见 `references/project-management.md#项目内文件清单`。
 
 ## 创作状态追踪
 
@@ -61,83 +29,15 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ---
 
-## anchor 触发机制（v1.15.0 新增 · MVP）
+## anchor 触发机制
 
-**目的**：让模型在写本时调用对中文现象级 IP 的 implicit knowledge，提升输出调性，**但不破坏短剧节奏**。
-
-**触发哲学**：anchor 借的是 ① **想象力**（世界观厚度 / 设定颗粒度）② **角色调性** ③ **情绪锚点**。**禁止借**节奏、章节长度、铺垫密度——本剧节奏由【秒级节奏锚点】+【台词≤2 句】+【爽点≥3】等硬约束控制。
-
-### Phase 1 MVP 激活的 5 部 anchor（覆盖 5 题材）
-
-| 题材 | anchor | 借什么 hint |
-|---|---|---|
-| 都市情感 | 《何以笙箫默》（顾漫）| "克制深情"调性 |
-| 重生穿越 | 《庆余年》（猫腻）| 现代灵魂入古代权谋（优先调用范闲 + 叶轻眉遗志主轴）|
-| 古装宫廷 | 《后宫·甄嬛传》（流潋紫）| "由柔到狠"女性弧光 |
-| 励志逆袭 | 《平凡的世界》（路遥）| 反 AI slop 的真实质感 |
-| 悬疑探案 | 《隐秘的角落》（紫金陈）| 非警察视角黑色叙事 |
-
-详见 `references/anchor-library.md`（含 v2 灰度库 28 部 Phase 2 候选）。MVP 5 题材外（霸道总裁 / 甜宠 / 战神归来 / 家庭伦理 / 萌宝 / 软科幻 / 末日重生 / 喜剧 / 玄幻仙侠 / 现代都市异能 / 女频古代）**Phase 1 不触发 anchor**，正常进入下一阶段。
-
-### anchor prompt 模板（生成时 inline 到 prompt）
-
-```
-本剧创作借鉴 anchor：
-- 《[作品名]》（[作者]）：借[hint 描述]
-
-【重要】只借 anchor 的：① 想象力（世界观厚度）② 角色调性 ③ 情绪锚点
-【禁止】借 anchor 的节奏、章节长度、铺垫密度
-【硬约束优先】如与节奏锚点冲突，以节奏锚点为准
-【禁止复用】不得直接复用 anchor 原台词 / 标志性梗（详见 quality-rules.md anchor 同人化禁用词清单）
-【单集约束】本集只体现 anchor 人物**当下弧位的状态**（如"最柔"起点/"最低"低谷/"最冷"克制），不得把跨集弧光（由柔到狠、从底层到巅峰、多年等待等）压缩到单集展开
-```
-
-### 用户主动调用（C 模式）
-
-用户随时可以说：
-- 「换 anchor」/「换成《XX》」 → 修改 `creative-plan.md` 的 anchor 字段后重新写本
-- 「不用 anchor」 → 清空 anchor 字段，回到无 anchor 模式
-- 「显示 anchor 库」 → 读 `references/anchor-library.md` 列出可选 anchor 给用户
-
-### 失败模式 + 兜底（详见 quality-rules.md）
-
-- **F1 hallucinate**：禁止使用集数 / 章节号；只用人物 + 调性 + 一句话场景描述
-- **F2 节奏污染**：自检节奏维度扣分时自动追问"是否被 anchor 节奏污染" → 用户回 Y → 建议 `/分集 N --fix anchor-rhythm` 重写
-- **F4 同人化**：自检维度扫描 anchor 禁用词清单 → 命中扣分 + 标 `[anchor 同人化]`
+完整方法论见 `references/anchor-trigger.md`（v1.15.0 MVP · 5 题材激活 · 只借想象力/调性/情绪锚点，不借节奏）。本文件 `/创作方案` 和 `/分集` 命令中的 anchor 步骤引用该文件。
 
 ---
 
 ## 格式控制（所有命令强制前置）
 
-### 格式锚定步骤（每个命令执行前自动执行）
-
-1. **读取状态**：读取 `.drama-state.json`，提取 `mode`（domestic/overseas）和 `language`（zh-CN/en）
-2. **确定输出语言**：`language: "zh-CN"` 或未设置 → 中文模板；`language: "en"` → 英文模板
-3. **确定输出格式**：`mode: "domestic"` 或未设置 → 国内模式；`mode: "overseas"` → 出海模式（好莱坞行业标准）
-4. **锚定声明**：重读本命令的输出模板区块（见 `references/output-templates.md`），严格按模板输出，不混用语言版本
-
-### 格式封闭原则（强制）
-
-禁止添加模板外内容（如导演手记/创作心得/拍摄建议）、禁止格式漂移、禁止中英混杂；中文用中文术语（远景/全景/中景/近景/特写/内景/外景），英文用英文术语（WIDE SHOT/CLOSE-UP/INT./EXT.），行业缩写（BGM/CTA）保留；所有标记用纯文字方括号（[关键]/[付费]/[锚点]），禁用 emoji。
-
-**对白与破折号规则（按 mode 分化，详见 `references/quality-rules.md#对白与叙事语言规则`）：** 国内模式（mode=domestic）对白用 `**角色名**：台词` 格式，禁用双引号包裹对白内容（`"..." / "..." / '...'`）；出海模式（mode=overseas）保留好莱坞双引号标准（`**NAME**: "dialogue"`）。破折号 `——` 两种模式共用，密度 **默认 0 次是首选，上限 ≤3 次/集**（剧本基本不需要出现，多数破折号都能改完整句）；仅在真正必要时用于台词停顿/被打断、场景补充说明、心理独白引出；不得用单破折号 `—` 或西文双连字符 `--`。
-
-### 新格式规范（生成时遵守；违反 → 自检以【建议】标签提示，不扣分）
-
-**国内模式（mode=domestic）**：
-
-1. **场景标题元素顺序**：`## 场号 · 内/外 · 地点 · 日/夜`（不得时间前置，工业主流顺序：内外→地点→时间）
-2. **音乐/音效标注**：氛围铺底用 `（BGM：描述）`；点状音效用 `（音效：描述）`；**禁用** `[音乐] ...` 写法
-3. **OS/VO 粗体只包裹角色名**：`**角色名**（OS）：台词` 和 `**角色名**（VO）：台词`（**不是** `**角色名（OS）**：` 形式——OS/VO 技术标记不加粗，便于扫读谁在说）
-4. **本集考据引用作为附录**：位于剧本正文结束后的双分隔线 + `<!-- 剧本正文到此结束 -->` 边界标记之外；`/导出` 默认剥离，`/分镜` 不参与拆分
-
-**出海模式（mode=overseas）**：
-
-- OS/VO 粗体位置规则同第 3 条（好莱坞标准本来如此：`**JANE** (V.O.)` 而非 `**JANE (V.O.)**`）
-- 音乐标注暂保持 `[音乐] Music cue:`（本版不改，后续评估）
-- 场景头保持英文格式 `INT./EXT. LOCATION - DAY/NIGHT`
-
-**与上段「格式封闭原则」的区别**：本段是"新格式规范"，违反 → 自检以【建议】标签提示，不扣分、不阻断。上段的规则（对白引号、破折号密度、emoji 禁用等）违反扣分或阻断 /导出。两段并列，不混用"强制"语义。
+执行任何命令前先按 `references/format-control.md` 的**格式锚定步骤**读 `.drama-state.json#mode/language` 锚定输出模板。该文件含三段规则：**格式封闭原则**（对白引号/破折号密度/emoji 禁用等硬约束，违反扣分或阻断 /导出）、**新格式规范**（场景头顺序/音乐标注/OS/VO 粗体/考据附录边界等，违反 → 自检以【建议】标签提示，不扣分）、国内/出海双模式分化细则。
 
 ---
 
@@ -157,6 +57,14 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 2. **加载后分支**：`currentStep` 非空 → 欢迎回来 + 进度 + 等命令，不进 Step 3；`currentStep` 为空（stub）→ "欢迎来到《X》" + 直接进 Step 3
 3. **活跃项目锚定 + 重入**：选中后 LLM 用绝对路径 `~/short-drama-projects/<projectName>/` 读写所有产出，**不依赖 cwd**。WorkBuddy 用户零切换。已加载活跃项目时再次 `/开始` → 重走扫描列表（允许切换），老 state 已持久化安全
 
+**3.5. 承制介质字段兼容处理（v1.16.0 新增）：** 活跃项目加载后，检查 `.drama-state.json#medium` 的值：
+   - **值合法**（`"ai_live"` / `"comic"`）→ 跳过此步骤
+   - **字段缺失 / 值为空 / 值非法**（老项目 v1.15.x，或手动改坏）→ 交互询问一次：
+     > 「检测到本项目未标注承制介质，请选择（后续不再问）：
+     >  1）仿真人 AI 剧（`ai_live`）—— 3-5 场景 / 严格反抽象 / 单条台词 ≤2 句 / 微表情禁用
+     >  2）漫剧（`comic`）—— 动态漫画或 AI 漫剧 / ≤3 场景 / 单条台词 ≤6 句 / OS/VO 带情绪标签」
+   - 用户回 `1` → 按 RMW 写入 `medium: "ai_live"`；回 `2` → 写 `medium: "comic"`；**输入非 1/2**（如 "3" / "yes" / 空）→ 重提示 1 次 + 追加一句"请回 `1` 或 `2`"；**第 2 次仍无效** → 默认 `"ai_live"` 并提示"已按默认 `ai_live` 写入，可在 `.drama-state.json#medium` 手动改为 `comic`"
+
 4. **锁定观众：** "这个故事给谁看？男性向 / 女性向 / 男女通吃？"——短剧创作的第一步不是构思剧情，是锁定观众。
 
 5. **一个入口：** "说说你想写什么，多少都行——可以是一个完整故事，也可以只是一个画面、一句话，甚至只说'不知道'。"
@@ -168,7 +76,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
    用户的原始输入保存到 `seedIdea`，brainstorm 选定的方向保存到 `logline`。brainstorm 发散的**全部 3 个方向**（选中 + 2 个淘汰）写入 `brainstorm.md#方向草案` 供回看。
 
-6. **推荐配置确认（选择题模式）：** 根据已确定的题材，从 `genre-guide.md#题材推荐配置映射表` 查出推荐值，一次性展示推荐配置卡（受众细分/基调/结局/集数/语言各一行，每项标 [推荐]）。用户回复"确认"或修改项。每次修改配置时，把决策过程追加到 `brainstorm.md#配置决策历史`。
+6. **推荐配置确认（选择题模式）：** 根据已确定的题材，从 `genre-guide.md#题材推荐配置映射表` 查出推荐值，一次性展示推荐配置卡（受众细分/基调/结局/集数/语言/**承制介质**各一行，每项标 [推荐]）。**承制介质**选项：`ai_live`（仿真人 AI 剧 · 3-5 场 / 严格反抽象 / 单条台词 ≤2 句 · 默认）或 `comic`（漫剧 · ≤3 场 / 单条台词 ≤6 句 / OS/VO 带情绪标签 / 分镜切片密集）。用户回复"确认"或修改项。每次修改配置时，把决策过程追加到 `brainstorm.md#配置决策历史`。
 
 7. 如用户选择 English，自动切换为出海模式。汇总确认后，按「state 写入协议」保存状态。
 
@@ -188,19 +96,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **加载参考：** opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**
 
-**anchor 推荐步骤（v1.15.0 MVP，仅 5 题材触发）：**
-
-如选定题材是 MVP 5 题材之一（都市情感 / 重生穿越 / 古装宫廷 / 励志逆袭 / 悬疑探案），**生成内容前**先做 anchor 推荐：
-
-1. 从 `genre-guide.md` 的对应题材 `### anchor 参考` section 读 anchor 候选
-2. 基于 `seedIdea` + 题材 + anchor hint，生成推荐句（**严格用此模板**）：
-   > 你的 seedIdea「[seedIdea]」结合 [题材] 题材，建议借鉴《[anchor 作品名]》——借的是 [hint]，是否接受？[Y / 换 / N]
-3. 处理用户回复：
-   - **Y** → 把 anchor 写入 `creative-plan.md` 的 `anchor` 字段（含作品名 + 作者 + hint）
-   - **换** → MVP 5 题材每题材仅 1 部 anchor，"换"等同 N（直接进入 N 流程）。Phase 2 灰度库激活后才有第 2 候选
-   - **N** → 询问"想自己指定一部吗？（可选，输入作品名跳过推荐 / 回车跳过 anchor）" → 用户输入则记录到 `creative-plan.md` 的 `anchor.userSpecified=true`，不输入则清空 anchor 字段
-
-非 MVP 5 题材（霸道总裁 / 甜宠 / 战神归来 / 家庭伦理 / 萌宝 / 软科幻 / 末日重生 / 喜剧 / 玄幻仙侠 / 现代都市异能 / 女频古代）→ **跳过 anchor 推荐步骤**直接进入下方"生成内容"。
+**anchor 推荐步骤（v1.15.0 MVP，仅 5 题材触发）：** 选定题材是 MVP 5 题材之一（都市情感 / 重生穿越 / 古装宫廷 / 励志逆袭 / 悬疑探案）时，**生成内容前**按 `references/anchor-trigger.md#创作方案-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。非 MVP 5 题材跳过此步骤直接进入"生成内容"。
 
 **生成内容：**
 
@@ -310,11 +206,9 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 已完成 /目录
 
-**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（质量要求和连贯性检查）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）
+**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）
 
-**anchor inline（v1.15.0 MVP）：** 如 `creative-plan.md` 有 `anchor` 字段（5 题材且用户接受了 anchor 推荐），把本 SKILL.md 顶部「anchor 触发机制」section 的 **anchor prompt 模板**填入实际 anchor 信息后 inline 到分集生成 prompt。如无 `anchor` 字段（用户回 N / 非 MVP 题材） → 跳过此步骤，按现有流程生成。
-
-**`--fix anchor-rhythm` 子命令：** 如 `/自检` 节奏维度扣分且诊断为 anchor 节奏污染（详见 quality-rules.md），用 `/分集 N --fix anchor-rhythm` 重写——本次生成**临时清空 anchor**（不写入 creative-plan.md，仅本次绕过 anchor），重新生成第 N 集。
+**anchor inline + `--fix anchor-rhythm` 子命令：** 如 `creative-plan.md` 有 `anchor` 字段，按 `references/anchor-trigger.md#分集-anchor-inline` 把 anchor prompt 模板 inline 到分集生成 prompt；无 `anchor` 字段则跳过。节奏污染时 `/分集 N --fix anchor-rhythm` 重写（详见 `references/anchor-trigger.md#fix-anchor-rhythm-子命令`）。
 
 **破折号实时节制（硬约束，生成时边写边数）：** **剧本上破折号基本不需要出现**——单集 `——` **默认 0 次是首选**，真正必要时累计 ≤3 次（写第 1 次后即警惕、第 2 次后就应审视能否改完整句、第 3 次后**立刻**换其他停顿手段：逗号+动作描写 / 换对话轮次 / 中文省略号「…」）。多数破折号都能改完整句 + 合适语气标点。不把它留给 /自检 再返工。双层防线：生成层此约束 + 自检层事后扣分（见 `/自检` 破折号密度硬约束，及总扣分上限 -3）。
 
@@ -323,6 +217,13 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 **专业细节引用规则（bible 存在时强制）：** 详见 `references/quality-rules.md#考据可追溯性自检流程`。核心原则：所有专业术语/官名/制度/数字/药物剂量/法条必须映射到 bible，否则改模糊或标 `[虚构]`。
 
 **支持格式：** `/分集 1` | `/分集 5-8` | `/分集 next`
+
+**按 medium 分化生成流程（v1.16.0 新增）：**
+- `medium="ai_live"`（默认）→ 自由文本生成，遵循 ai-live-rules.md 硬规则（3-5 场 / 台词 ≤2 句 / 微表情禁用）
+- `medium="comic"` → **两步结构化生成**：
+  1. Step 1 先产 JSON 场次清单：`[{"scene_id": "1-1", "time": "日|夜", "loc_type": "内|外", "location": "...", "purpose": "一句话"}]`，数组 `length ∈ [1, 3]`（H1 硬约束）；
+  2. Step 2 按清单逐场展开（△ 分镜 + 对白 + OS/VO 情绪标签 + 场景头用 `N-N日/外或内 地点` 格式）。
+  3. JSON 解析失败容错：重试 1 次 → 仍失败则 fallback 到自由文本 + 强 prompt 提醒 "≤3 场 · 严格分场头格式"，自检后必须复审。
 
 **输出格式：** 见 `references/output-templates.md#分集国内模式`（或 `#分集出海模式`）
 
@@ -350,7 +251,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 目标集数已完成
 
-**加载参考：** quality-rules.md（自检维度细则、--fix 流程、分数持久化）
+**加载参考：** quality-rules.md（自检维度细则 + 跨介质通用规则）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）
 
 **支持格式：** `/自检 5` | `/自检 1-10` | `/自检 all` | `/自检 5 --fix`
 
@@ -360,14 +261,14 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 |------|------|---------|--------|
 | 节奏 | /10 | 开场五要素 + 三锚点 + 单集节奏三段式 + 结尾钩子 | 缺任意锚点 ≤5 分 |
 | 爽点 | /15 | 数量/强度/类型多样性 + 期待管理 + 痛点铺垫 + 困境三原则（按题材分化评判） | <3 个爽点 ≤6 分 |
-| 台词 | /10 | 功能密度 + 精简口语化 + 角色区分度 + 题材语感（参考 realism-checklist.md） | 超 2 句台词逐条标出 |
-| 格式与可拍性 | /5 | 场景头/景别/音乐 + 场景角色数量限制 + 制作难度评估（门槛型：达标即可） | — |
-| 主线与连贯性 | /10 | 灵魂三问 + 目标层层递进 + 前后一致 + 转变逻辑（参考 realism-checklist.md）+ **跨集台词复用扫描**（本集关键台词 grep `used-lines.md`，精确/近似命中 ≥1 次 -2 分，≥3 次 -5 分。扫描规则见 `used-lines-protocol.md#自检扫描规则`，例外见"允许的例外"） | 跨集台词复用 ≥3 次该维度上限 3 分 |
-| 反抽象与镜头化 | /10 | 纯情绪词 + **A 抽象物化 / B 通感比喻 / C 不可见内心** 4 类模式 → 物理动作 / 外部反应 / 拆层；场景叙事层 + OS 超阈归本维度，单集 -3 上限；**C 类 vs 上帝视角**不重复扣（C=单句不可见；上帝视角=跨场景不可知）；详见 `quality-rules.md#反抽象-画面可拍性规则-轻约束` | — |
+| 台词 | /10 | 功能密度 + 精简口语化 + 角色区分度 + 题材语感（参考 realism-checklist.md） | **单条台词句数扫描**：按 `。！？` 切分，ai_live 超 2 句逐条标出 · comic 超 6 句逐条标出 |
+| 格式与可拍性 | /5 | 场景头/景别/音乐 + 场景角色数量限制 + 制作难度评估（门槛型：达标即可） | **场次数硬扫描**：ai_live 正则 `^## \d+-\d+ ` 计数，不在 3-5 范围扣分；comic 正则 `^\d+-\d+[日夜]/[内外]` 计数（强制日/夜 + 内/外完整格式），>3 红线 / 2<x≤3 黄线 / ≤2 绿线 |
+| 主线与连贯性 | /10 | 灵魂三问 + 目标层层递进 + 前后一致 + 转变逻辑（参考 realism-checklist.md）+ **跨集台词复用扫描**（本集关键台词 grep `used-lines.md`，精确/近似命中 ≥1 次 -2 分，≥3 次 -5 分。扫描规则见 `used-lines-protocol.md#自检扫描规则`，例外见"允许的例外"）+ **前 30s 钩子位置扫描**（剧本正文前 1/3 **字数**中必须出现至少 1 次冲突/爆点；字数按中文字符计，不含 `>` 引用块 / H1 标题 / `---` 分隔符 / HTML 注释 / 集末自查等元信息段；否则该维度 -2） | 跨集台词复用 ≥3 次该维度上限 3 分 |
+| 反抽象与镜头化 | /10 | **按 medium 分叉**：ai_live → 纯情绪词 + A/B/C 4 类模式 → 物理动作 / 外部反应 / 拆层；场景叙事层 + OS 超阈归本维度，单集 -3 上限；**C 类 vs 上帝视角**不重复扣；详见 `quality-rules.md#反抽象-画面可拍性规则-轻约束`。comic → **固定 10/10**（漫剧分镜特写可承载微表情，不适用 ai_live 的反抽象扣分），总分稳定 | — |
 | AI Slop | /10 | 书面化扫描 + 情绪过平滑 + 巧合堆砌统计 + AI 生成痕迹；**场景叙事层比喻堆叠**（单集 ≥4 处 -2，与维度 6 不重复扣：同句命中 A/B/C 优先归维度 6）+ **VO 超阈**（每集 >20% 字数 -1 / 单段 >3 句 -1） | 巧合词 ≥3 次扣分 |
 | 考据可追溯性 | /10 | 专业术语映射 bible / 时代领域常识 / 制度规则一致 / 虚构白名单（题材为轻型时记 N/A 不计入总分）| 厚型题材无 bible → 0 分；命中 1 条雷区 ≤6 分；命中 ≥2 条 ≤3 分 |
 | 对白格式合规 | 硬约束 | 按 `.drama-state.json#mode` 分化：国内模式（含 mode 缺失/默认）扫全文对白是否含双引号；出海模式反向检查对白必须含双引号 | 违反 → 标【严重】不计入总分但阻断 /导出，提示修复 |
-| 破折号密度 | 硬约束 | 统计全集 `——` 出现次数 | 0-3 次不扣分（0 次首选）；≥4 次 → -2 分（从"格式与可拍性"维度扣，含 AI 误用扫描总扣分上限 -3，见 quality-rules.md L87）；用 `—` 或 `--` → 标【严重】 |
+| 破折号密度 | 硬约束 | 统计**剧本正文**中 `——` 出现次数（排除 `>` 引用块 / `<!-- ... -->` HTML 注释 / 前情提要引用 / 集末自查 / 本集考据引用附录等元信息段）| 0-3 次不扣分（0 次首选）；≥4 次 → -2 分（从"格式与可拍性"维度扣，含 AI 误用扫描总扣分上限 -3，见 quality-rules.md L87）；用 `—` 或 `--` → 标【严重】 |
 
 **输出/流程：** 输出格式 `output-templates.md#自检`；`--fix` 模式 + 分数持久化见 `quality-rules.md`。
 
@@ -393,18 +294,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 2. **自检不合格的集数**：**阻断导出**，列出集数及分数。阈值：厚型/中型剧本 <32（满分 80）；轻型 <28（满分 70）
 3. **所有已自检集数均达标**：正常导出
 
-**考据引用附录处理（默认剥离）**：
-
-读取每集 `episodes/ep{NNN}.md` 拼装导出内容时，按边界标记切分：
-
-- 边界：`<!-- 剧本正文到此结束 -->`（HTML 注释，位于双分隔线之间）
-- 默认行为：只保留边界**之前**的剧本正文，丢弃之后的附录（本集考据引用表）
-- 传 `--with-bible-ref` 参数：保留附录
-
-**Fallback（跨模型稳健性）**：
-
-- 若某集未检测到边界标记（如老集数 v1.15.7 及之前）→ 保留全文（安全默认，不丢内容）
-- 若检测到多个边界标记 → 以第一个为准
+**考据引用附录处理（默认剥离）：** 读取每集 `episodes/ep{NNN}.md` 按边界标记 `<!-- 剧本正文到此结束 -->`（位于双分隔线之间）切分——默认只保留边界**之前**的剧本正文；传 `--with-bible-ref` 保留附录。Fallback：未检测到边界（老集数 v1.15.7-）→ 保留全文；检测到多个边界 → 以第一个为准。
 
 **输出格式：** 见 `references/output-templates.md#导出`
 
@@ -420,24 +310,13 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### /出海
 
-**功能：** 切换为出海模式，针对海外市场创作。
-
-**可在任意阶段调用。** 切换后：
-
-1. **格式切换：** 好莱坞行业标准格式（INT./EXT.、WIDE SHOT/CLOSE-UP 等）
-2. **语言切换：** 默认英文输出，台词避免中式英语
-3. **题材映射：** 中式题材转换为海外市场对应元素（参考 genre-guide.md 出海部分）
-4. **文化适配：** 冲突机制/社交场景/文化符号/情感表达本地化
-5. **已验证爆款元素：** Billionaire、Werewolf/Alpha、Flash Marriage、Secret Baby 等
+**功能：** 切换为出海模式（任意阶段可调用）——格式切换为好莱坞行业标准（INT./EXT.、WIDE SHOT/CLOSE-UP），语言默认英文，题材映射/文化适配见 `genre-guide.md` 出海部分（Billionaire / Werewolf/Alpha / Flash Marriage / Secret Baby 等已验证爆款元素）。
 
 **切换确认：**
 ```
 [出海] 已切换为出海模式
-
-- 输出语言：English
-- 剧本格式：Hollywood Standard
-- 文化背景：Western/International
-- 参考平台：ReelShort / DramaBox
+- 输出语言：English / 剧本格式：Hollywood Standard
+- 文化背景：Western/International / 参考平台：ReelShort / DramaBox
 
 继续当前创作流程，所有后续输出将使用英文格式。
 ```

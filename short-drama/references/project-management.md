@@ -19,7 +19,39 @@
 
 ### 项目内文件清单
 
-见 SKILL.md 「工作目录」section。所有产出走绝对路径。
+所有产出走绝对路径，保存在项目目录下：
+
+```
+{项目目录}/
+├── brainstorm.md            # 构思记录（选中+淘汰方向 + 配置决策历史，/开始 写入）
+├── README.md                # 项目自述（/项目状态 生成/更新）
+├── creative-plan.md          # 创作方案
+├── characters.md             # 角色档案
+├── setting-bible.md          # 考据 bible（/考据 生成，厚型题材必有）
+├── research-cache/           # /考据 auto 检索原始缓存
+├── episode-directory.md      # 分集目录
+├── used-lines.md             # 跨集台词去重清单（/分集 自动追加 + /自检 扫描）
+├── episodes/                 # 分集剧本
+│   ├── ep001.md
+│   ├── ep002.md
+│   └── ...
+├── compliance-report.md      # 合规报告（如生成）
+├── character-cards/          # 角色视觉卡（/角色卡 生成）
+│   ├── {角色名}.md
+│   └── ...
+├── storyboards/              # 分镜表（/分镜 生成）
+│   ├── ep001-storyboard.md
+│   ├── prompts-only.txt      # 纯 prompt 列表（脚本提取）
+│   └── merged-storyboard.md  # 合并分镜（脚本生成）
+├── scripts/                  # Python 工具脚本
+│   ├── merge_storyboard.py
+│   ├── character_card_validator.py
+│   ├── generate_reference_doc.py
+│   └── export_docx.py
+└── export/                   # 导出目录
+    ├── {剧名}-完整剧本.md
+    └── {剧名}-完整剧本.docx  # Word 版（可选）
+```
 
 ## 项目名验证（`/新建` 必走）
 
@@ -67,7 +99,7 @@
 
 **活跃项目锚定**：选中后 LLM 本会话所有产出走绝对路径 `~/short-drama-projects/<projectName>/`。不再读写 cwd。
 
-## /新建 stub state 模板（18 字段完整）
+## /新建 stub state 模板（19 字段完整）
 
 `/新建 <项目名>` 写入 `~/short-drama-projects/<项目名>/.drama-state.json`：
 
@@ -86,6 +118,7 @@
   "qualityScores": {},
   "language": "zh-CN",
   "mode": "domestic",
+  "medium": "ai_live",
   "shotDensity": "",
   "seedIdea": "",
   "logline": "",
@@ -95,7 +128,15 @@
 }
 ```
 
-**关键**：必须写 **18 字段全集** 而非仅 2 字段，否则下游 Step 5 存 state 时 overwrite 会丢字段。
+**关键**：必须写 **19 字段全集** 而非仅 2 字段，否则下游 Step 5 存 state 时 overwrite 会丢字段。
+
+### 字段说明：medium（v1.16.0 新增）
+
+`medium` 枚举 `"ai_live"` / `"comic"` 标识承制介质：
+- `"ai_live"`（默认）= 仿真人 AI 剧（3-5 场、单条台词 ≤2 句、微表情禁用等）
+- `"comic"` = 漫剧 / 动态漫画（≤3 场、单条台词 ≤6 句、OS/VO 带情绪标签等）
+
+向后兼容：老项目（v1.15.x 及之前）state 无 `medium` 字段 → 加载时视为 `"ai_live"` 默认值，不破坏现有生成/自检行为。`/开始` 加载老 state 时会交互询问一次以补齐字段（见 SKILL.md `/开始` 迁移检测逻辑）。
 
 ## 重名保护（`/新建` 强制，防覆盖已有项目）
 
