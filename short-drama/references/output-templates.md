@@ -308,13 +308,29 @@ graph TD
 
 **{角色名}**：{台词}
 
-**{角色名}（OS）**：{内心独白——角色心理活动，观众能听到但剧中其他角色听不到}
+**{角色名}（OS）**：{内心独白——角色心理活动，观众能听到但剧中其他角色听不到。**比喻许可：单段 ≤1 核心比喻（不跨段累加），单段 ≤3 句，禁止"看不见的 X / 胸腔里"反直觉画面**}
 
-**{角色名}（VO）**：{旁白——画外音，角色不在画面中或对过去/未来的叙述}
+**{角色名}（VO）**：{旁白——画外音，角色不在画面中或对过去/未来的叙述。**容量上限：每集 VO 总字数 ≤ 本集总字数 20%，单段 ≤3 句，不得替代场景叙事层的可拍性职责**（即不允许"场景层抽象 → VO 补解释"分工）}
 
 △ {关键细节描写}
 
-[音乐] {音乐氛围描述}
+[音乐] {音乐氛围描述——给音乐设计师的 sound brief，用音色+节奏描述，不用通感比喻；**✅ 低音厚重，每击留三秒静默** vs **❌ 沉闷，像心跳**}
+
+---
+
+### △ 段落反例（场景叙事层画面可拍性）
+
+写 △ 段落前过 3 问：① 摄影机能拍到这句说的东西吗？② 若是不可见的东西，是否翻译为人的外部反应？③ 若是比喻，本体和喻体都能拍出来吗？
+
+| ❌ 错误（小说腔） | ✅ 正确（可拍化） | 类型 |
+|---|---|---|
+| △ 空气已经绷紧了 | △ 前排孩子被家长按住肩膀。一个老妇人攥紧胸前的吊坠，指节发白。没人说话 | A 抽象情绪物化 |
+| △ 压迫感从他身体里溢出来，像冷空气一样扩散 | △ 他每下一步，前排人群就自动后退半步。前三排，人越退越密 | A + B |
+| △ 她感觉到胸腔里某根看不见的线被拉紧了 | CLOSE-UP - 她的瞳孔骤然收缩，倒吸一口气，指尖猛地一抖（+ OS 承载概念 "……Mate Bond。"） | C 不可见内心（拆层处理）|
+| △ 他的眼神从惊讶变成冰冷，像水结成冰的过程 | △ 他眼中那一丝惊讶褪去，变冷。嘴角绷紧一分 | B 通感比喻 |
+| △ 她很伤心 | △ 她咬住下唇，指甲掐进掌心 | 原类 纯情绪词 |
+
+△ 段落**禁用第一人称感受动词**（感觉/觉得/意识到/感受到）——命中即越界，翻译成 OS/VO 或生理反应。**闪回/幻觉段落仍按场景叙事层处理**（不给逃生通道）。详细规则见 `quality-rules.md#反抽象-画面可拍性规则-轻约束`。
 
 ---
 
@@ -386,9 +402,29 @@ MEDIUM SHOT - {action description}
 
 **{CHARACTER NAME}** ({tone/action direction}): "{dialogue}"
 
+**{CHARACTER NAME}** (OS): "{inner monologue — single paragraph ≤1 core metaphor, ≤3 sentences, no 'invisible X / inside her chest' non-cinematic imagery}"
+
+**{CHARACTER NAME}** (VO): "{voice over — each ep VO total words ≤ 20% of ep total, single paragraph ≤3 sentences, cannot substitute scene-layer filmability}"
+
 CLOSE-UP - {key detail}
 
-[音乐] Music cue: {atmosphere description}
+[音乐] Music cue: {sound brief — use timbre+rhythm, not synesthesia metaphor; **✅ Deep bass, 3-sec silence between beats** vs **❌ Muffled, like a heartbeat**}
+
+---
+
+### Scene Description Anti-Examples (Filmability Layer)
+
+Before writing any scene description line, ask 3 questions: ① Can the camera capture what this line describes? ② If intangible (emotion/feeling/relation), is it translated to external reaction? ③ If metaphor, are both tenor and vehicle filmable?
+
+| ❌ Novel-style (unfilmable) | ✅ Script-style (filmable) | Type |
+|---|---|---|
+| The air had tightened | Kids in the front row get pressed down by parents. An old woman clenches the pendant on her chest, knuckles white. No one speaks. | A abstract-emotion thingification |
+| Pressure radiated from his body, spreading like cold air | With each step, the crowd retreats half a step. First three rows compress tighter | A + B |
+| She felt an invisible thread pulled taut in her chest | CLOSE-UP - Her pupils contract. She gasps, fingertips twitch. (+ OS carries concept: "...Mate Bond.") | C inner-unseen (split-layer) |
+| His eyes went from surprise to cold, like water turning to ice | CLOSE-UP - The flicker of surprise fades. His jaw tightens by a notch. | B synesthesia metaphor |
+| She was sad | She bites her lower lip, nails digging into her palm | Base: pure emotion word |
+
+Scene description layer **forbids first-person sensory verbs** (felt/sensed/realized/perceived) — hit = violation, translate to OS/VO or physical reaction. **Flashback / hallucination segments still treated as scene-layer** (no escape hatch). See `quality-rules.md#反抽象-画面可拍性规则-轻约束`.
 
 ---
 
