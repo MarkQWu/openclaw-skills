@@ -27,6 +27,21 @@ fi
 
 echo "📦 发布 v${VERSION} ..."
 
+# 1.5 · NLPM lint gate（起源：2026-04-22 xiaolai NLPM 交互学习落地）
+echo ""
+echo "🔍 结构检查（skill-lint）..."
+LINT_SCRIPT="$HOME/.claude/scripts/skill-lint.sh"
+if [ ! -x "$LINT_SCRIPT" ]; then
+  echo "  ⚠️  skill-lint.sh 不存在或不可执行，跳过 lint（$LINT_SCRIPT）"
+else
+  if ! bash "$LINT_SCRIPT" "$MASTER_DIR"; then
+    echo ""
+    echo "  ❌ lint 未通过，release 已中止。修复结构问题后重跑。"
+    exit 1
+  fi
+  echo "  ✅ lint 通过"
+fi
+
 # 1. 更新权威 master 的 VERSION
 echo "$VERSION" > "$MASTER_DIR/VERSION"
 echo "  ✅ master VERSION → ${VERSION}"
