@@ -299,6 +299,7 @@ graph TD
 ## 1-1 · 内/外 · {地点} · 日/夜
 
 **出场人物：** {人物列表}
+**出场道具：** {本集关键道具/标志性物品（与爽点/钩子强关联的物品，无则留空）}
 
 △ {场景描写，交代环境}
 
@@ -401,6 +402,7 @@ graph TD
 
 **INT./EXT. {LOCATION} - DAY/NIGHT**
 **Characters: {character list}**
+**Props: {key props/signature items for this episode (items closely tied to the hook or satisfaction point; leave blank if none)}**
 
 WIDE SHOT - {scene description}
 
@@ -837,6 +839,7 @@ Step 5: 剪辑成片（外部工具）
 ━━ 剧本创作 ━━
 /开始          选题材、定方向（有故事想法可以直接说）
 /创作方案      生成三幕结构 + 爽点矩阵 + 付费卡点
+/重构 <参考>   同构创作：提取爆款骨架 → 生成 N 个不同赛道变体
 /角色开发      角色档案 + 语言风格 + 视觉提示词
 /目录          全剧分集目录
 /分集 1        写第 1 集（批量：/分集 5-8，续写：/分集 next）
