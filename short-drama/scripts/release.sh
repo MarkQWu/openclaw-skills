@@ -58,12 +58,28 @@ cd "$REPO_DIR"
 sed -i '' "s/\*\*当前版本：v[0-9]*\.[0-9]*\.[0-9]*\*\*（[0-9-]*）/**当前版本：v${VERSION}**（${TODAY}）/" README.md
 echo "  ✅ README 第 3 行 → v${VERSION}（${TODAY}）"
 
-# README 最新版本行
+# README 最新版本行（用 Python 替换，避免 macOS sed 多字节字符替换 bug）
 if [ -n "$SUMMARY" ]; then
-  sed -i '' "s/最新版本：\*\*v[0-9]*\.[0-9]*\.[0-9]*\*\*（[^）]*）—.*/最新版本：**v${VERSION}**（${TODAY}）— ${SUMMARY}/" README.md
+  python3 -c "
+import re, sys
+version, today, summary = sys.argv[1], sys.argv[2], sys.argv[3]
+content = open('README.md').read()
+pattern = r'最新版本：\*\*v[0-9]+\.[0-9]+\.[0-9]+\*\*（[^）]*）—.*'
+replacement = f'最新版本：**v{version}**（{today}）— {summary}'
+content = re.sub(pattern, replacement, content)
+open('README.md', 'w').write(content)
+" "$VERSION" "$TODAY" "$SUMMARY"
   echo "  ✅ README 最新版本行 → v${VERSION} — ${SUMMARY}"
 else
-  sed -i '' "s/最新版本：\*\*v[0-9]*\.[0-9]*\.[0-9]*\*\*（[^）]*）—.*/最新版本：**v${VERSION}**（${TODAY}）— 见 commit 与 GitHub Release/" README.md
+  python3 -c "
+import re, sys
+version, today = sys.argv[1], sys.argv[2]
+content = open('README.md').read()
+pattern = r'最新版本：\*\*v[0-9]+\.[0-9]+\.[0-9]+\*\*（[^）]*）—.*'
+replacement = f'最新版本：**v{version}**（{today}）— 见 commit 与 GitHub Release'
+content = re.sub(pattern, replacement, content)
+open('README.md', 'w').write(content)
+" "$VERSION" "$TODAY"
   echo "  ⚠️  README 最新版本行 → v${VERSION}（未提供摘要）"
 fi
 
