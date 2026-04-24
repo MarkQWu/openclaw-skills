@@ -99,7 +99,7 @@
 
 **活跃项目锚定**：选中后 LLM 本会话所有产出走绝对路径 `~/short-drama-projects/<projectName>/`。不再读写 cwd。
 
-## /新建 stub state 模板（19 字段完整）
+## /新建 stub state 模板（24 字段完整）
 
 `/新建 <项目名>` 写入 `~/short-drama-projects/<项目名>/.drama-state.json`：
 
@@ -124,11 +124,15 @@
   "logline": "",
   "settingBibleStatus": "none",
   "bibleScope": [],
-  "researchIntensity": ""
+  "researchIntensity": "",
+  "lastSynopsisTimestamp": "",
+  "lastSynopsisEpisodeCount": 0,
+  "lastSynopsisEpisodeHash": "",
+  "lastSynopsisPath": ""
 }
 ```
 
-**关键**：必须写 **19 字段全集** 而非仅 2 字段，否则下游 Step 5 存 state 时 overwrite 会丢字段。
+**关键**：必须写 **24 字段全集** 而非仅 2 字段，否则下游 Step 5 存 state 时 overwrite 会丢字段。
 
 ### 字段说明：medium（v1.16.0 新增）
 
@@ -137,6 +141,48 @@
 - `"comic"` = 漫剧 / 动态漫画（≤3 场、单条台词 ≤6 句、OS/VO 带情绪标签等）
 
 向后兼容：老项目（v1.15.x 及之前）state 无 `medium` 字段 → 加载时视为 `"ai_live"` 默认值，不破坏现有生成/自检行为。`/开始` 加载老 state 时会交互询问一次以补齐字段（见 SKILL.md `/开始` 迁移检测逻辑）。
+
+### 字段说明：lastSynopsis*（v1.18.1 新增，PR2）
+
+4 字段共同构成 `/导出 --docx` **最终梗概段**的分离式幂等性缓存。**Scope 限定**：本缓存仅覆盖梗概段（"## 一、故事梗概"），**人物小传段（"## 二、人物小传"）每次 `/导出 --docx` 都会重新跑 LLM 6 步合成流程**——因此同一项目两次导出的 docx 之间，梗概段字节级一致，人物小传段可能字节略异（语义一致但 LLM 润色随机）。扩展 characters 缓存（独立 `lastCharactersHash` + `.drama-state/characters-cache.md`）归 v1.19.0 scope。
+
+| 字段 | 类型 | 语义 |
+|------|------|------|
+| `lastSynopsisTimestamp` | string (ISO 8601, e.g. `"2026-04-24T10:30:00+08:00"`) | 上次成功综合并用户选 Y 的时间戳 |
+| `lastSynopsisEpisodeCount` | number | 上次综合时 `len(completedEpisodes)` 字面快照——**取列表长度，不是实际参与 hash 计算的集数**（某些 entry 对应的 `ep{entry}.md` 可能因移入 `.trash` 等原因缺失而被 hash 跳过+warn，但 count 仍存完整列表长度，与 step 1 双条件的 `当前 completedEpisodes.length` 比对保持口径一致）|
+| `lastSynopsisEpisodeHash` | string (md5 十六进制, 32 字符) | `md5(按 completedEpisodes 字典序升序拼接所有完成集 ep{entry}.md 剥离考据附录后正文，经 LF 归一 + 两端 strip + \n---EP_BOUNDARY---\n 分隔)`——作者改已有集正文会让缓存失效 |
+| `lastSynopsisPath` | string | 缓存梗概正文相对路径，固定为 `".drama-state/synopsis-cache.md"` |
+
+**缓存命中双条件**（同时满足才命中）：
+1. `lastSynopsisEpisodeCount == 当前 completedEpisodes.length`
+2. `lastSynopsisEpisodeHash == md5(当前所有完成集剥离考据附录后正文按字典序升序拼接，经规范化)`
+
+**写入时机**：仅当用户在 `/导出 --docx` 三选一提示中选 Y 时，按 Read-Modify-Write 写回 state 并将综合梗概正文落 `.drama-state/synopsis-cache.md`。N / E 分支均不写缓存，也不写 state 4 字段（保持前次值，含空值）。
+
+**向后兼容**：老项目（v1.17.3 及以前）state 无这 4 字段 → 加载时视为 cache miss（自然首次综合），无需显式迁移脚本或交互询问。首次 Y 分支完成后 4 字段落地。`lastSynopsisPath == ""` 时不尝试读缓存文件（视为 miss）。
+
+**`.drama-state/synopsis-cache.md` 格式**：纯 markdown 正文（无 YAML front matter，无 header）。该文件由 LLM 读入重用，不做结构化解析。目录 `.drama-state/` 是 v1.18.1 新增的项目级缓存目录，与同级 `.drama-state.json` 共享命名空间；未来可扩展放其他缓存件。缓存目录首次写入时由 `/导出 --docx` 的步骤 6 执行 `mkdir -p`。
+
+**命名空间说明**：`.drama-state.json`（单文件 state）与 `.drama-state/`（缓存目录）在项目根目录平级共存，命名空间相邻但无内容嵌套关系。未来若 state schema 继续扩展缓存类字段，一律指向 `.drama-state/` 子目录内文件，不嵌入 JSON，避免 Read-Modify-Write 日志膨胀。
+
+**示例**：
+
+`.drama-state.json` 片段：
+```json
+"lastSynopsisTimestamp": "2026-04-24T10:30:00+08:00",
+"lastSynopsisEpisodeCount": 80,
+"lastSynopsisEpisodeHash": "a3f5b8c9d2e4f1a6b7c8d9e0f1a2b3c4",
+"lastSynopsisPath": ".drama-state/synopsis-cache.md"
+```
+
+`.drama-state/synopsis-cache.md`：
+```markdown
+（第一段叙事梗概）...
+
+（第二段）...
+
+（第三段）...
+```
 
 ## 重名保护（`/新建` 强制，防覆盖已有项目）
 
