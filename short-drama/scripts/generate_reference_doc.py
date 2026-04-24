@@ -2,7 +2,7 @@
 """生成 pandoc reference-doc 模板，用于短剧剧本 Word 导出。
 
 用法: python3 scripts/generate_reference_doc.py [输出路径]
-默认输出: references/drama-reference.docx
+默认输出: assets/drama-reference.docx
 """
 
 import sys
@@ -79,7 +79,7 @@ def create_reference_doc(output_path: str):
 if __name__ == "__main__":
     script_dir = Path(__file__).resolve().parent
     skill_dir = script_dir.parent
-    default_output = skill_dir / "references" / "drama-reference.docx"
+    default_output = skill_dir / "assets" / "drama-reference.docx"
 
     output = sys.argv[1] if len(sys.argv) > 1 else str(default_output)
     Path(output).parent.mkdir(parents=True, exist_ok=True)
