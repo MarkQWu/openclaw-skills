@@ -1,0 +1,141 @@
+# short-drama skill 评测断言（assertions）
+
+> 用途：每次 minor/major release 前后跑一次，与 baseline 对比检查是否回归。
+> 形式：6 条 assertion，机器（grep/正则）+ 半机器（grep 触发 + 人工裁定）。
+> 跑法：见 `run.sh` 和 `README.md`。
+
+---
+
+## A1：anchor 字段触发（mech）
+
+**断言**：当 `/创作方案` 选定的题材命中 anchor MVP 5 题材（都市情感 / 重生穿越 / 古装宫廷 / 励志逆袭 / 悬疑探案）时，`creative-plan.md` 输出**必须**包含 `anchor` 字段。
+
+**检查命令**：
+```bash
+grep -E "^## anchor|^### anchor|^- anchor:" creative-plan.md
+```
+
+**通过标准**：exit 0（命中至少一条）
+**不通过**：exit 1（缺 anchor 字段）→ 维度违反 `anchor-trigger.md` 强制规则
+
+---
+
+## A2：开场冲突字数位置（mech）
+
+**断言**：`/分集 1` 输出剧本正文**前 1/3 字数**内必须出现至少 1 次冲突/爆点关键词。
+
+**触发词清单**（任一即算命中）：
+- 动作类：`打` `撞` `推` `摔` `抓` `逃` `追` `跪`
+- 情绪类：`怒吼` `咆哮` `尖叫` `怒斥` `质问` `逼问`
+- 关系类：`背叛` `撕破脸` `当众` `打脸` `揭穿`
+- 场景类：`血` `刀` `枪` `救护` `急诊` `报警`
+
+**检查命令**：
+```bash
+# 需先用 scripts/wc-cn.py 算出剧本正文字数（去除元信息）
+TOTAL=$(python3 scripts/wc-cn.py episodes/ep001.md)
+THIRD=$((TOTAL / 3))
+HEAD_TEXT=$(python3 scripts/extract-head.py episodes/ep001.md $THIRD)
+echo "$HEAD_TEXT" | grep -cE "打|撞|推|摔|抓|逃|追|跪|怒吼|咆哮|尖叫|背叛|撕破脸|血|刀"
+```
+
+**通过标准**：count ≥ 1
+**不通过**：count = 0 → SKILL.md `quality-rules.md` "前 30s 钩子位置扫描" 维度违反
+
+---
+
+## A3：海外模式好莱坞格式 + 反中式弧（mech，仅 mode=overseas 跑）
+
+**断言**：`mode=overseas` 时 `/分集 1` 输出**必须**：
+- 包含好莱坞场景头格式：`INT.` 或 `EXT.` 至少各一次
+- 包含镜头标记：`WIDE SHOT` / `CLOSE-UP` / `MEDIUM SHOT` 任一
+- **不包含**中式 humiliation→power 弧关键词：`赘婿` / `逆袭` / `打脸` / `废柴` / `战神` / `神医归来`
+
+**检查命令**：
+```bash
+# 正向
+grep -cE "^INT\.|^EXT\." episodes/ep001.md   # ≥2
+grep -cE "WIDE SHOT|CLOSE-UP|MEDIUM SHOT" episodes/ep001.md   # ≥1
+# 反向（必须 0 命中）
+grep -cE "赘婿|逆袭|打脸|废柴|战神|神医归来|凤凰涅槃" episodes/ep001.md   # =0
+```
+
+**通过标准**：正向 ≥ 阈值 AND 反向 = 0
+**不通过**：违反 `references/overseas/anti-patterns.md` 禁词表 / `hard-rules.md` Rule 4
+
+---
+
+## A4：自检 7 维度齐全（mech）
+
+**断言**：`/自检 1` 输出**必须**包含全部 7 个维度（含考据维度时为 8）的评分行。
+
+**检查命令**：
+```bash
+grep -cE "节奏|爽点|台词|格式与可拍性|主线与连贯性|反抽象|AI Slop" reviews/ep001-review.md
+# ≥ 7
+# 厚型/中型题材额外
+grep -c "考据可追溯性" reviews/ep001-review.md   # ≥1
+```
+
+**通过标准**：所有维度名各 ≥ 1 次出现
+**不通过**：缺维度 → 自检不完整，违反 `quality-rubric.md` 评分流程
+
+---
+
+## A5：dramatic-truth 4 症状触发记录（mixed，v1.19.0 新增）
+
+**断言**：`/自检 1` 在扫角色长台词（≥10 词）时，**必须**输出 4 症状清单中至少 1 个症状名（无论命中或未命中——能扫到 0 命中也算执行了校验）。
+
+**4 症状名**：
+- `Trailer-Speak`（预告片体）
+- `Metaphor Overdose`（比喻堆叠）
+- `As-You-Know-Bob`（信息倾倒）
+- `Urgency Mismatch`（紧迫感错位）
+
+**检查命令**：
+```bash
+grep -cE "Trailer-Speak|Metaphor Overdose|As-You-Know-Bob|Urgency Mismatch" reviews/ep001-review.md
+# ≥1
+```
+
+**通过标准**：count ≥ 1（说明 dramatic-truth 校验环节被触发）
+**不通过**：count = 0 → SKILL.md `/自检` 加载参考行的 `dramatic-truth.md` 没被模型读 → 引用 silent-fail
+
+**人工裁定**：触发后 grep 同时记录"哪条台词被标 X 症状"，人工评估命中是否合理（评分时间 ≤2 min）
+
+---
+
+## A6：海外模式中式表达扣分（mixed，仅 mode=overseas 跑）
+
+**断言**：`mode=overseas` 时 `/自检 1` 在自检阶段**必须能识别中式直译表达**并标注扣分。
+
+**触发词清单**（中式高语境表达，英文场景下应为雷区）：
+- 比喻：`心如刀绞` / `双瞳如墨` / `星眸潋滟` / `面如冠玉` / `肤白胜雪`
+- 心理：`一颗心提到嗓子眼` / `脑海中走马灯般闪过` / `胸口憋着一团火`
+- 状态：`三魂七魄被勾走了` / `骨头都酥了` / `五脏六腑都翻江倒海`
+
+**检查命令**：
+```bash
+# 自检报告中是否对这些词标记
+grep -E "心如刀绞|双瞳如墨|星眸|面如冠玉|肤白胜雪|提到嗓子眼|走马灯般|胸口憋着|魂七魄|骨头都酥|五脏六腑" reviews/ep001-review.md | grep -E "扣分|建议|【严重】|【建议】|改写"
+```
+
+**通过标准**：如剧本中含中式表达，自检报告中**有标注**（无论扣分还是建议）
+**不通过**：剧本含中式表达但自检 0 标注 → `references/overseas/anti-patterns.md` 禁词表机制失效
+
+**人工裁定**：剧本本身**未含**中式表达时，本断言 N/A 跳过
+
+---
+
+## 跑法约定
+
+- 每次 minor/major release（patch 不强制）后，按 `samples/domestic-test.md` + `samples/overseas-test.md` 跑一次 `/分集 1` + `/自检 1`
+- 6 条 assertion 全过 = 通过；任一不过 = 调查 + 修正
+- 第一次跑结果作为 baseline 存到 `baseline-vX.X.X.md`
+- 后续 release 与 baseline 对比，看是否回归
+
+## 已知限制
+
+- 不覆盖：`/创作方案` 完整逻辑、`/分镜` 输出、`/角色开发` voice 准确性、跨集 used-lines 复用扫描——这些是后续 assertion 扩展点
+- 当前仅 1 国内 + 1 海外 sample，不覆盖跨题材（古装/悬疑/重生）差异——MVP 验证流程后再扩
+- 主观维度（voice 一致性 / 情感真实度）需人工评，eval 不替代
