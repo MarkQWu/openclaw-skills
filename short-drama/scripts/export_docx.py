@@ -150,7 +150,7 @@ def main():
     # reference-doc 默认路径
     script_dir = Path(__file__).resolve().parent
     skill_dir = script_dir.parent
-    default_ref = skill_dir / "references" / "drama-reference.docx"
+    default_ref = skill_dir / "assets" / "drama-reference.docx"
     ref_doc = sys.argv[3] if len(sys.argv) > 3 else str(default_ref)
 
     # Step 1: 检测 pandoc

@@ -106,11 +106,12 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 2. **主题意图（选择题）**：展示 `genre-guide.md#主题意图` 的 6 个选项，用户选 1-2 个作为全剧情感锚点，写入 creative-plan.md。根据 /开始 阶段的题材，按 `genre-guide.md#题材推荐配置映射表` 的主题意图列自动高亮推荐项
 3. **时空背景**：时代、地点、社会环境、阶层关系、主要角色间的社交场景预设
 4. **一句话故事线** + **核心冲突**（从 `plot-types.md` 的 40 种情节类型组合 2-5 个成 1+n 故事类型，避开反模式）
-5. **三幕结构拆解**（含反套路/双层结构条件区块：观众视角 vs 真实逻辑两列表格）
-6. **全剧节奏波形图**（文字描述）
-7. **付费卡点规划**
-8. **爽点矩阵**（按 satisfaction-matrix.md 规划）
-9. **结局设计**
+5. **完整故事梗概**（3-5 段叙事，描述整体弧线 + 核心冲突 + 关键转折，写入 creative-plan.md 的 "## 故事梗概（预想版）" 段落；此为开工前预想版，创作过程中剧情偏移时不必回头改。`/导出 --docx` 会综合实际分集内容生成独立的最终梗概进 docx，不修改本段——source of truth 仍是本段）
+6. **三幕结构拆解**（含反套路/双层结构条件区块：观众视角 vs 真实逻辑两列表格）
+7. **全剧节奏波形图**（文字描述）
+8. **付费卡点规划**
+9. **爽点矩阵**（按 satisfaction-matrix.md 规划）
+10. **结局设计**
 
 **输出格式：** 见 `references/output-templates.md#创作方案`
 
@@ -251,7 +252,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 已完成 /目录
 
-**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）
+**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）, **工艺通用补充**（按需读，覆盖中英文）：`vertical-drama-craft.md`（信息密度+段落颗粒+钩子节奏）/ `dramatic-truth.md`（对白真实性 4 症状）/ `script-element-extraction.md`（5 类元素分层 pipeline）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
 
 **anchor inline + `--fix anchor-rhythm` 子命令：** 如 `creative-plan.md` 有 `anchor` 字段，按 `references/anchor-trigger.md#分集-anchor-inline` 把 anchor prompt 模板 inline 到分集生成 prompt；无 `anchor` 字段则跳过。节奏污染时 `/分集 N --fix anchor-rhythm` 重写（详见 `references/anchor-trigger.md#fix-anchor-rhythm-子命令`）。
 
@@ -296,7 +297,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 目标集数已完成
 
-**加载参考：** quality-rules.md（自检维度细则 + 跨介质通用规则）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）
+**加载参考：** quality-rules.md（自检维度细则 + 跨介质通用规则）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）, `dramatic-truth.md`（对白真实性 4 症状清单：Trailer-Speak / Metaphor Overdose / As-You-Know-Bob / Urgency Mismatch；对每条角色长台词 ≥10 词逐句校验）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
 
 **支持格式：** `/自检 5` | `/自检 1-10` | `/自检 all` | `/自检 5 --fix`
 
@@ -310,7 +311,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 | 格式与可拍性 | /5 | 场景头/景别/音乐 + 场景角色数量限制 + 制作难度评估（门槛型：达标即可） | **场次数硬扫描**：ai_live 正则 `^## \d+-\d+ ` 计数，不在 3-5 范围扣分；comic 正则 `^\d+-\d+[日夜]/[内外]` 计数（强制日/夜 + 内/外完整格式），>3 红线 / 2<x≤3 黄线 / ≤2 绿线 |
 | 主线与连贯性 | /10 | 灵魂三问 + 目标层层递进 + 前后一致 + 转变逻辑（参考 realism-checklist.md）+ **跨集台词复用扫描**（本集关键台词 grep `used-lines.md`，精确/近似命中 ≥1 次 -2 分，≥3 次 -5 分。扫描规则见 `used-lines-protocol.md#自检扫描规则`，例外见"允许的例外"）+ **前 30s 钩子位置扫描**（剧本正文前 1/3 **字数**中必须出现至少 1 次冲突/爆点；字数按中文字符计，不含 `>` 引用块 / H1 标题 / `---` 分隔符 / HTML 注释 / 集末自查等元信息段；否则该维度 -2） | 跨集台词复用 ≥3 次该维度上限 3 分 |
 | 反抽象与镜头化 | /10 | **按 medium 分叉**：ai_live → 纯情绪词 + A/B/C 4 类模式 → 物理动作 / 外部反应 / 拆层；场景叙事层 + OS 超阈归本维度，单集 -3 上限；**C 类 vs 上帝视角**不重复扣；详见 `quality-rules.md#反抽象-画面可拍性规则-轻约束`。comic → **固定 10/10**（漫剧分镜特写可承载微表情，不适用 ai_live 的反抽象扣分），总分稳定 | — |
-| AI Slop | /10 | 书面化扫描 + 情绪过平滑 + 巧合堆砌统计 + AI 生成痕迹；**场景叙事层比喻堆叠**（单集 ≥4 处 -2，与维度 6 不重复扣：同句命中 A/B/C 优先归维度 6）+ **VO 超阈**（每集 >20% 字数 -1 / 单段 >3 句 -1） | 巧合词 ≥3 次扣分 |
+| AI Slop | /10 | 书面化扫描 + 情绪过平滑 + 巧合堆砌统计 + AI 生成痕迹；**场景叙事层比喻堆叠**（单集 ≥4 处 -2，与维度 6 不重复扣：同句命中 A/B/C 优先归维度 6）+ **VO 超阈**（每集 >20% 字数 -1 / 单段 >3 句 -1） | 巧合词 ≥3 次 → AI Slop ≤6；≥5 次 → ≤4（v1.18.2 硬约束） |
 | 考据可追溯性 | /10 | 专业术语映射 bible / 时代领域常识 / 制度规则一致 / 虚构白名单（题材为轻型时记 N/A 不计入总分）| 厚型题材无 bible → 0 分；命中 1 条雷区 ≤6 分；命中 ≥2 条 ≤3 分 |
 | 对白格式合规 | 硬约束 | 按 `.drama-state.json#mode` 分化：国内模式（含 mode 缺失/默认）扫全文对白是否含双引号；出海模式反向检查对白必须含双引号 | 违反 → 标【严重】不计入总分但阻断 /导出，提示修复 |
 | 破折号密度 | 硬约束 | 统计**剧本正文**中 `——` 出现次数（排除 `>` 引用块 / `<!-- ... -->` HTML 注释 / 前情提要引用 / 集末自查 / 本集考据引用附录等元信息段）| 0-3 次不扣分（0 次首选）；≥4 次 → -2 分（从"格式与可拍性"维度扣，含 AI 误用扫描总扣分上限 -3，见 quality-rules.md L87）；用 `—` 或 `--` → 标【严重】 |
@@ -330,6 +331,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 **用法：**
 - `/导出` → 生成 Markdown，完成后询问是否需要 Word 版本
 - `/导出 --docx` → 同时生成 Markdown + Word，跳过询问
+- `/导出 --docx --force-resynth` → 强制绕过梗概综合缓存重新综合（用于作者改了已完成集正文后想重跑）
 - `/导出 --with-bible-ref` → 保留本集考据引用附录（默认剥离；可与 `--docx` 叠加）
 
 **前置条件：** 至少完成部分集数
@@ -339,7 +341,90 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 2. **自检不合格的集数**：**阻断导出**，列出集数及分数。阈值：厚型/中型剧本 <32（满分 80）；轻型 <28（满分 70）
 3. **所有已自检集数均达标**：正常导出
 
-**考据引用附录处理（默认剥离）：** 读取每集 `episodes/ep{NNN}.md` 按边界标记 `<!-- 剧本正文到此结束 -->`（位于双分隔线之间）切分——默认只保留边界**之前**的剧本正文；传 `--with-bible-ref` 保留附录。Fallback：未检测到边界（老集数 v1.15.7-）→ 保留全文；检测到多个边界 → 以第一个为准。
+**最终梗概综合（仅 `--docx` 时执行，Markdown 导出跳过）：**
+
+**输入字段白名单**（加载规则：字段缺失静默跳过，不报错；不得读取白名单外字段）：
+
+- `creative-plan.md`：一句话故事线 / 核心冲突 / **时空背景** / 三幕结构（含集数划分）/ 付费卡点规划 / 爽点矩阵 / 结局设计 / anchor（如有）
+- `.drama-state.json`：`logline` / `lastSynopsisTimestamp` / `lastSynopsisEpisodeCount` / `lastSynopsisEpisodeHash` / `lastSynopsisPath`
+- `episodes/`：`completedEpisodes` 列表中每个 entry 对应的 `ep{entry}.md` 正文（**按下方考据附录剥离规则剥离后的版本**，不是 ep*.md 全文）
+
+**字段名模糊匹配规则**（适用于 `creative-plan.md` 字段定位）：字段标题可能带中文序号前缀（"## 一、"/"## 二、"/"## 三、"等）。匹配算法：
+- 忽略开头的中文序号 + 全/半角顿号 + 空格（正则 `^[一二三四五六七八九十]+[、.]\s*`）
+- 忽略后续的括号附注（如 "（IAP 模式）"）
+- 按核心语义字段名匹配（如 "时空背景" 命中 "## 三、时空背景"，"付费卡点规划" 命中 "## 七、付费卡点规划（IAP模式）"）
+
+**episodes/ 文件映射规则**（适用于 `completedEpisodes` 列表）：
+- 按 entry 字面值组 `ep{entry}.md` 路径（entry="001" → `ep001.md`；entry="001-v2" → `ep001-v2.md`）
+- 文件不存在 → 跳过该 entry + 打印 `[warn] completedEpisodes 含 {entry} 但 ep{entry}.md 不存在（可能被移入 .trash），已跳过 hash 计算`
+- 同集多版本识别（F1）是 v1.19.0 scope，PR2 按 entry 字面值处理即可
+
+**hash 规范化规则**（保证 LLM 驱动的 md5 确定性）：
+1. 每集正文读入后：按 `<!-- 剧本正文到此结束 -->` 边界剥离附录
+2. 字符串规范化：`content.replace('\r\n', '\n').strip()`（LF 归一 + 两端空白 strip）
+3. 按 `sorted(completedEpisodes)` **字典序升序**拼接（'001' < '001-v2' 自然字典序 OK）
+4. 集间分隔符：`\n---EP_BOUNDARY---\n`（防段落粘连）
+5. 算法：`hashlib.md5(joined.encode('utf-8')).hexdigest()`
+6. 执行：LLM 用 Bash tool 调 `python3 -c "import hashlib; ..."` 算 hash，不在 LLM 上下文里"目视"hash
+
+**执行步骤**：
+
+| 步骤 | 执行逻辑 | 校验断点 |
+|------|---------|---------|
+| 1 · 幂等性检测 | 读 state 的 `lastSynopsisEpisodeCount` 与 `lastSynopsisEpisodeHash`，按上述 hash 规范化规则算当前 hash，对比 | 双条件均匹配 → 读 `.drama-state/synopsis-cache.md` 直接进 docx（跳至步骤 5，步骤 2-4 与步骤 6 全部跳过）。`--force-resynth` / `lastSynopsisPath == ""` / 缓存文件不存在 → 强制判定为 miss |
+| 2 · 长度探测 | 按 `completedEpisodes` 数判定 | ≤60 → 全文模式（所有剥离后 ep 正文进 LLM）／ >60 → 分批蒸馏（每集先产 1 句 beat，**beats + 白名单骨架字段同时**进 LLM 合成，不能只给 beats 丢骨架） |
+| 3 · LLM 综合 | 按输入字段白名单加载 → 生成最终梗概（3-5 段叙事） | 输出段落数 3-5 ／ 禁用词表扫描通过（参见 `quality-rules.md`） |
+| 4 · 展示候选 + 用户三选一 | 按下方 Y/N/E 模板展示 | 用户确认，**三个分支均不回写 `creative-plan.md`** |
+| 5 · 进 docx 写入 | 按 `references/output-templates.md#导出` 三段式渲染 | docx 合法 Word 2007+ |
+| 6 · 缓存写入（仅 Y 分支执行）| 综合梗概正文落 `.drama-state/synopsis-cache.md`（目录不存在则 `mkdir -p`）；state 更新 `lastSynopsisTimestamp` / `lastSynopsisEpisodeCount` / `lastSynopsisEpisodeHash` / `lastSynopsisPath` | state Read-Modify-Write 不覆盖其他字段 |
+
+**三选一提示模板**：
+
+```
+[综合梗概候选]
+{生成内容}
+
+[Y] 采用本次综合梗概进 docx + 写入缓存（下次导出若集数与正文 hash 均未变，直接复用）
+[N] 保留 creative-plan.md 原预想梗概进 docx（本次不写缓存，下次导出会重新综合）
+[E] 手动粘贴编辑版进 docx（本次不写缓存，下次导出会重新综合）
+
+说明：Y / N / E 均不会修改 creative-plan.md 源文件。
+```
+
+**老项目 fallback**（`creative-plan.md` 不含 "## 故事梗概（预想版）" 段）：继续尝试从 `creative-plan.md` 读取白名单中的其他骨架字段（一句话故事线 / 核心冲突 / 时空背景 / 三幕结构 / 付费卡点 / 爽点矩阵 / 结局设计 / anchor），缺失字段静默跳过。**不走"完全绕过 creative-plan.md"的旧逻辑**——只是单一字段缺失时跳过该字段。
+
+**幂等性缓存 migration**：老项目 state 无 `lastSynopsis*` 4 字段 → 视为首次综合（cache miss），自然生成；无需显式迁移脚本。`lastSynopsisPath == ""` 时不尝试读缓存文件。
+
+**`--force-resynth` 开关**：绕过步骤 1 幂等性检测，强制重跑 LLM 综合。用法见本 section 开头"用法"列表。
+
+**人物小传合成（仅 `--docx` 时执行）：**
+
+**输入字段白名单**（加载规则：字段缺失标 `[待补充]`，不阻断生成）：
+
+- `characters.md`：姓名 / 年龄 / 外貌特征 / 性格关键词 / **公开身份** / **真实身份** / 核心动机 / 冲突点 / 角色弧线（起点→转折→终点）/ 感情线弧线 / **角色关系图**（Mermaid graph TD，如有）/ **称呼关系表**（N×N，如有）
+- `.drama-state.json`：`characterCardsGenerated`（按列表顺序取前 2 位作为"主要角色参照"）
+
+**注意**：身份与关系段是导出**派生内容**，不新增 `characters.md` 字段。`/角色开发` 的 15 字段列表保持不变。
+
+**执行步骤**：
+
+| 步骤 | 执行逻辑 | 校验断点 |
+|------|---------|---------|
+| 1 · 遍历角色 + 主要角色参照 | 读 `characterCardsGenerated` 前 2 位作为本次合成的"主要角色参照"。**数组顺序 = `/角色开发` 添加顺序，非主/配契约**——若 `characterCardsGenerated.length < 2` → 仅以可用数量作参照 + `[warn] 主要角色参照不足 2 人，关系段可能单薄` | 所有角色各一段 |
+| 2 · 标题 + 首句 | `### {姓名}` + `{姓名}，{年龄}。` | 格式一致 |
+| 3 · 外貌段 | LLM 轻润色 `外貌特征` → 1-2 句自然描述 | 无 bullet / 表格痕迹 |
+| 4 · 身份与关系段 | **合成前 Exception 扫描**：先读 `characters.md#公开身份` + `#真实身份` + 项目 state 的 `seedIdea` / `genre` / `tone`；若字段内容含 `quality-rules.md` Type 6 清单词（如"欢喜冤家"），允许本段沿用该词而不触发禁用。**Mechanical**: `公开身份` + `真实身份` 拼成首句"{姓名}对外是 X，实际是 Y"（无真实身份则省略后半句）／ **LLM 推断**：优先从 `角色关系图`（Mermaid `A -->\|救命恩人\| B` 直接语义转句）+ `称呼关系表` 取显式关系；补充从 `核心动机` + `冲突点` 推断隐式关系（救命恩人/夫妻/父女/战友/仇敌等）。主要角色参照按步骤 1 结果，**排除自身**，2-3 句叙述。Mermaid / 称呼表字段缺失时降级为纯 LLM 推断（从 `核心动机` / `冲突点`），不阻断 | 关系描述须有字段支撑，不编造情感色彩；所有相关字段缺失 → 整段写 `[待补充]` 不阻断 |
+| 5 · 性格段 | LLM 轻润色 `性格关键词` → 1-2 句 | 无 bullet 残留 |
+| 6 · 角色发展段 | LLM 融合 `角色弧线（起点→转折→终点）` + `感情线弧线` → 2-3 句叙述 | 体裁 bullet→段落，不增删事实 |
+
+**润色原则**：
+- 允许：把关系图（Mermaid 节点如 `A -->|救命恩人| B`）/ 称呼表语义转为自然语言（如"A 是 B 的救命恩人"）
+- 禁止：补充字段未出现的情感色彩（如"暗流涌动的张力"/"命运般的相遇"除非字段里明示）
+- 只改体裁（bullet → 段落），不增删事实；不扩写未在字段中的情节
+- 不使用 AI slop 辞藻（参见 `quality-rules.md` 禁用词表 Type 1-5 全局 + Type 6 仅本合成路径）
+- 润色后人物小传**不回写** `characters.md`（原字段保留给其他命令消费）
+
+**考据引用附录处理（默认剥离）：** 读取每集 `episodes/ep{NNN}.md` 按边界标记 `<!-- 剧本正文到此结束 -->`（位于双分隔线之间）切分——默认只保留边界**之前**的剧本正文；传 `--with-bible-ref` 保留附录。**此剥离规则同时适用于梗概综合 LLM 输入（步骤 1 hash 计算与步骤 2/3 正文输入）与 docx 写入。** Fallback：未检测到边界（老集数 v1.15.7-）→ 保留全文；检测到多个边界 → 以第一个为准。
 
 **输出格式：** 见 `references/output-templates.md#导出`
 
@@ -356,6 +441,12 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 ### /出海
 
 **功能：** 切换为出海模式（任意阶段可调用）——格式切换为好莱坞行业标准（INT./EXT.、WIDE SHOT/CLOSE-UP），语言默认英文，题材映射/文化适配见 `genre-guide.md` 出海部分（Billionaire / Werewolf/Alpha / Flash Marriage / Secret Baby 等已验证爆款元素）。
+
+**切换后强制加载 `references/overseas/` 全部 4 文件**：
+- `hard-rules.md` — 13 条非协商硬规则（男主不可杀平民/禁化学合意/禁中式 humiliation→power 弧 等）
+- `dialogue-craft.md` — L1 McKee/Mamet 通用 12 原则 + L2/L3 英文 voice 分层
+- `anti-patterns.md` — 英文禁词表（三幕/Save the Cat 等会触发好莱坞 prior 的术语）+ Gwen Hayes 4-Phase 20-Beat 锚定
+- `platform-knowledge.md` — ReelShort/DramaBox runtime ~90s / 付费墙物理 / hook 窗口 / genre 分类，带 HIGH/MED/LOW 信心标
 
 **切换确认：**
 ```
@@ -463,7 +554,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
    - 存在 + `currentStep` 为空（stub 残留）→ 覆盖 stub（安全）
    - 损坏 JSON → 询问覆盖重建
    - 不存在 → 继续
-3. **建目录 + 写完整 stub state**（18 字段）：`mkdir -p ~/short-drama-projects/<项目名>/` + 写 `.drama-state.json`，stub 模板见 `references/project-management.md#stub-state`（仅 projectName/dramaTitle 填值，其他字段初始化为空数组/对象/字符串）
+3. **建目录 + 写完整 stub state**（24 字段）：`mkdir -p ~/short-drama-projects/<项目名>/` + 写 `.drama-state.json`，stub 模板见 `references/project-management.md#stub-state`（仅 projectName/dramaTitle 填值，其他字段初始化为空数组/对象/字符串）
 4. 输出："项目《X》已创建。输入 `/开始` 进入选题流程"
 
 **与 `/开始` 分工：** `/开始` = 入口扫描 + 让用户选；`/新建` = 显式新建，不进选择列表

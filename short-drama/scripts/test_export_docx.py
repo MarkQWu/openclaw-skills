@@ -14,7 +14,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 EXPORT_SCRIPT = SCRIPT_DIR / "export_docx.py"
 SKILL_DIR = SCRIPT_DIR.parent
-REF_DOC = SKILL_DIR / "references" / "drama-reference.docx"
+REF_DOC = SKILL_DIR / "assets" / "drama-reference.docx"
 
 passed = 0
 failed = 0
@@ -204,7 +204,7 @@ def test_industry_markers_preserved():
 
 
 def test_export_template_structure():
-    """导出模板结构：元信息+角色简表+剧本三段式在 docx 中正确呈现"""
+    """导出模板三段式结构：故事梗概+人物小传+正文在 docx 中正确呈现"""
     print("\n[TEST] 导出模板三段式结构")
     with tempfile.TemporaryDirectory() as tmp:
         md = Path(tmp) / "structure.md"
@@ -213,20 +213,37 @@ def test_export_template_structure():
         md.write_text("""\
 # 命运的约定
 
-| 编剧 | 示例编剧 | 类型 | 甜宠·逆袭 |
-|------|---------|------|-----------|
-| 集数 | 2/50 | 总字数 | 约3000字 |
+## 一、故事梗概
 
-九天玄女因话痨被罚下诛仙台，魂穿林府真千金。
+九天玄女因话痨被罚下诛仙台，魂穿林府真千金。她在凡间遇到冷面三哥林邵阳，从互相嫌弃到默契协作，最终识破家族阴谋、找回真爱。
 
-## 角色
+## 二、人物小传
 
-| 角色 | 身份 | 特征 |
-|------|------|------|
-| 林雨欣 | 20岁，林府真千金 | 话痨、善良 |
-| 林邵阳 | 25岁，三哥 | 外冷内热 |
+### 林雨欣
 
-## 分集剧本
+林雨欣，20岁。
+
+外貌：明眸皓齿，一头乌黑长发，气质清冷中透着灵动。
+
+身份与关系：林雨欣对外是林府真千金，实际是被罚下凡的九天玄女。与三哥林邵阳从互相嫌弃到默契协作，是并肩识破家族阴谋的战友。
+
+性格：话痨、善良，遇事冷静但嘴上停不下来。
+
+角色发展：从天宫仙女被罚下凡的不服气，到在凡间体察人情世故的成长，最终在面对家族抉择时展现出真正的担当。
+
+### 林邵阳
+
+林邵阳，25岁。
+
+外貌：身形挺拔，眉目冷峻。
+
+身份与关系：林邵阳是林府嫡三子，真实身份是暗中调查家族秘密的守护者。与妹妹林雨欣是异母兄妹，从最初的疏远到后来的守护默契。
+
+性格：外冷内热，寡言少语。
+
+角色发展：对妹妹从最初的疏远警惕，到并肩作战后的守护信任。
+
+## 三、正文
 
 ### 第1集：仙女下凡
 
@@ -258,20 +275,22 @@ def test_export_template_structure():
 
         # 三段式结构验证
         assert_true("命运的约定" in text, "剧名存在")
-        assert_true("示例编剧" in text, "编剧信息存在")
-        assert_true("甜宠·逆袭" in text, "类型信息存在")
-        assert_true("九天玄女" in text, "故事线存在")
-        assert_true("林雨欣" in text, "角色表存在")
-        assert_true("林邵阳" in text, "角色表完整")
+        assert_true("九天玄女" in text, "故事梗概内容存在")
+        assert_true("林雨欣" in text, "人物小传存在")
+        assert_true("林邵阳" in text, "人物小传完整")
+        assert_true("外冷内热" in text, "角色性格字段存在")
+        assert_true("九天玄女" in text, "林雨欣身份与关系段存在")
+        assert_true("守护者" in text, "林邵阳身份与关系段存在")
         assert_true("第1集" in text, "第1集存在")
         assert_true("第2集" in text, "第2集存在")
 
-        # 验证顺序：元信息在角色前，角色在剧本前
-        idx_meta = text.find("示例编剧")
-        idx_role = text.find("外冷内热")
+        # 验证顺序：故事梗概 → 人物小传 → 正文
+        idx_synopsis = text.find("九天玄女")
+        idx_character = text.find("外冷内热")
         idx_ep1 = text.find("仙女下凡")
-        assert_true(idx_meta < idx_role < idx_ep1, "三段式顺序正确：元信息→角色→剧本",
-                    f"位置: meta={idx_meta}, role={idx_role}, ep1={idx_ep1}")
+        assert_true(idx_synopsis < idx_character < idx_ep1,
+                    "三段式顺序正确：故事梗概→人物小传→正文",
+                    f"位置: synopsis={idx_synopsis}, character={idx_character}, ep1={idx_ep1}")
 
 
 def test_output_dir_auto_create():
