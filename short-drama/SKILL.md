@@ -252,7 +252,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 已完成 /目录
 
-**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）
+**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）, **工艺通用补充**（按需读，覆盖中英文）：`vertical-drama-craft.md`（信息密度+段落颗粒+钩子节奏）/ `dramatic-truth.md`（对白真实性 4 症状）/ `script-element-extraction.md`（5 类元素分层 pipeline）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
 
 **anchor inline + `--fix anchor-rhythm` 子命令：** 如 `creative-plan.md` 有 `anchor` 字段，按 `references/anchor-trigger.md#分集-anchor-inline` 把 anchor prompt 模板 inline 到分集生成 prompt；无 `anchor` 字段则跳过。节奏污染时 `/分集 N --fix anchor-rhythm` 重写（详见 `references/anchor-trigger.md#fix-anchor-rhythm-子命令`）。
 
@@ -297,7 +297,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **前置条件：** 目标集数已完成
 
-**加载参考：** quality-rules.md（自检维度细则 + 跨介质通用规则）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）
+**加载参考：** quality-rules.md（自检维度细则 + 跨介质通用规则）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）, `dramatic-truth.md`（对白真实性 4 症状清单：Trailer-Speak / Metaphor Overdose / As-You-Know-Bob / Urgency Mismatch；对每条角色长台词 ≥10 词逐句校验）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
 
 **支持格式：** `/自检 5` | `/自检 1-10` | `/自检 all` | `/自检 5 --fix`
 
@@ -311,7 +311,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 | 格式与可拍性 | /5 | 场景头/景别/音乐 + 场景角色数量限制 + 制作难度评估（门槛型：达标即可） | **场次数硬扫描**：ai_live 正则 `^## \d+-\d+ ` 计数，不在 3-5 范围扣分；comic 正则 `^\d+-\d+[日夜]/[内外]` 计数（强制日/夜 + 内/外完整格式），>3 红线 / 2<x≤3 黄线 / ≤2 绿线 |
 | 主线与连贯性 | /10 | 灵魂三问 + 目标层层递进 + 前后一致 + 转变逻辑（参考 realism-checklist.md）+ **跨集台词复用扫描**（本集关键台词 grep `used-lines.md`，精确/近似命中 ≥1 次 -2 分，≥3 次 -5 分。扫描规则见 `used-lines-protocol.md#自检扫描规则`，例外见"允许的例外"）+ **前 30s 钩子位置扫描**（剧本正文前 1/3 **字数**中必须出现至少 1 次冲突/爆点；字数按中文字符计，不含 `>` 引用块 / H1 标题 / `---` 分隔符 / HTML 注释 / 集末自查等元信息段；否则该维度 -2） | 跨集台词复用 ≥3 次该维度上限 3 分 |
 | 反抽象与镜头化 | /10 | **按 medium 分叉**：ai_live → 纯情绪词 + A/B/C 4 类模式 → 物理动作 / 外部反应 / 拆层；场景叙事层 + OS 超阈归本维度，单集 -3 上限；**C 类 vs 上帝视角**不重复扣；详见 `quality-rules.md#反抽象-画面可拍性规则-轻约束`。comic → **固定 10/10**（漫剧分镜特写可承载微表情，不适用 ai_live 的反抽象扣分），总分稳定 | — |
-| AI Slop | /10 | 书面化扫描 + 情绪过平滑 + 巧合堆砌统计 + AI 生成痕迹；**场景叙事层比喻堆叠**（单集 ≥4 处 -2，与维度 6 不重复扣：同句命中 A/B/C 优先归维度 6）+ **VO 超阈**（每集 >20% 字数 -1 / 单段 >3 句 -1） | 巧合词 ≥3 次扣分 |
+| AI Slop | /10 | 书面化扫描 + 情绪过平滑 + 巧合堆砌统计 + AI 生成痕迹；**场景叙事层比喻堆叠**（单集 ≥4 处 -2，与维度 6 不重复扣：同句命中 A/B/C 优先归维度 6）+ **VO 超阈**（每集 >20% 字数 -1 / 单段 >3 句 -1） | 巧合词 ≥3 次 → AI Slop ≤6；≥5 次 → ≤4（v1.18.2 硬约束） |
 | 考据可追溯性 | /10 | 专业术语映射 bible / 时代领域常识 / 制度规则一致 / 虚构白名单（题材为轻型时记 N/A 不计入总分）| 厚型题材无 bible → 0 分；命中 1 条雷区 ≤6 分；命中 ≥2 条 ≤3 分 |
 | 对白格式合规 | 硬约束 | 按 `.drama-state.json#mode` 分化：国内模式（含 mode 缺失/默认）扫全文对白是否含双引号；出海模式反向检查对白必须含双引号 | 违反 → 标【严重】不计入总分但阻断 /导出，提示修复 |
 | 破折号密度 | 硬约束 | 统计**剧本正文**中 `——` 出现次数（排除 `>` 引用块 / `<!-- ... -->` HTML 注释 / 前情提要引用 / 集末自查 / 本集考据引用附录等元信息段）| 0-3 次不扣分（0 次首选）；≥4 次 → -2 分（从"格式与可拍性"维度扣，含 AI 误用扫描总扣分上限 -3，见 quality-rules.md L87）；用 `—` 或 `--` → 标【严重】 |
@@ -441,6 +441,12 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 ### /出海
 
 **功能：** 切换为出海模式（任意阶段可调用）——格式切换为好莱坞行业标准（INT./EXT.、WIDE SHOT/CLOSE-UP），语言默认英文，题材映射/文化适配见 `genre-guide.md` 出海部分（Billionaire / Werewolf/Alpha / Flash Marriage / Secret Baby 等已验证爆款元素）。
+
+**切换后强制加载 `references/overseas/` 全部 4 文件**：
+- `hard-rules.md` — 13 条非协商硬规则（男主不可杀平民/禁化学合意/禁中式 humiliation→power 弧 等）
+- `dialogue-craft.md` — L1 McKee/Mamet 通用 12 原则 + L2/L3 英文 voice 分层
+- `anti-patterns.md` — 英文禁词表（三幕/Save the Cat 等会触发好莱坞 prior 的术语）+ Gwen Hayes 4-Phase 20-Beat 锚定
+- `platform-knowledge.md` — ReelShort/DramaBox runtime ~90s / 付费墙物理 / hook 窗口 / genre 分类，带 HIGH/MED/LOW 信心标
 
 **切换确认：**
 ```
