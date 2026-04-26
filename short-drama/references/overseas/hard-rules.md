@@ -3,6 +3,8 @@
 > Violation of ANY rule = episode fails, must rewrite.
 > Source: B6 failure cases (13 rules) + B5 mafia craft expert + C2 recommendations
 > Read before /开始, /分集, /自检.
+>
+> **v1.20.0 适用范围说明**：domestic mode 的「Ep1 设计卡 / 首集冷开场硬合同 / 有效爽点判定 / 事件钩首集硬约束 / 首集传播句」**不强制套用到 overseas mode**——overseas 首集规则按本文件 + `anti-patterns.md`（mafia romance / dubcon timing / paywall × beat 对齐等海外 craft 体系）。如需把 v1.20.0 个别规则迁过来，需独立做 overseas 校准（mafia romance hard rules vs domestic 战神归来 hard rules 不可互换）。
 
 ---
 
