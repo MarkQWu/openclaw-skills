@@ -73,8 +73,8 @@ if (Test-Path $claudeDir) {
     $targets += Join-Path $claudeDir "skills"
 }
 
-# OpenClaw / WorkBuddy
-foreach ($name in @(".openclaw", ".workbuddy")) {
+# OpenClaw / WorkBuddy / Codex CLI / Gemini CLI（统一 <USERPROFILE>\<root>\skills 模式）
+foreach ($name in @(".openclaw", ".workbuddy", ".codex", ".gemini")) {
     $dir = Join-Path $env:USERPROFILE $name
     if (Test-Path $dir) {
         $targets += Join-Path $dir "skills"

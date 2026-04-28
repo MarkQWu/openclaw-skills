@@ -77,8 +77,8 @@ if [ -d "$HOME/.claude" ]; then
   targets+=("$CLAUDE_SKILLS_DIR")
 fi
 
-# OpenClaw / WorkBuddy
-for ocdir in "$HOME/.openclaw" "$HOME/.workbuddy"; do
+# OpenClaw / WorkBuddy / Codex CLI / Gemini CLI（统一 ~/<root>/skills 模式）
+for ocdir in "$HOME/.openclaw" "$HOME/.workbuddy" "$HOME/.codex" "$HOME/.gemini"; do
   if [ -d "$ocdir" ]; then
     oc_skills="$ocdir/skills"
     mkdir -p "$oc_skills"
