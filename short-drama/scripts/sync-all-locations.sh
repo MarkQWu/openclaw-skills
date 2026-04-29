@@ -14,6 +14,12 @@
 # 用法：
 #   bash scripts/sync-all-locations.sh          # 实际同步
 #   bash scripts/sync-all-locations.sh --dry    # 预览将要做什么
+#
+# Maintainer-only 文件物理隔离：
+#   master 下任何放在 `.maintainer/` 子目录里的文件**不会被 sync 到 5 副本**——
+#   即不会进 openclaw-skills 公开仓。用法：
+#     - 升级动议草稿、设计 journal、内部分析文档 → 放 `.maintainer/`
+#     - 用户文档、SKILL.md、references/ 等照常放 master 顶层（会被 sync）
 
 set -euo pipefail
 
@@ -61,6 +67,7 @@ for DEST in "${DESTINATIONS[@]}"; do
       --exclude='.git/' \
       --exclude='__pycache__/' \
       --exclude='*.pyc' \
+      --exclude='.maintainer/' \
       "$MASTER_DIR/" "$DEST/" | head -5
     continue
   fi
@@ -70,6 +77,7 @@ for DEST in "${DESTINATIONS[@]}"; do
     --exclude='.git/' \
     --exclude='__pycache__/' \
     --exclude='*.pyc' \
+    --exclude='.maintainer/' \
     "$MASTER_DIR/" "$DEST/"
 
   DEST_VERSION=$(cat "$DEST/VERSION" 2>/dev/null || echo "unknown")
