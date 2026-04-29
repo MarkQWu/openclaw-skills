@@ -31,7 +31,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## anchor 触发机制
 
-完整方法论见 `references/anchor-trigger.md`（v1.15.0 MVP · 5 题材激活 · 只借想象力/调性/情绪锚点，不借节奏）。本文件 `/创作方案` 和 `/分集` 命令中的 anchor 步骤引用该文件。
+完整方法论见 `references/anchor-trigger.md`（v1.23.0 · 全 13 题材激活 · 只借想象力/调性/情绪锚点，不借节奏）。本文件 `/创作方案` 和 `/分集` 命令中的 anchor 步骤引用该文件。
 
 ---
 
@@ -113,7 +113,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **加载参考：** opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**
 
-**anchor 推荐步骤（v1.15.0 MVP，仅 5 题材触发）：** 选定题材是 MVP 5 题材之一（都市情感 / 重生穿越 / 古装宫廷 / 励志逆袭 / 悬疑探案）时，**生成内容前**按 `references/anchor-trigger.md#创作方案-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。非 MVP 5 题材跳过此步骤直接进入"生成内容"。
+**anchor 推荐步骤（v1.23.0，全 13 题材触发）：** **生成内容前**按 `references/anchor-trigger.md#创作方案-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。
 
 **生成内容：**
 
