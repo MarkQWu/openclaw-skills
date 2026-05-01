@@ -128,6 +128,8 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 9. **爽点矩阵**（按 satisfaction-matrix.md 规划）
 10. **结局设计**
 
+**选题碰撞处方展示（增量，非阻断）：** 生成创作方案前，检查 `.drama-state.json#clashes`：若存在至少一条碰撞记录，Read 最新一份 `clashes/clash-*.md`，提取 `<!-- PRESCRIPTIONS -->` 块，在创作方案正文开头显示「📋 选题碰撞处方（来自 {文件名}）」块，供方案生成时参考。无碰撞记录则跳过，不提示也不阻断。
+
 **输出格式：** 见 `references/output-templates.md#创作方案`
 
 **输出：** 保存为 `creative-plan.md`
@@ -176,6 +178,51 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 ```
 
 **注意：** `/重构` 只生成创意骨架，不创建项目文件。确认选用变体后，用 `/新建` 建项目，再用 `/创作方案` 展开。
+
+---
+
+### /选题碰撞 [题材]
+
+**用途：** 召集跨领域专家进行选题方向的思想碰撞——行业执行者、方法论批评者、跨域学者三视角对选题方向生成结构化辩论，产出可直接落到创作决策的处方列表。
+
+**适用场景：** 想法成型前验证赛道；`/创作方案` 前确认方向；拿不定主意要不要做某个题材。
+
+**加载参考：** `references/roundtable-figures.md`（人物库）
+
+**前置检查 — 题材获取：**
+- `.drama-state.json` 中 `genre` 非空 → 使用 state 题材，不重复询问
+- `genre` 为空 → **只问一句**：「你想碰撞的题材方向是？（如：都市言情 / 战神逆袭 / 古装宫斗）」→ 用户回复后继续，**不写入 state**
+
+**人物召集：** 按题材从 `references/roundtable-figures.md` 选对应分组（A-派 + B-派 + ⭐意外视角），首次发言时身份标注完整展示。
+
+**碰撞流程（4 轮）：**
+
+- **Round 0（主持人破冰）：** 主持人简述当前选题方向，提出核心辩题（如「这个题材的核心爽点机制是否已过饱和？」）。
+- **Round 1（首轮各抒己见）：** A → B → ⭐ 顺序，每人 2-4 句。**每位必须回应上一位的核心论点**，不能自说自话。B-派从批评视角质疑 A-派的执行取向，⭐意外视角用跨域框架重新诠释前两位的争论。
+- **Round 2（交叉质询）：** 每人向另一位提一个尖锐问题（共 3 组），对方必须回答。问题须有「你说 X，但 Y 怎么办」具体结构。
+- **Round 3（最终立场）：** 每人 1-2 句，给出最终判断：这个选题值得做吗？如果做，最关键的一个创作决策是什么？
+
+**主持人综合：**
+- 处方列表（3-5 条，格式：`处方 N：[具体创作决策]`）
+- 关键争议未决点（0-2 条）
+
+**Mermaid 张力图（`mermaid@10.9.0`，附文字 fallback）：**
+
+```mermaid
+graph LR
+  A[A-派观点核心词] -- "支持/反对 + 关键论据一句话" --> B[B-派观点核心词]
+  B -- "..." --> C[意外视角核心词]
+  C -- "..." --> A
+```
+
+**输出格式：** 见 `references/output-templates.md#选题碰撞`
+
+**文件管理：**
+- 保存为 `clashes/clash-{YYYYMMDD-HHMM}.md`（如 `clashes/clash-20260501-1430.md`）
+- 文件头写入机器可读处方块：`<!-- PRESCRIPTIONS: 处方1|处方2|处方3 -->`
+- 更新 `.drama-state.json#clashes[]`：追加 `{"file": "clashes/...", "topic": "碰撞主题一句话", "timestamp": "YYYY-MM-DD HH:MM"}`
+
+**结束提示：** `[完成] 选题碰撞已保存 → clashes/{文件名} | 想深化方向？输入 /创作方案 构建故事骨架`
 
 ---
 
@@ -271,6 +318,8 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **anchor inline + `--fix anchor-rhythm` 子命令：** 如 `creative-plan.md` 有 `anchor` 字段，按 `references/anchor-trigger.md#分集-anchor-inline` 把 anchor prompt 模板 inline 到分集生成 prompt；无 `anchor` 字段则跳过。节奏污染时 `/分集 N --fix anchor-rhythm` 重写（详见 `references/anchor-trigger.md#fix-anchor-rhythm-子命令`）。
 
+**圆桌处方加载（重写/修改场景）：** 当 `episodes/ep{NNN}.md` 已存在时（重写/修改场景），**优先加载** `roundtables/` 目录下 ep{NNN} 对应的最新诊断文件。若文件存在，提取 `<!-- PRESCRIPTIONS -->` 块，将处方列表 inline 到重写 prompt 前置上下文中（格式：`[圆桌处方] 处方1 | 处方2 | ...`）。无文件则跳过，不影响正常生成流程。
+
 **破折号实时节制（硬约束，生成时边写边数）：** **剧本上破折号基本不需要出现**——单集 `——` **默认 0 次是首选**，真正必要时累计 ≤3 次（写第 1 次后即警惕、第 2 次后就应审视能否改完整句、第 3 次后**立刻**换其他停顿手段：逗号+动作描写 / 换对话轮次 / 中文省略号「…」）。多数破折号都能改完整句 + 合适语气标点。不把它留给 /自检 再返工。双层防线：生成层此约束 + 自检层事后扣分（见 `/自检` 破折号密度硬约束，及总扣分上限 -3）。
 
 **画面可拍性实时节制（生成时分层提醒，v1.15.6 新增）：** 写 △ 段落时问自己：**摄影机能拍到这句吗？** **OS/VO 层允许诗意比喻**（anchor 红利承载位，想象力想往哪飞就往哪飞），**△ 场景叙事层必须可拍**（物件 / 动作 / 环境 / 表情）。分层边界见 `references/quality-rules.md#反抽象-画面可拍性规则-轻约束`。双层防线：生成层此约束（抽象原则，不列触发词）+ 自检层事后扣分（见 `/自检` 维度 6 及 A/B/C 类判定）。
@@ -363,7 +412,69 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **评分标准：** 总分动态——厚型/中型 80（含第 8 维度），轻型 70（第 8 维度 N/A）。完整阈值+过稿预估见 `quality-rubric.md#评分标准与平台过稿预估`。
 
+**checks/ 写入（供 /圆桌诊断 读取）：** 评分完成后，额外写入 `checks/ep{NNN}-check.md`，内容格式如下（文件不存在则新建，已存在则覆盖）：
+
+```
+# ep{NNN} 自检摘要 · {YYYY-MM-DD}
+
+总分：{X}/{满分}
+维度分布：节奏{X} / 爽点{X} / 台词{X} / 格式{X} / 主线{X} / 反抽象{X} / AISlop{X} / 考据{X}
+最低分维度：{维度名}（{分数}/{满分}）
+最高分维度：{维度名}（{分数}/{满分}）
+
+主要问题：
+- {问题1}
+- {问题2}
+- {问题3（如有）}
+
+建议：{重写 / 微调 / 通过}
+```
+
 **结束提示：** 给出建议（重写/微调/通过）。不合格额外警告：`[注意] 本集自检不合格（{X}/{满分}），/导出 将被阻断。请修改后重新 /自检`
+
+---
+
+### /圆桌诊断 {N}
+
+**用途：** 对已完成自检的集数召集圆桌专家，从行业执行、方法论批评、跨域三视角生成质量诊断和修改处方。
+
+**适用场景：** `/自检` 评分偏低想理解根因；需要具体修改方向；想知道专业创作者会怎么评价这集。
+
+**前置检查（硬门控，无绕过）：**
+
+读取 `.drama-state.json → qualityScores["{N}"]`
+- 字段存在且非 null → 继续诊断流程
+- 字段不存在或为 null → **输出以下固定消息后停止**：
+
+  `[阻断] 请先对第 {N} 集执行 /自检 {N}，获得质检分数后再启动圆桌诊断。`
+
+**加载资料：**
+- `references/roundtable-figures.md`（人物库）
+- `episodes/ep{NNN}.md`（目标集剧本正文）
+- `checks/ep{NNN}-check.md`（自检详细评分，如存在则读取）
+- `.drama-state.json#qualityScores["{N}"]`（总分 + 维度）
+
+**人物召集：** 按 `.drama-state.json#genre` 对应分组（A-派 + B-派 + ⭐意外视角），首次发言时身份标注完整展示。
+
+**诊断流程（4 轮）：**
+
+- **Round 0（主持人破题）：** 主持人展示本集质检摘要（总分 / 最低分维度 / 最高分维度），提出核心诊断问题。
+- **Round 1（各自初判）：** A → B → ⭐ 顺序，从自身框架出发初步诊断本集（2-4 句）。**每位必须回应上一位的核心论点**，不能自说自话。⭐意外视角用跨域框架命名问题。
+- **Round 2（修改方向分歧）：** 每人提出自己优先修改的维度（不能完全相同），说明理由（1-2 句）。产生观点冲突时双方互相质疑一轮。
+- **Round 3（最终处方）：** 每人给出 1-2 条具体可执行的修改建议——必须是动作句，不是方向性表述（如「第 2 场第 3 句台词把'你为什么这么做'改成有具体指向的指责」）。
+
+**主持人综合：**
+- 处方列表（3-5 条，格式：`处方 N：[具体修改动作]`）
+- 诊断焦点（1 句话：这集最核心的问题是什么）
+
+**输出格式：** 见 `references/output-templates.md#圆桌诊断`
+
+**文件管理：**
+- 保存为 `roundtables/rt-ep{NNN}-{YYYYMMDD-HHMM}.md`（如 `roundtables/rt-ep001-20260501-1450.md`）
+- 文件头写入机器可读处方块：`<!-- PRESCRIPTIONS: 处方1|处方2|处方3 -->`
+- 更新 `.drama-state.json#roundtables`：追加 `"{N}": {"file": "roundtables/...", "timestamp": "YYYY-MM-DD HH:MM", "diagnosis": "焦点一句话"}`
+
+**结束提示：** `[完成] 圆桌诊断已保存 → roundtables/{文件名} | 处方已内嵌，/分集 {N} 重写时会自动读取处方`
 
 ---
 
@@ -644,7 +755,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
    - 存在 + `currentStep` 为空（stub 残留）→ 覆盖 stub（安全）
    - 损坏 JSON → 询问覆盖重建
    - 不存在 → 继续
-3. **建目录 + 写完整 stub state**（24 字段）：`mkdir -p ~/short-drama-projects/<项目名>/` + 写 `.drama-state.json`，stub 模板见 `references/project-management.md#stub-state`（仅 projectName/dramaTitle 填值，其他字段初始化为空数组/对象/字符串）
+3. **建目录 + 写完整 stub state**（26 字段）：`mkdir -p ~/short-drama-projects/<项目名>/` + 写 `.drama-state.json`，stub 模板见 `references/project-management.md#stub-state`（仅 projectName/dramaTitle 填值，其他字段初始化为空数组/对象/字符串）
 4. 输出："项目《X》已创建。输入 `/开始` 进入选题流程"
 
 **与 `/开始` 分工：** `/开始` = 入口扫描 + 让用户选；`/新建` = 显式新建，不进选择列表
@@ -657,6 +768,28 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 ---
 
+### /查看诊断 [{N}]
+
+**功能：** 读取并展示已保存的圆桌诊断记录。
+
+- `/查看诊断`：列出所有 `roundtables/rt-ep*-*.md` 文件，按集数升序排列，每行展示：集数 / 时间戳 / 诊断焦点一句话（来自 `.drama-state.json#roundtables`）
+- `/查看诊断 {N}`：Read `roundtables/` 下 ep{NNN} 开头的最新文件（多份时取 mtime 最新），提取 `<!-- PRESCRIPTIONS -->` 块展示处方列表，附完整诊断原文
+
+**无文件时：** 「当前项目暂无圆桌诊断记录。运行 /圆桌诊断 {N} 生成第 N 集的诊断。」
+
+---
+
+### /查看碰撞
+
+**功能：** 读取并展示已保存的选题碰撞记录。
+
+- `/查看碰撞`：列出所有 `clashes/clash-*.md`，按时间戳倒序排列，每行展示：文件名 / 碰撞主题一句话（来自 `.drama-state.json#clashes`）
+- 同时展示最新一份碰撞的处方列表（提取 `<!-- PRESCRIPTIONS -->` 块）
+
+**无文件时：** 「当前项目暂无选题碰撞记录。运行 /选题碰撞 开始第一次碰撞。」
+
+---
+
 ### /项目状态
 
 **功能：** 生成/更新当前活跃项目的 `README.md`（剧名 + 当前阶段 + 进度 + 下一步命令建议）。
@@ -664,6 +797,13 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 **前置条件：** 已有活跃项目（`/开始` 选过或 mtime fallback 加载，**不依赖 cwd**）。
 
 **输出格式：** 见 `references/output-templates.md#README`
+
+**圆桌统计（增量追加到 README）：** 生成 README 时，同步读取 `.drama-state.json#clashes` 和 `#roundtables`，在 README 末尾追加统计块：
+```
+## 圆桌记录
+选题碰撞：{N} 次 | 圆桌诊断：{M} 集（集号列表）
+```
+clashes/roundtables 均为空时省略此块。
 
 **输出：** `~/short-drama-projects/<projectName>/README.md`（绝对路径，覆盖写入）。
 

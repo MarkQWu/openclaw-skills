@@ -36,6 +36,15 @@
 │   ├── ep002.md
 │   └── ...
 ├── compliance-report.md      # 合规报告（如生成）
+├── clashes/                  # 选题碰撞记录（/选题碰撞 生成）
+│   ├── clash-20260501-1430.md
+│   └── ...
+├── roundtables/              # 圆桌诊断记录（/圆桌诊断 生成）
+│   ├── rt-ep001-20260501-1450.md
+│   └── ...
+├── checks/                   # 自检评分详情（/自检 生成，供 /圆桌诊断 读取）
+│   ├── ep001-check.md
+│   └── ...
 ├── character-cards/          # 角色视觉卡（/角色卡 生成）
 │   ├── {角色名}.md
 │   └── ...
@@ -99,7 +108,7 @@
 
 **活跃项目锚定**：选中后 LLM 本会话所有产出走绝对路径 `~/short-drama-projects/<projectName>/`。不再读写 cwd。
 
-## /新建 stub state 模板（24 字段完整）
+## /新建 stub state 模板（26 字段完整）
 
 `/新建 <项目名>` 写入 `~/short-drama-projects/<项目名>/.drama-state.json`：
 
@@ -128,11 +137,27 @@
   "lastSynopsisTimestamp": "",
   "lastSynopsisEpisodeCount": 0,
   "lastSynopsisEpisodeHash": "",
-  "lastSynopsisPath": ""
+  "lastSynopsisPath": "",
+  "clashes": [],
+  "roundtables": {}
 }
 ```
 
-**关键**：必须写 **24 字段全集** 而非仅 2 字段，否则下游 Step 5 存 state 时 overwrite 会丢字段。
+**关键**：必须写 **26 字段全集** 而非仅 2 字段，否则下游 Step 5 存 state 时 overwrite 会丢字段。
+
+### 字段说明：clashes / roundtables（v1.25.0 新增）
+
+**`clashes`**：数组，记录历次 `/选题碰撞` 产出。每个元素结构：
+```json
+{"file": "clashes/clash-20260501-1430.md", "topic": "碰撞主题一句话", "timestamp": "2026-05-01 14:30"}
+```
+
+**`roundtables`**：对象，键为集数字符串（如 `"1"`、`"5"`），值记录该集最新圆桌诊断。结构：
+```json
+{"1": {"file": "roundtables/rt-ep001-20260501-1450.md", "timestamp": "2026-05-01 14:50", "diagnosis": "诊断焦点一句话"}}
+```
+
+向后兼容：老项目（v1.24.x 及之前）state 无 `clashes` / `roundtables` → 加载时视为 `[]` / `{}`，不破坏现有行为。
 
 ### 字段说明：medium（v1.16.0 新增）
 
