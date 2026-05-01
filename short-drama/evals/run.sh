@@ -66,16 +66,16 @@ if grep -qE '"mode"\s*:\s*"overseas"' "$PROJECT_DIR/.drama-state.json" 2>/dev/nu
   IS_OVERSEAS=1
 fi
 
-# A1: anchor 字段（仅 MVP 5 题材）
+# A1: anchor 字段（全 13 题材）
 echo "## A1 anchor 字段触发"
-if grep -qE "MVP 5|都市情感|重生穿越|古装宫廷|励志逆袭|悬疑探案" "$PLAN"; then
+if grep -qE "都市情感|霸道总裁|甜宠|重生穿越|古装宫廷|励志逆袭|悬疑探案|战神归来|家庭伦理|萌宝|软科幻|末日重生|喜剧" "$PLAN"; then
   if grep -qE "^## anchor|^### anchor|^- anchor:|anchor:" "$PLAN"; then
     check "A1" "PASS" "(creative-plan.md 含 anchor 字段)"
   else
-    check "A1" "FAIL" "(MVP 5 题材但 creative-plan 缺 anchor 字段 → anchor-trigger.md 未生效)"
+    check "A1" "FAIL" "(国内 13 题材但 creative-plan 缺 anchor 字段 → anchor-trigger.md 未生效)"
   fi
 else
-  check "A1" "NA" "(题材未命中 MVP 5)"
+  check "A1" "NA" "(题材未命中国内 13 题材，或出海模式)"
 fi
 
 # A2: 前 1/3 字数有冲突词

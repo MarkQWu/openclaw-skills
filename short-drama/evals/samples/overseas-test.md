@@ -52,7 +52,7 @@ Target platform mode: ReelShort 90-second episodes, IAP first paywall at EP11
 
 ## 期望 /分集 1 通过的 assertion
 
-- [x] **A1** N/A（题材是 Billionaire Romance，不在 anchor MVP 5 题材内 → anchor 字段可不出现）
+- [x] **A1** N/A（出海模式，Billionaire Romance 不在 anchor 覆盖的国内 13 题材内 → anchor 字段可不出现）
 - [x] **A2** 前 1/3 字数有冲突/钩子词（"trembling" / "frozen" / "hidden" 等英文等价）
 - [x] **A3** Hollywood 格式：≥2 个 INT./EXT. 场景头 + ≥1 个 WIDE SHOT/CLOSE-UP；**0** 命中中式 humiliation→power 弧禁词（赘婿/逆袭/打脸/废柴/战神）
 - [x] **A4** 自检 7 维度齐全

@@ -61,7 +61,7 @@ diff \
 
 | ID | 类型 | 简述 |
 |---|---|---|
-| A1 | mech | anchor 字段触发（MVP 5 题材时 creative-plan 含 anchor） |
+| A1 | mech | anchor 字段触发（全 13 题材时 creative-plan 含 anchor） |
 | A2 | mech | 开场前 1/3 字数有冲突词 |
 | A3 | mech (overseas) | 海外模式好莱坞格式 + 反中式 humiliation→power 弧 |
 | A4 | mech | 自检 7 维度齐全 |

@@ -1,20 +1,30 @@
-# anchor 触发机制（v1.15.0 · MVP）
+# anchor 触发机制（v1.23.0）
 
 **目的**：让模型在写本时调用对中文现象级 IP 的 implicit knowledge，提升输出调性，**但不破坏短剧节奏**。
 
 **触发哲学**：anchor 借的是 ① **想象力**（世界观厚度 / 设定颗粒度）② **角色调性** ③ **情绪锚点**。**禁止借**节奏、章节长度、铺垫密度——本剧节奏由【秒级节奏锚点】+【台词≤2 句】+【爽点≥3】等硬约束控制。
 
-## Phase 1 MVP 激活的 5 部 anchor（覆盖 5 题材）
+## 全题材激活（13 题材，覆盖 genre-guide.md 全部条目）
 
-| 题材 | anchor | 借什么 hint |
+所有主流题材均已启用 anchor 推荐。各题材的 anchor 候选详见 `genre-guide.md` 对应题材的 `#### anchor 参考` section，以及 `references/anchor-library.md` 完整库。
+
+多 anchor 题材（有 2 部或以上候选，用户回"换"时可切换到备选）：
+
+| 题材 | 主 anchor | 备选 anchor |
 |---|---|---|
-| 都市情感 | 《何以笙箫默》（顾漫）| "克制深情"调性 |
-| 重生穿越 | 《庆余年》（猫腻）| 现代灵魂入古代权谋（优先调用范闲 + 叶轻眉遗志主轴）|
-| 古装宫廷 | 《后宫·甄嬛传》（流潋紫）| "由柔到狠"女性弧光 |
-| 励志逆袭 | 《平凡的世界》（路遥）| 反 AI slop 的真实质感 |
-| 悬疑探案 | 《隐秘的角落》（紫金陈）| 非警察视角黑色叙事 |
-
-详见 `references/anchor-library.md`（含 v2 灰度库 28 部 Phase 2 候选）。MVP 5 题材外（霸道总裁 / 甜宠 / 战神归来 / 家庭伦理 / 萌宝 / 软科幻 / 末日重生 / 喜剧 / 玄幻仙侠 / 现代都市异能 / 女频古代）**Phase 1 不触发 anchor**，正常进入下一阶段。
+| 都市情感 | 《何以笙箫默》| — |
+| 霸道总裁 | 《杉杉来了》| 《亲爱的，热爱的》|
+| 甜宠 | 《微微一笑很倾城》| 《下一站是幸福》|
+| 重生穿越 | 《庆余年》| 《步步惊心》/《雪中悍刀行》|
+| 古装宫廷 | 《后宫·甄嬛传》| 《延禧攻略》|
+| 励志逆袭 | 《平凡的世界》| 《士兵突击》/《大江大河》|
+| 悬疑探案 | 《隐秘的角落》| 《狂飙》/《白夜追凶》|
+| 战神归来 | 《全职高手》| — |
+| 家庭伦理 | 《都挺好》| — |
+| 萌宝 | 《家有儿女》| — |
+| 软科幻 | 《三体》| — |
+| 末日重生 | 《北京折叠》| — |
+| 喜剧 | 《武林外传》| — |
 
 ## anchor prompt 模板（生成时 inline 到 prompt）
 
@@ -48,23 +58,21 @@
 
 ---
 
-## /创作方案 anchor 推荐步骤（仅 MVP 5 题材触发）
+## /创作方案 anchor 推荐步骤（全题材触发）
 
-如选定题材是 MVP 5 题材之一，**生成内容前**先做 anchor 推荐：
+所有 13 题材均触发 anchor 推荐。**生成内容前**先做 anchor 推荐：
 
-1. 从 `genre-guide.md` 的对应题材 `### anchor 参考` section 读 anchor 候选
-2. 基于 `seedIdea` + 题材 + anchor hint，生成推荐句（**严格用此模板**）：
+1. 从 `genre-guide.md` 的对应题材 `#### anchor 参考` section 读 anchor 候选
+2. 基于 `seedIdea` + 题材 + anchor hint，推荐主 anchor（**严格用此模板**）：
    > 你的 seedIdea「[seedIdea]」结合 [题材] 题材，建议借鉴《[anchor 作品名]》——借的是 [hint]，是否接受？[Y / 换 / N]
 3. 处理用户回复：
    - **Y** → 把 anchor 写入 `creative-plan.md` 的 `anchor` 字段（含作品名 + 作者 + hint）
-   - **换** → MVP 5 题材每题材仅 1 部 anchor，"换"等同 N（直接进入 N 流程）。Phase 2 灰度库激活后才有第 2 候选
+   - **换** → 查上方"多 anchor 题材"表：有备选 → 推荐备选 anchor；无备选（单 anchor 题材）→ 等同 N（进入 N 流程）
    - **N** → 询问"想自己指定一部吗？（可选，输入作品名跳过推荐 / 回车跳过 anchor）" → 用户输入则记录到 `creative-plan.md` 的 `anchor.userSpecified=true`，不输入则清空 anchor 字段
-
-非 MVP 5 题材 → **跳过 anchor 推荐步骤**直接进入"生成内容"。
 
 ## /分集 anchor inline
 
-如 `creative-plan.md` 有 `anchor` 字段（5 题材且用户接受了 anchor 推荐），把上方 **anchor prompt 模板**填入实际 anchor 信息后 inline 到分集生成 prompt。如无 `anchor` 字段（用户回 N / 非 MVP 题材） → 跳过此步骤，按现有流程生成。
+如 `creative-plan.md` 有 `anchor` 字段（用户接受了 anchor 推荐），把上方 **anchor prompt 模板**填入实际 anchor 信息后 inline 到分集生成 prompt。如无 `anchor` 字段（用户回 N / 跳过 anchor） → 跳过此步骤，按现有流程生成。
 
 ## `/分集 N --fix anchor-rhythm` 子命令
 
