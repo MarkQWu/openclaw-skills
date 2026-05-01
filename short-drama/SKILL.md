@@ -225,6 +225,8 @@ graph LR
 
 **输出格式：** 见 `references/output-templates.md#选题会`
 
+**⚠️ 对话框完整输出（强制，先于文件管理）：** Round 0 → Round 1 → Round 2 → Round 3 → 主持人综合处方，必须完整输出到对话框。禁止以「内容已保存，请查看文件」或仅输出处方摘要的方式省略对话框内容。文件管理是对话完整输出之后的额外操作，两者不互斥。
+
 **文件管理：**
 - 保存为 `clashes/clash-{YYYYMMDD-HHMM}.md`（如 `clashes/clash-20260501-1430.md`）；`.md` 正文末尾张力图 hint 行 `{文件名}` 同样替换为实际文件名基名
 - 同时生成 `clashes/clash-{YYYYMMDD-HHMM}.html`：纯 HTML+SVG，零外部依赖，双击即可在浏览器查看张力图（完全离线可用）。HTML 结构见 `references/output-templates.md#选题会-HTML`；`.html` 文件仅含可视化图表，不写 PRESCRIPTIONS 块
@@ -505,6 +507,8 @@ graph LR
 - 诊断焦点（1 句话：这集最核心的问题是什么）
 
 **输出格式：** 见 `references/output-templates.md#圆桌诊断`
+
+**⚠️ 对话框完整输出（强制，先于文件管理）：** Round 0 → Round 1 → Round 2 → Round 3 → 主持人综合处方，必须完整输出到对话框。禁止以「内容已保存，请查看文件」或仅输出处方摘要的方式省略对话框内容。文件管理是对话完整输出之后的额外操作，两者不互斥。
 
 **文件管理：**
 - 保存为 `roundtables/rt-ep{NNN}-{YYYYMMDD-HHMM}.md`（如 `roundtables/rt-ep001-20260501-1450.md`）
