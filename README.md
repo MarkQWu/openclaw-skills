@@ -4,7 +4,7 @@
 
 用 AI 写能拍的微短剧——从选题到分镜，一条命令链走完。
 
-支持 **Claude Code**、**OpenClaw** 和 **WorkBuddy**。
+支持所有能加载 Skill 的 AI agent（Claude Code / OpenClaw / WorkBuddy 等）。
 
 ## 它能做什么
 
