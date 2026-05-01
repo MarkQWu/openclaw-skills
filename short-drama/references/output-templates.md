@@ -1098,11 +1098,26 @@ Step 5: 剪辑成片（外部工具）
 
 ## Round 1 · 首轮各抒己见
 
-**{姓名A}**：{发言内容}
+---
+**{姓名A}**（A-派）
 
-**{姓名B}**：{发言内容，必须回应 A 的论点}
+{发言内容，长度不限，聚焦论点}
 
-**⭐ {姓名C}**：{发言内容，用跨域框架诠释前两位的争论}
+🔑 **核心论断：** {一句话提炼此人观点}
+
+---
+**{姓名B}**（B-派）
+
+{发言内容，必须正面回应 A 的论点}
+
+🔑 **核心论断：** {一句话提炼此人观点}
+
+---
+**⭐ {姓名C}**（意外视角）
+
+{发言内容，用跨域框架诠释前两位的争论}
+
+🔑 **核心论断：** {一句话提炼此人观点}
 
 ---
 
@@ -1133,10 +1148,19 @@ Step 5: 剪辑成片（外部工具）
 
 ### 处方列表
 
-- 处方 1：{具体创作决策}
-- 处方 2：{具体创作决策}
-- 处方 3：{具体创作决策}
-- （处方 4-5 如有）
+- **[⚖️ 稳妥] 处方 1：{具体创作决策标题}**  
+  📌 解决问题：{处方针对的核心矛盾，一句话}  
+  💡 选用理由：{在什么情况下选这条，≤20字}
+
+- **[🎯 中规中矩] 处方 2：{具体创作决策标题}**  
+  📌 解决问题：{处方针对的核心矛盾，一句话}  
+  💡 选用理由：{在什么情况下选这条，≤20字}
+
+- **[⚡ 冒险] 处方 3：{具体创作决策标题}**  
+  📌 解决问题：{处方针对的核心矛盾，一句话}  
+  💡 选用理由：{在什么情况下选这条，≤20字}
+
+- （处方 4-5 格式同上，风险类型按实际判断标注）
 
 ### 关键争议未决点
 
@@ -1158,13 +1182,78 @@ graph LR
 {B-派核心词} → ... → {意外视角核心词}
 {意外视角核心词} → ... → {A-派核心词}
 </pre>
+
+> 💡 **张力图**：双击 `clashes/{文件名}.html` 用浏览器查看可视化版（已自动生成，双击即开，无需安装任何软件）。上方 mermaid 代码块为文本回退，仅供支持 mermaid 的编辑器渲染；可视化以 .html 为准（纯 SVG，完全离线）。
 ```
+
+---
+
+## 选题会-HTML
+
+`clashes/clash-{YYYYMMDD-HHMM}.html` 由 `/选题会` 命令与 .md 文件同步生成。纯 HTML+SVG，零外部依赖，完全离线，双击即在浏览器打开。模板如下：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选题会张力图 · {题材} · {YYYY-MM-DD}</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 720px; margin: 3rem auto; padding: 0 2rem; background: #f5f5f5; }
+  h2 { font-size: 1rem; font-weight: 600; color: #555; margin-bottom: 1.2rem; }
+  .diagram { background: #fff; border-radius: 14px; box-shadow: 0 2px 14px rgba(0,0,0,.08); padding: 1.5rem; }
+  svg { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+<h2>选题会张力图 · {题材} · {YYYY-MM-DD HH:MM}</h2>
+<div class="diagram">
+<svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#999"/>
+    </marker>
+  </defs>
+  <!-- A-派 节点（顶部中央）-->
+  <rect x="220" y="20" width="200" height="56" rx="10" fill="#EBF4FF" stroke="#6BA4D0" stroke-width="1.5"/>
+  <text x="320" y="43" text-anchor="middle" font-size="12" font-weight="600" fill="#333">A-派</text>
+  <text x="320" y="62" text-anchor="middle" font-size="12" fill="#555">{A-派核心词}</text>
+  <!-- B-派 节点（左下）-->
+  <rect x="40" y="320" width="200" height="56" rx="10" fill="#FFF5E6" stroke="#D08040" stroke-width="1.5"/>
+  <text x="140" y="343" text-anchor="middle" font-size="12" font-weight="600" fill="#333">B-派</text>
+  <text x="140" y="362" text-anchor="middle" font-size="12" fill="#555">{B-派核心词}</text>
+  <!-- 意外视角 节点（右下）-->
+  <rect x="400" y="320" width="200" height="56" rx="10" fill="#EDFAED" stroke="#5BA05B" stroke-width="1.5"/>
+  <text x="500" y="343" text-anchor="middle" font-size="12" font-weight="600" fill="#333">⭐ 意外视角</text>
+  <text x="500" y="362" text-anchor="middle" font-size="12" fill="#555">{意外视角核心词}</text>
+  <!-- A → B 箭头 + 标签 -->
+  <line x1="262" y1="76" x2="170" y2="316" stroke="#bbb" stroke-width="1.5" marker-end="url(#ah)"/>
+  <rect x="150" y="183" width="116" height="30" rx="6" fill="#fff" stroke="#e0e0e0"/>
+  <text x="208" y="202" text-anchor="middle" font-size="10" fill="#888">{A→B关键论据}</text>
+  <!-- B → C 箭头 + 标签 -->
+  <line x1="240" y1="348" x2="396" y2="348" stroke="#bbb" stroke-width="1.5" marker-end="url(#ah)"/>
+  <rect x="263" y="305" width="114" height="30" rx="6" fill="#fff" stroke="#e0e0e0"/>
+  <text x="320" y="324" text-anchor="middle" font-size="10" fill="#888">{B→C关键论据}</text>
+  <!-- C → A 箭头 + 标签 -->
+  <line x1="468" y1="316" x2="378" y2="76" stroke="#bbb" stroke-width="1.5" marker-end="url(#ah)"/>
+  <rect x="374" y="183" width="116" height="30" rx="6" fill="#fff" stroke="#e0e0e0"/>
+  <text x="432" y="202" text-anchor="middle" font-size="10" fill="#888">{C→A关键论据}</text>
+</svg>
+</div>
+</body>
+</html>
+```
+
+**生成规则**：将实际内容（A-派核心词、B-派核心词、意外视角核心词、三条论据）替换上方占位符，写入 HTML 文件。文件名与 .md 保持一致（仅扩展名不同）。零外部依赖，完全离线可用。
 
 ---
 
 ## 圆桌诊断
 
-`roundtables/rt-ep{NNN}-{YYYYMMDD-HHMM}.md` 由 `/圆桌诊断` 命令生成。文件头含机器可读处方块，正文结构如下：
+`roundtables/rt-ep{NNN}-{YYYYMMDD-HHMM}.md` 由 `/圆桌诊断` 命令生成。文件头含机器可读处方块，正文结构如下。
+
+> **设计说明**：圆桌诊断只生成 `.md` 文件，无对应 `.html` 可视化版（选题会的张力图需三角结构，圆桌诊断核心是文本处方，无需图表化）。
 
 ```markdown
 <!-- PRESCRIPTIONS: 处方1|处方2|处方3 -->
@@ -1191,11 +1280,26 @@ graph LR
 
 ## Round 1 · 各自初判
 
-**{姓名A}**：{初步诊断 2-4 句}
+---
+**{姓名A}**（A-派）
 
-**{姓名B}**：{初步诊断 2-4 句，必须回应 A 的论点}
+{初步诊断，长度不限，聚焦关键问题}
 
-**⭐ {姓名C}**：{用跨域框架命名问题}
+🔑 **核心判断：** {一句话提炼此人诊断结论}
+
+---
+**{姓名B}**（B-派）
+
+{初步诊断，必须正面回应 A 的论点}
+
+🔑 **核心判断：** {一句话提炼此人诊断结论}
+
+---
+**⭐ {姓名C}**（意外视角）
+
+{用跨域框架命名问题}
+
+🔑 **核心判断：** {一句话提炼此人诊断结论}
 
 ---
 
@@ -1231,10 +1335,19 @@ graph LR
 
 ### 处方列表
 
-- 处方 1：{具体修改动作}
-- 处方 2：{具体修改动作}
-- 处方 3：{具体修改动作}
-- （处方 4-5 如有）
+- **[⚖️ 稳妥] 处方 1：{具体修改动作标题}**  
+  📌 解决问题：{处方针对的核心问题，一句话}  
+  💡 选用理由：{在什么情况下选这条，≤20字}
+
+- **[🎯 中规中矩] 处方 2：{具体修改动作标题}**  
+  📌 解决问题：{处方针对的核心问题，一句话}  
+  💡 选用理由：{在什么情况下选这条，≤20字}
+
+- **[⚡ 冒险] 处方 3：{具体修改动作标题}**  
+  📌 解决问题：{处方针对的核心问题，一句话}  
+  💡 选用理由：{在什么情况下选这条，≤20字}
+
+- （处方 4-5 格式同上，风险类型按实际判断标注）
 ```
 
 ---
