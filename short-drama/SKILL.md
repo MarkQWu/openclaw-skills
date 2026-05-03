@@ -934,6 +934,14 @@ clashes/roundtables 按以下规则决定显示内容：
 
 ---
 
+### /新功能
+
+**功能：** 查看最近一次版本更新了什么。
+
+**执行：** Read `{skill目录}/WHATSNEW.md` → 原文完整输出，不精简。
+
+---
+
 ### /更新
 
 **功能：** 检查最新版本并升级。详细流程见 `references/update-mechanism.md#更新-命令详细流程`
