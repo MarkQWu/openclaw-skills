@@ -37,9 +37,11 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 - **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息并展示更新内容：
   > [完成] 已从 v{旧版本} 升级到 v{新版本}！
   
-  然后读取 `WHATSNEW.md`，原文展示其内容（不要精简，让用户看到本次更新了什么）：
-  > **本次更新内容：**
-  > {WHATSNEW.md 全文}
+  然后读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）：
+
+  **本次更新内容：**
+
+  {WHATSNEW.md 全文，每行单独输出}
 
 - **`CHECK_FAILED 7d`** → 网络连续 7 天无法检查更新，显示淡提示：
   > [提示] 已超过 7 天未能检查更新（网络问题）。可手动运行 `/更新` 检查，或确认网络连通后自动恢复。
@@ -115,9 +117,11 @@ NEW_VER="$(head -1 "$SKILL_DIR/VERSION" 2>/dev/null | sed 's/^v//' | awk '{print
 echo "升级完成：v$OLD_VER → v$NEW_VER"
 ```
 
-4. 读取 `WHATSNEW.md`，原文展示其内容（不要精简）：
-   > **本次更新内容：**
-   > {WHATSNEW.md 全文}
+4. 读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）：
+
+   **本次更新内容：**
+
+   {WHATSNEW.md 全文，每行单独输出}
 
 5. 提示用户：
 > [完成] 升级完成！新版本在**下次对话**中生效（当前对话仍使用旧版 SKILL.md）。
