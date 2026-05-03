@@ -10,12 +10,21 @@
 
 | 输入形式 | 处理方式 |
 |---------|---------|
-| 用户粘贴文本 | 直接进入提取 |
-| 提供 `.md` 文件路径 | Read 文件，进入提取 |
-| 提供 `.docx` 文件路径 | `python3 -c "import docx; doc=docx.Document('PATH'); [print(p.text) for p in doc.paragraphs if p.text.strip()]"` 提取正文 |
-| 只给剧名/描述 | 用模型知识重建骨架，所有字段标 `[推断]`，提醒用户准确度有限 |
+| 用户粘贴文本 | 写入 `imitation/source-script.md`（原文落盘），再进入提取 |
+| 提供 `.md` 文件路径 | Read 文件 → cp 到 `imitation/source-script.md`（原文落盘），再进入提取 |
+| 提供 `.docx` 文件路径 | `python3 -c "import docx; doc=docx.Document('PATH'); [print(p.text) for p in doc.paragraphs if p.text.strip()]"` 提取正文 → 写入 `imitation/source-script.md`（原文落盘），再进入提取 |
+| 只给剧名/描述 | 用模型知识重建骨架，所有字段标 `[推断]`，提醒用户准确度有限。**不生成 source-script.md**（无原文可落盘） |
 
-> **大文件警告**：超过 50 集的源剧正文不要全读。告知用户"只需提供前 15 集和全剧大纲摘要（每集一句话）"，足以提取结构 DNA。
+**原文落盘规则**（有实际文本时必须执行）：
+- 目标路径：`~/short-drama-projects/<项目>/imitation/source-script.md`
+- 若源文件已是 `.md`：`cp <源路径> <目标路径>`（保留原格式）
+- 若是粘贴文本或 `.docx` 提取出的纯文本：Write 写入 `source-script.md`，在文件顶部加注：
+  ```
+  <!-- 原始来源：[粘贴文本 / 文件名.docx] | 提取日期：YYYY-MM-DD -->
+  ```
+- 落盘后在 Phase 1 提取完成提示里告知用户："原文已保存至 `imitation/source-script.md`，提取骨架见 `imitation/source-skeleton.md`"
+
+> **大文件警告**：超过 50 集的源剧正文不要全读。告知用户"只需提供前 15 集和全剧大纲摘要（每集一句话）"，足以提取结构 DNA。落盘时同样只写用户提供的部分（不补全）。
 
 ### 六维结构 DNA
 
@@ -60,6 +69,7 @@
 # 源剧骨架 — [参考剧名/描述]
 提取日期：YYYY-MM-DD
 数据来源：[粘贴文本 / 文件路径 / 推断]（推断的标注"[推断]"）
+原文存档：[imitation/source-script.md（如有）/ 无（仅推断）]
 
 ## 身份密码
 ...
@@ -330,7 +340,8 @@ Logline 格式：「[主角身份] + [触发事件] → [核心关系/对抗] + 
 
 | 文件 | 路径 | 创建于 |
 |-----|------|-------|
-| 源剧骨架 | `~/short-drama-projects/<项目>/imitation/source-skeleton.md` | Phase 1 末 |
+| 原文存档（有实际文本时）| `~/short-drama-projects/<项目>/imitation/source-script.md` | Phase 1 输入读取后立即 |
+| 源剧骨架 | `~/short-drama-projects/<项目>/imitation/source-skeleton.md` | Phase 1 提取完成 |
 | 迁移设定 | `~/short-drama-projects/<项目>/imitation/new-setting.md` | Phase 2 末 |
 | 集正文（每集一份）| `~/short-drama-projects/<项目>/episodes/ep{NNN}.md` | Phase 3 逐集 |
 

@@ -1,6 +1,6 @@
 # 爆款剧本工坊 | Drama Workshop
 
-**当前版本：v1.29.4**（2026-05-03）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/openclaw-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
+**当前版本：v1.29.5**（2026-05-03）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/openclaw-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
 
 用 AI 写能拍的微短剧——从选题到分镜，一条命令链走完。
 
