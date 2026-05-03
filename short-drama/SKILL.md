@@ -41,6 +41,18 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ---
 
+## 更新提醒（所有命令强制前置）
+
+执行任何命令前检查是否有版本更新：
+1. Read `{skill目录}/VERSION` → current_version
+2. Read `{skill目录}/.last-version-shown`（文件不存在视为空字符串）
+3. 若 current_version ≠ last_shown：
+   - 若 `{skill目录}/WHATSNEW.md` 存在 → 在命令输出最前面展示全部内容（`---` 包围，加「📣 更新提醒」标题）
+   - `echo {current_version} > {skill目录}/.last-version-shown` 记录已展示
+4. 版本相同 → 跳过，直接进入格式控制步骤
+
+---
+
 ## 格式控制（所有命令强制前置）
 
 执行任何命令前先按 `references/format-control.md` 的**格式锚定步骤**读 `.drama-state.json#mode/language` 锚定输出模板。该文件含三段规则：**格式封闭原则**（对白引号/破折号密度/emoji 禁用等硬约束，违反扣分或阻断 /导出）、**新格式规范**（场景头顺序/音乐标注/OS/VO 粗体/考据附录边界等，违反 → 自检以【建议】标签提示，不扣分）、国内/出海双模式分化细则。
@@ -601,14 +613,13 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 ### /导出
 
-**功能：** 将完成的剧本导出为专业排版的完整文件。支持 Markdown 和 Word (.docx) 格式。
+**功能：** 将完成的剧本导出为 Word（.docx）格式完整文件，含人物小传与综合梗概。
 
 **用法：**
-- `/导出` → 导出完整剧本包（全部已完成集数 + 人物小传 + 梗概），生成 Markdown，完成后询问是否需要 Word 版本
-- `/导出 --docx` → 同时生成 Markdown + Word，跳过询问
-- `/导出 --docx --force-resynth` → 强制绕过梗概综合缓存重新综合（用于作者改了已完成集正文后想重跑）
-- `/导出 --with-bible-ref` → 保留本集考据引用附录（默认剥离；可与 `--docx` 叠加）
-- `/导出 {N}` → **单集导出**：仅导出第 N 集剧本正文，不含人物小传/梗概，适合按集交付或预览（见下方「单集导出」段）
+- `/导出` → 导出完整剧本包（全部已完成集数 + 人物小传 + 梗概），直接生成 Word（.docx）
+- `/导出 --force-resynth` → 强制绕过梗概综合缓存重新综合（用于作者改了已完成集正文后想重跑）
+- `/导出 --with-bible-ref` → 保留本集考据引用附录（默认剥离）
+- `/导出 {N}` → **单集导出**：仅导出第 N 集剧本正文 .docx，不含人物小传/梗概（见下方「单集导出」段）
 
 **前置条件：** 至少完成部分集数
 
@@ -617,7 +628,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 本次将导出《{剧名}》完整剧本文件（{completedEpisodes 数量} 集），包含：
 · 全部已完成集数剧本正文
 · 人物小传（从 characters.md 综合）
-· 最终梗概（从 creative-plan.md + 实际集数综合，仅 --docx 时）
+· 最终梗概（从 creative-plan.md + 实际集数综合）
 
 如只需导出单集，请用 /导出 {N}
 继续请回车，或输入 /导出 {N} 跳转单集导出。
@@ -628,7 +639,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 2. **自检不合格的集数**：**阻断导出**，列出集数及分数。阈值：厚型/中型剧本 <32（满分 80）；轻型 <28（满分 70）
 3. **所有已自检集数均达标**：正常导出
 
-**最终梗概综合（仅 `--docx` 时执行，Markdown 导出跳过）：**
+**最终梗概综合：**
 
 **输入字段白名单**（加载规则：字段缺失静默跳过，不报错；不得读取白名单外字段）：
 
@@ -661,22 +672,9 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 | 1 · 幂等性检测 | 读 state 的 `lastSynopsisEpisodeCount` 与 `lastSynopsisEpisodeHash`，按上述 hash 规范化规则算当前 hash，对比 | 双条件均匹配 → 读 `.drama-state/synopsis-cache.md` 直接进 docx（跳至步骤 5，步骤 2-4 与步骤 6 全部跳过）。`--force-resynth` / `lastSynopsisPath == ""` / 缓存文件不存在 → 强制判定为 miss |
 | 2 · 长度探测 | 按 `completedEpisodes` 数判定 | ≤60 → 全文模式（所有剥离后 ep 正文进 LLM）／ >60 → 分批蒸馏（每集先产 1 句 beat，**beats + 白名单骨架字段同时**进 LLM 合成，不能只给 beats 丢骨架） |
 | 3 · LLM 综合 | 按输入字段白名单加载 → 生成最终梗概（3-5 段叙事） | 输出段落数 3-5 ／ 禁用词表扫描通过（参见 `quality-rules.md`） |
-| 4 · 展示候选 + 用户三选一 | 按下方 Y/N/E 模板展示 | 用户确认，**三个分支均不回写 `creative-plan.md`** |
+| 4 · 自动采用综合梗概 | 在输出中展示综合梗概预览，自动写入 Word + 缓存，**不回写 `creative-plan.md`** | — |
 | 5 · 进 docx 写入 | 按 `references/output-templates.md#导出` 三段式渲染 | docx 合法 Word 2007+ |
-| 6 · 缓存写入（仅 Y 分支执行）| 综合梗概正文落 `.drama-state/synopsis-cache.md`（目录不存在则 `mkdir -p`）；state 更新 `lastSynopsisTimestamp` / `lastSynopsisEpisodeCount` / `lastSynopsisEpisodeHash` / `lastSynopsisPath` | state Read-Modify-Write 不覆盖其他字段 |
-
-**三选一提示模板**：
-
-```
-[综合梗概候选]
-{生成内容}
-
-[Y] 采用本次综合梗概进 docx + 写入缓存（下次导出若集数与正文 hash 均未变，直接复用）
-[N] 保留 creative-plan.md 原预想梗概进 docx（本次不写缓存，下次导出会重新综合）
-[E] 手动粘贴编辑版进 docx（本次不写缓存，下次导出会重新综合）
-
-说明：Y / N / E 均不会修改 creative-plan.md 源文件。
-```
+| 6 · 缓存写入 | 综合梗概正文落 `.drama-state/synopsis-cache.md`（目录不存在则 `mkdir -p`）；state 更新 `lastSynopsisTimestamp` / `lastSynopsisEpisodeCount` / `lastSynopsisEpisodeHash` / `lastSynopsisPath` | state Read-Modify-Write 不覆盖其他字段 |
 
 **老项目 fallback**（`creative-plan.md` 不含 "## 故事梗概（预想版）" 段）：继续尝试从 `creative-plan.md` 读取白名单中的其他骨架字段（一句话故事线 / 核心冲突 / 时空背景 / 三幕结构 / 付费卡点 / 爽点矩阵 / 结局设计 / anchor），缺失字段静默跳过。**不走"完全绕过 creative-plan.md"的旧逻辑**——只是单一字段缺失时跳过该字段。
 
@@ -684,7 +682,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **`--force-resynth` 开关**：绕过步骤 1 幂等性检测，强制重跑 LLM 综合。用法见本 section 开头"用法"列表。
 
-**人物小传合成（仅 `--docx` 时执行）：**
+**人物小传合成：**
 
 **输入字段白名单**（加载规则：字段缺失标 `[待补充]`，不阻断生成）：
 
@@ -715,13 +713,9 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **输出格式：** 见 `references/output-templates.md#导出`
 
-**Markdown 导出：** 保存为 `export/{剧名}-完整剧本.md`
+**Word 导出流程：** 调用 `python3 {skill目录}/scripts/export_docx.py "export/{剧名}-完整剧本.md" "export/{剧名}-完整剧本.docx"`，脚本自动检测/安装 pandoc（brew/winget/choco/apt），失败时输出手动安装指引。
 
-**Word 导出流程（用户确认 Y 或使用 --docx 时触发）：** 调用 `python3 {skill目录}/scripts/export_docx.py "export/{剧名}-完整剧本.md" "export/{剧名}-完整剧本.docx"`，脚本自动检测/安装 pandoc（brew/winget/choco/apt），失败时输出手动安装指引。
-
-**输出：**
-- Markdown：`export/{剧名}-完整剧本.md`（始终生成）
-- Word：`export/{剧名}-完整剧本.docx`（可选）
+**输出：** `export/{剧名}-完整剧本.docx`
 
 ---
 
@@ -734,13 +728,14 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 **流程：**
 1. 读取 `episodes/ep{NNN}.md`，按 `<!-- 剧本正文到此结束 -->` 边界剥离考据附录（行为同完整导出的剥离规则）
 2. 质量门控：若该集 `/自检` 不合格（读 `checks/ep{NNN}-check.md`），**阻断并提示**"第 {N} 集自检不合格（{X}分），建议先修改后再导出。传 `--force` 强制导出"；未跑自检则标黄提示不阻断
-3. 传 `--docx` 时同步生成 .docx（调用同一导出脚本，传单集 md 路径）
+3. 调用 `python3 {skill目录}/scripts/export_docx.py "episodes/ep{NNN}.md" "export/{剧名}-ep{NNN}.docx"` 直接生成 .docx
 
-**输出：**
-- Markdown：`export/{剧名}-ep{NNN}.md`
-- Word（可选）：`export/{剧名}-ep{NNN}.docx`
+**输出：** `export/{剧名}-ep{NNN}.docx`
 
-**结束提示：** `[完成] 第 {N} 集已导出 → export/{剧名}-ep{NNN}.md`
+**结束提示：**
+```
+[完成] 第 {N} 集已导出 → export/{剧名}-ep{NNN}.docx
+```
 
 ---
 
