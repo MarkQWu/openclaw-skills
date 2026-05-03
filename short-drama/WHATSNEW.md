@@ -1,3 +1,9 @@
+**v1.29.6 更新内容**
+
+- `/仿写` QA 修复：SKILL.md Phase 1「输入判断」补充 source-script.md 落盘说明，与 imitation-protocol.md 同步
+
+---
+
 **v1.29.5 更新内容**
 
 - `/仿写` 原文自动落盘：用户拖入文件或粘贴剧本后，原文同步保存至 `imitation/source-script.md`，提取骨架保存至 `imitation/source-skeleton.md`，两个文件互相引用，原文不丢失

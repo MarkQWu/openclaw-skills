@@ -235,11 +235,12 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 **Phase 1：骨架提取**
 
 1. **输入判断**：
-   - 用户粘贴文本 → 直接进入提取
-   - 提供 `.md` 路径 → Read 文件
-   - 提供 `.docx` 路径 → `python3 -c "import docx; doc=docx.Document('PATH'); [print(p.text) for p in doc.paragraphs if p.text.strip()]"` 提取正文
-   - 只给剧名/描述 → 用模型知识重建，所有字段标 `[推断]`，告知用户准确度有限
+   - 用户粘贴文本 → 写入 `imitation/source-script.md`（原文落盘）→ 进入提取
+   - 提供 `.md` 路径 → cp 到 `imitation/source-script.md`（原文落盘）→ 进入提取
+   - 提供 `.docx` 路径 → `python3 -c "import docx; doc=docx.Document('PATH'); [print(p.text) for p in doc.paragraphs if p.text.strip()]"` 提取正文 → 写入 `imitation/source-script.md`（原文落盘）→ 进入提取
+   - 只给剧名/描述 → 用模型知识重建，所有字段标 `[推断]`，告知用户准确度有限（**不生成** source-script.md）
    - **大文件警告**：超过 50 集源剧不全读，告知"请提供前 15 集 + 全剧每集一句话大纲"
+   - 落盘规则详见 `references/imitation-protocol.md` §输入处理
 
 2. **提取六维 DNA**（详细维度定义见 `references/imitation-protocol.md#Phase-1`）：
    - 维度 1：身份密码（主角隐藏的身份/能力/信息 + 揭露节点）
@@ -249,7 +250,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
    - 维度 5：付费卡点设计模式（叙事技术 + 诱饵情绪）
    - 维度 6：节奏曲线（压迫期/反转期/清算期区间 + 结局类型）
 
-3. **输出文件**：`mkdir -p ~/short-drama-projects/<项目>/imitation/` → 写 `imitation/source-skeleton.md`（格式模板见 imitation-protocol.md）
+3. **输出文件**：`mkdir -p ~/short-drama-projects/<项目>/imitation/` → 写 `imitation/source-script.md`（有实际原文时）+ `imitation/source-skeleton.md`（格式模板见 imitation-protocol.md）→ 告知用户两个文件路径
 
 ---
 
