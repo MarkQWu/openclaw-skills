@@ -1,6 +1,6 @@
 # Sample: 海外 Billionaire Romance（overseas-test）
 
-> Eval 固定 input。跑法：先 `/出海` 切换 mode，然后 `/开始` → `/创作方案` → `/角色开发` → `/目录` → `/分集 1` → `/自检 1`，对照 `assertions.md` 逐条验证。
+> Eval 固定 input。跑法：先 `/出海` 切换 mode，然后 `/开始` → `/策划` → `/角色开发` → `/分集目录` → `/分集 1` → `/自检 1`，对照 `assertions.md` 逐条验证。
 > 题材选 ReelShort/DramaBox 已验证爆款元素（Billionaire + Secret Identity），目的：验证 mode=overseas 工艺资产收回是否真生效（13 条 hard-rules + 4-Phase 20-Beat + ReelShort 90s 规格 + 中式直译禁区）。
 
 ---
@@ -31,7 +31,7 @@ Setup: Ava had a one-night stand with Damien 5 years ago. He left without contac
 Target platform mode: ReelShort 90-second episodes, IAP first paywall at EP11
 ```
 
-## creative-plan.md 摘要（/创作方案 期望产出）
+## creative-plan.md 摘要（/策划 期望产出）
 
 - **Core conflict**: Ava must protect her daughter's existence from Damien (who would take custody) while financial collapse forces her to keep this job
 - **4-Phase 20-Beat structure** (Gwen Hayes):

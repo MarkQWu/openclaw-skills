@@ -19,7 +19,7 @@
 # 1. 用 sample 内容启动 skill 跑完一集流程
 #    准备项目目录：~/short-drama-projects/<项目名>/
 #    按 samples/domestic-test.md 或 samples/overseas-test.md 内容输入：
-#    /开始 → /创作方案 → /角色开发 → /目录 → /分集 1 → /自检 1
+#    /开始 → /策划 → /角色开发 → /分集目录 → /分集 1 → /自检 1
 #    （overseas 题材先 /出海 切换 mode）
 
 # 2. 跑评测脚本

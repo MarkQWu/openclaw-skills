@@ -21,7 +21,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## 创作状态追踪
 
-`/开始` 扫描 `~/short-drama-projects/*/` 让用户选项目，选中后该 `.drama-state.json` 即活跃 state。详细规则（state schema / fallback / 迁移白名单）见 `references/project-management.md`。**强制全局规则**：所有修改 state 的命令（`/开始` `/考据` `/角色开发` `/目录` `/分集` `/自检` `/角色卡` `/分镜`）必须 Read-Modify-Write，**严禁** overwrite（见 `project-management.md#state-写入协议`）。
+`/开始` 扫描 `~/short-drama-projects/*/` 让用户选项目，选中后该 `.drama-state.json` 即活跃 state。详细规则（state schema / fallback / 迁移白名单）见 `references/project-management.md`。**强制全局规则**：所有修改 state 的命令（`/开始` `/考据` `/角色开发` `/分集目录` `/分集` `/自检` `/角色卡` `/分镜`）必须 Read-Modify-Write，**严禁** overwrite（见 `project-management.md#state-写入协议`）。
 
 ## 参考资料
 
@@ -31,7 +31,13 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## anchor 触发机制
 
-完整方法论见 `references/anchor-trigger.md`（v1.23.0 · 全 13 题材激活 · 只借想象力/调性/情绪锚点，不借节奏）。本文件 `/创作方案` 和 `/分集` 命令中的 anchor 步骤引用该文件。
+完整方法论见 `references/anchor-trigger.md`（v1.23.0 · 全 13 题材激活 · 只借想象力/调性/情绪锚点，不借节奏）。本文件 `/策划` 和 `/分集` 命令中的 anchor 步骤引用该文件。
+
+---
+
+## 维护规则（开发者修改 SKILL 时强制执行）
+
+**新增或删除命令时必须同步更新 `/帮助`**：`references/output-templates.md#帮助` 是对用户可见的命令清单，与 SKILL.md 的命令定义必须保持一致。每次新增命令、删除命令、修改命令名称时，必须同步更新 output-templates.md 的 `## /帮助` 区块（命令行 + 描述）。漏更新 = 用户看到的帮助是过时的。
 
 ---
 
@@ -105,13 +111,15 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 ```
 [完成] 方向已锁定！下一步：
 
-▸ 直接构建故事骨架：/创作方案
+▸ 直接构建故事骨架：/策划
 ▸ 想先验证方向有没有结构陷阱？/选题会（3 位跨域专家碰撞这个赛道，5 分钟，产出可落地处方）
+
+如需查看全部命令，输入 /帮助
 ```
 
 ---
 
-### /创作方案
+### /策划
 
 **功能：** 生成完整的故事骨架和创作策略。
 
@@ -121,7 +129,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **加载参考：** opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**
 
-**anchor 推荐步骤（v1.23.0，全 13 题材触发）：** **生成内容前**按 `references/anchor-trigger.md#创作方案-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。
+**anchor 推荐步骤（v1.23.0，全 13 题材触发）：** **生成内容前**按 `references/anchor-trigger.md#策划-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。
 
 **生成内容：**
 
@@ -138,7 +146,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **选题会处方展示（增量，非阻断）：** 生成创作方案前，检查 `.drama-state.json#clashes`：若存在至少一条碰撞记录，Read 最新一份 `clashes/clash-*.md`，提取 `<!-- PRESCRIPTIONS -->` 块，在创作方案正文开头显示「📋 选题会处方（来自 {文件名}）」块，供方案生成时参考。无碰撞记录则跳过，不提示也不阻断。
 
-**输出格式：** 见 `references/output-templates.md#创作方案`
+**输出格式：** 见 `references/output-templates.md#策划`
 
 **输出：** 保存为 `creative-plan.md`
 
@@ -185,7 +193,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 ...
 ```
 
-**注意：** `/重构` 只生成创意骨架，不创建项目文件。确认选用变体后，用 `/新建` 建项目，再用 `/创作方案` 展开。
+**注意：** `/重构` 只生成创意骨架，不创建项目文件。确认选用变体后，用 `/新建` 建项目，再用 `/策划` 展开。
 
 ---
 
@@ -193,7 +201,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **用途：** 召集跨领域专家进行选题方向的思想碰撞——行业执行者、方法论批评者、跨域学者三视角对选题方向生成结构化辩论，产出可直接落到创作决策的处方列表。
 
-**适用场景：** 想法成型前验证赛道；`/创作方案` 前确认方向；拿不定主意要不要做某个题材。
+**适用场景：** 想法成型前验证赛道；`/策划` 前确认方向；拿不定主意要不要做某个题材。
 
 **加载参考：** `references/roundtable-figures.md`（人物库）
 
@@ -240,7 +248,7 @@ graph LR
 - 更新 `.drama-state.json#clashes[]`：追加 `{"file": "clashes/...", "topic": "会议主题一句话", "timestamp": "YYYY-MM-DD HH:MM"}`
 
 **结束提示（强制逐字输出，{文件名} 必须替换为上方文件管理步骤中实际生成的文件名基名，例如 `clash-20260501-1430`；禁止保留花括号占位符）：**
-`[完成] 选题会记录已保存 → clashes/{文件名}.md | 双击 clashes/{文件名}.html 用浏览器查看张力图（离线可用，无任何依赖）| 想深化方向？输入 /创作方案 构建故事骨架`
+`[完成] 选题会记录已保存 → clashes/{文件名}.md | 双击 clashes/{文件名}.html 用浏览器查看张力图（离线可用，无任何依赖）| 想深化方向？输入 /策划 构建故事骨架`
 
 ---
 
@@ -250,7 +258,7 @@ graph LR
 
 **视角切换：** [人物] **人物设计师**——你不是在「帮用户写角色」，而是在设计一套能驱动 50-100 集冲突的人物引擎。每个角色必须有足够的内在矛盾和关系张力，不能因为是主角就完美无瑕。**欲望-恐惧对位要互相咬合**（角色最怕的通常是渴望的反面，如渴望认可 ↔ 怕被当废物），voice 样本集的台词必须**真能让该角色说出口**，覆盖不同场景/情绪（5 条不是 5 条同义重复）。三角张力聚焦**动态规律**，不重复 Mermaid 静态连线。
 
-**前置条件：** 已完成 /创作方案
+**前置条件：** 已完成 /策划
 
 **重跑语义：** 若 `characters.md` 已存在（老项目或本次重跑），**默认全量覆盖** 15 字段——按新模板重新生成。若老版本有**新模板未覆盖的独有字段**（如更丰富的视觉细节描写、额外背景段落），可在新模板对应字段下追加保留，只替换重合字段，不删除老独有内容。"口头禅/语言特征"单字段必须被 voice 样本集完整替代，**不得**与 voice 样本集并存造成冲突。
 
@@ -274,7 +282,7 @@ graph LR
 
 **结束提示：** 根据题材考据强度（见 `genre-guide.md#考据强度判定`）：
 - **厚型/中型**：`[完成] 角色档案已保存！输入 /考据 auto 建立世界观/专业知识底座（厚型必做）`
-- **轻型**：`[完成] 角色档案已保存！输入 /目录 规划全剧分集`
+- **轻型**：`[完成] 角色档案已保存！输入 /分集目录 规划全剧分集`
 
 ---
 
@@ -292,11 +300,11 @@ graph LR
 
 **输出：** `setting-bible.md` + `research-cache/`（auto 模式）+ 更新 `.drama-state.json` 的 `settingBibleStatus`/`bibleScope`（按 `project-management.md#state-写入协议` Read-Modify-Write）
 
-**结束提示：** `[完成] setting-bible.md 已建立（{N} verified / {M} 待核源）。输入 /目录 继续`
+**结束提示：** `[完成] setting-bible.md 已建立（{N} verified / {M} 待核源）。输入 /分集目录 继续`
 
 ---
 
-### /目录
+### /分集目录
 
 **功能：** 生成全剧分集目录。
 
@@ -330,7 +338,7 @@ graph LR
 
 **视角切换：** [编剧] **职业编剧**——你在写一个会被拍出来的剧本，每句台词都会有演员说出口，每个 △ 描写都会变成画面。写的时候脑子里要有镜头。
 
-**前置条件：** 已完成 /目录
+**前置条件：** 已完成 /分集目录
 
 **加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）, **工艺通用补充**（按需读，覆盖中英文）：`vertical-drama-craft.md`（信息密度+段落颗粒+钩子节奏）/ `dramatic-truth.md`（对白真实性 4 症状）/ `script-element-extraction.md`（5 类元素分层 pipeline）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
 
@@ -393,7 +401,14 @@ graph LR
 
 **写完后强制追加 used-lines.md（跨集台词去重）：** 本集保存后，提取 3-5 条"高复读风险台词"（情绪锚句 / 遗言告别 / 口头禅 / 3 字以上标志性形容词组合 / 特殊意象），按 Read-Modify-Write 协议追加到 `used-lines.md` 新 section `## ep{NNN}`。格式：`- "台词原文" [角色][场景 one-liner][类别]`。**硬下限 3 条**，少于 3 条视为未执行。详细判定标准/反模式见 `references/used-lines-protocol.md#写入规则`。
 
-**结束提示：** `[完成] 第{N}集已保存！输入 /分集 {N+1} 继续，或 /自检 {N} 检查质量`
+**结束提示：**
+- **N < totalEpisodes（非最后一集）：** `[完成] 第{N}集已保存！输入 /分集 {N+1} 继续，或 /自检 {N} 检查质量`
+- **N == totalEpisodes（最后一集）：**
+  ```
+  [完成] 第{N}集已保存！全剧 {totalEpisodes} 集正文写完。
+  ▸ 下一步：/自检 all 批量质检所有集数
+  ▸ 或先逐集检查：/自检 {N}
+  ```
 
 **关于 /导出 的门控说明**：未跑 /自检 的集数在 /导出 时只会**标黄提示不阻断**；只有 /自检 不合格（低于阈值）的集数才**阻断 /导出**。自检非强制但推荐。
 
@@ -471,11 +486,18 @@ graph LR
   ```
 
 - **范围模式（/自检 N-M 或 /自检 all），所有集评分完成后：**
-  列出每集分数表格，然后追加：
-  ```
-  分数最低的 3 集：第 {a} 集（{X}分）/ 第 {b} 集（{X}分）/ 第 {c} 集（{X}分）
-  ▸ 想深度诊断？逐集跑 /圆桌诊断 {集数}
-  ```
+  列出每集分数表格，然后按结果分支：
+  - **有不合格集数：**
+    ```
+    分数最低的 3 集：第 {a} 集（{X}分）/ 第 {b} 集（{X}分）/ 第 {c} 集（{X}分）
+    ▸ 想深度诊断？逐集跑 /圆桌诊断 {集数}
+    ```
+  - **全部通过（/自检 all 且无不合格）：**
+    ```
+    [完成] 全 {N} 集自检通过！
+    ▸ 建议先跑 /角色一致性 检查跨集人物是否有漂移
+    ▸ 确认无误后 /导出 生成完整剧本文件
+    ```
 
 ---
 
@@ -582,12 +604,24 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 **功能：** 将完成的剧本导出为专业排版的完整文件。支持 Markdown 和 Word (.docx) 格式。
 
 **用法：**
-- `/导出` → 生成 Markdown，完成后询问是否需要 Word 版本
+- `/导出` → 导出完整剧本包（全部已完成集数 + 人物小传 + 梗概），生成 Markdown，完成后询问是否需要 Word 版本
 - `/导出 --docx` → 同时生成 Markdown + Word，跳过询问
 - `/导出 --docx --force-resynth` → 强制绕过梗概综合缓存重新综合（用于作者改了已完成集正文后想重跑）
 - `/导出 --with-bible-ref` → 保留本集考据引用附录（默认剥离；可与 `--docx` 叠加）
+- `/导出 {N}` → **单集导出**：仅导出第 N 集剧本正文，不含人物小传/梗概，适合按集交付或预览（见下方「单集导出」段）
 
 **前置条件：** 至少完成部分集数
+
+**入口确认提示（`/导出` 无集数参数时，执行任何门控之前输出）：**
+```
+本次将导出《{剧名}》完整剧本文件（{completedEpisodes 数量} 集），包含：
+· 全部已完成集数剧本正文
+· 人物小传（从 characters.md 综合）
+· 最终梗概（从 creative-plan.md + 实际集数综合，仅 --docx 时）
+
+如只需导出单集，请用 /导出 {N}
+继续请回车，或输入 /导出 {N} 跳转单集导出。
+```
 
 **质量门控（强制）：**
 1. **未自检的集数**：提示用户建议先 `/自检`，但不阻断
@@ -688,6 +722,25 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 **输出：**
 - Markdown：`export/{剧名}-完整剧本.md`（始终生成）
 - Word：`export/{剧名}-完整剧本.docx`（可选）
+
+---
+
+**单集导出（`/导出 {N}`）：**
+
+**功能：** 只导出第 N 集剧本正文，不含人物小传和梗概。适合按集交付平台或单集预览。
+
+**前置条件：** `episodes/ep{NNN}.md` 存在
+
+**流程：**
+1. 读取 `episodes/ep{NNN}.md`，按 `<!-- 剧本正文到此结束 -->` 边界剥离考据附录（行为同完整导出的剥离规则）
+2. 质量门控：若该集 `/自检` 不合格（读 `checks/ep{NNN}-check.md`），**阻断并提示**"第 {N} 集自检不合格（{X}分），建议先修改后再导出。传 `--force` 强制导出"；未跑自检则标黄提示不阻断
+3. 传 `--docx` 时同步生成 .docx（调用同一导出脚本，传单集 md 路径）
+
+**输出：**
+- Markdown：`export/{剧名}-ep{NNN}.md`
+- Word（可选）：`export/{剧名}-ep{NNN}.docx`
+
+**结束提示：** `[完成] 第 {N} 集已导出 → export/{剧名}-ep{NNN}.md`
 
 ---
 

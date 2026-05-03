@@ -1,6 +1,6 @@
 # Sample: 国内重生穿越（domestic-test）
 
-> Eval 固定 input。跑法：用此 sample 内容启动 `/开始` → `/创作方案` → `/角色开发` → `/目录` → `/分集 1` → `/自检 1`，对照 `assertions.md` 逐条验证。
+> Eval 固定 input。跑法：用此 sample 内容启动 `/开始` → `/策划` → `/角色开发` → `/分集目录` → `/分集 1` → `/自检 1`，对照 `assertions.md` 逐条验证。
 > 题材选重生穿越（anchor 覆盖的全 13 题材之一），目的：验证 anchor 字段触发 + 国内模式工艺 + 7 维度自检。
 
 ---
@@ -30,7 +30,7 @@
 故事方向：女主带着前世记忆回到 18 岁高三，第一集要立刻撞见前世害死自己的关键事件源头，建立"前世今生对照"的钩子
 ```
 
-## creative-plan.md 摘要（/创作方案 期望产出）
+## creative-plan.md 摘要（/策划 期望产出）
 
 - **核心冲突**：林夏带着 36 岁记忆回到 18 岁，要在所有"前世悲剧伏笔"形成前阻断（家产被骗 / 闺蜜背叛 / 男主因救她车祸残疾）
 - **三幕结构**：
@@ -59,7 +59,7 @@
 
 ## 不通过的常见原因（debug 提示）
 
-- A1 fail：anchor-trigger.md 加载失败 → 检查 SKILL.md L101 `/创作方案` 命令体的 anchor 步骤引用
+- A1 fail：anchor-trigger.md 加载失败 → 检查 SKILL.md L101 `/策划` 命令体的 anchor 步骤引用
 - A2 fail：模型用了"她睁开眼"这种平淡开场 → opening-rules.md 钩子规则未生效
 - A4 fail：自检维度缺失 → quality-rubric.md 没被加载（SKILL.md L300 引用断了）
 - A5 fail：dramatic-truth.md 没被读 → SKILL.md L300 加载参考 v1.19.0 改动 silent-fail
