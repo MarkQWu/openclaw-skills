@@ -232,10 +232,36 @@ hr { border: none; border-top: 1px solid #e5e5e5; margin: 48px 0; }
 </div>
 </div>
 
+<h2>场景 E · 仿写爆款（大文件自动处理）</h2>
+<p>手里有一部 60 集的爆款剧（.docx），想做同赛道变体——<code>/仿写</code> 直接提路径，50 集以上自动压缩：</p>
+<div class="scenario">
+<div class="dialog">
+<span class="user">你 → /仿写 ~/Downloads/5_《女相师》1-60集.docx</span>
+
+<span class="assistant">Claude → 源剧较大（60 集），正在自动压缩...
+         ✅ 已压缩（前 10 集保留全文 + 其余结构摘要），节省约 66% token。
+
+         ## 骨架提取：《女相师》
+         身份密码：平民命理师，身份借壳权贵后宅
+         压迫机制：相府三方（嫡母 / 庶兄 / 侯爷党羽）联手打压
+         ...（6 维 DNA 提取完毕）
+
+         这个仿写项目叫什么名字？</span>
+
+<span class="user">你 → 穿越女国师</span>
+
+<span class="assistant">Claude → 项目《穿越女国师》已建立。
+         当代热点推荐：玄学国潮、AI 算命热、古今对照反差...
+         （完成选题融合后：/仿写 1 开始写第 1 集）</span>
+</div>
+<p style="margin-top: 16px; color: #777;">手里有完整剧本文件想做同类型变体时使用。文件超过 50 集不用拆分，自动处理。</p>
+</div>
+
 <h2>常用命令速查</h2>
 <div class="command-list">
 <div><span class="cmd">/开始</span>              <span class="desc">总入口：列出所有剧本让你选（继续/新建）</span></div>
 <div><span class="cmd">/新建 剧名</span>        <span class="desc">直接新建一本新剧本</span></div>
+<div><span class="cmd">/仿写 [参考剧本]</span>  <span class="desc">仿写爆款：提取结构 DNA → 融入热点 → 逐集生成正文；50 集以上自动压缩</span></div>
 <div><span class="cmd">/分集 1</span>            <span class="desc">写第 1 集（批量 /分集 5-8，续写 /分集 next）</span></div>
 <div><span class="cmd">/自检 1</span>            <span class="desc">质检第 1 集（自动修复 /自检 1 --fix）</span></div>
 <div><span class="cmd">/合规</span>              <span class="desc">国内发行合规审核</span></div>
@@ -253,17 +279,22 @@ hr { border: none; border-top: 1px solid #e5e5e5; margin: 48px 0; }
 <h2>常见问题</h2>
 
 <div class="faq">
-<div class="q">Q1. 我刚 /新建 了，但 /开始 列表找不到？</div>
+<div class="q">Q1. /仿写 参考剧本有 60 集，文件很大，需要手动拆分吗？</div>
+<div class="a">不需要。v1.30.0 起 <code>/仿写</code> 会自动检测文件大小：超过 50 集时调用内置压缩脚本，前 10 集保留原文、其余集生成结构摘要，整个过程自动完成。直接提供 <code>.docx</code>、<code>.md</code> 或 <code>.txt</code> 路径即可。</div>
+</div>
+
+<div class="faq">
+<div class="q">Q2. 我刚 /新建 了，但 /开始 列表找不到？</div>
 <div class="a">确认项目名拼写。再输 <code>/项目列表</code> 看所有剧本。</div>
 </div>
 
 <div class="faq">
-<div class="q">Q2. 我在 WorkBuddy Windows 用，需要切换工作目录吗？</div>
+<div class="q">Q3. 我在 WorkBuddy Windows 用，需要切换工作目录吗？</div>
 <div class="a"><span class="ok">不需要</span>。v1.13.0 起所有剧本自动存到统一位置 <code>~/short-drama-projects/</code>（Windows：<code>C:\Users\你的用户名\short-drama-projects\</code>）。你只管用 <code>/开始</code> 和 <code>/新建</code>，Claude 帮你处理路径。</div>
 </div>
 
 <div class="faq">
-<div class="q">Q3. 我以前用 v1.10 或 v1.12 写过剧本，升级后剧本会丢吗？</div>
+<div class="q">Q4. 我以前用 v1.10 或 v1.12 写过剧本，升级后剧本会丢吗？</div>
 <div class="a">不会。首次 <code>/开始</code> 时，Claude 会检测到你的老剧本，询问：
 <ul>
 <li><strong>[1] 就地继续</strong>（兼容模式，以后不会在 <code>/项目列表</code> 里出现）</li>
@@ -273,12 +304,12 @@ hr { border: none; border-top: 1px solid #e5e5e5; margin: 48px 0; }
 </div>
 
 <div class="faq">
-<div class="q">Q4. /新建 我的剧本，但已经有同名项目怎么办？</div>
+<div class="q">Q5. /新建 我的剧本，但已经有同名项目怎么办？</div>
 <div class="a">Claude 会拒绝并提示：<code>《我的剧本》已存在（阶段 X, 进度 N/M）。继续用 /开始 选该项目，或换新名</code>。防止误覆盖。</div>
 </div>
 
 <div class="faq">
-<div class="q">Q5. 项目名有什么规则？</div>
+<div class="q">Q6. 项目名有什么规则？</div>
 <div class="a">
 <p><span class="ok">✅ 可以</span>：中文、数字、英文、空格、基本标点</p>
 <p><span class="no">❌ 不能</span>：斜杠 <code>/</code> <code>\</code>、冒号 <code>:</code>、问号 <code>?</code>、星号 <code>*</code>、引号 <code>"</code>、尖括号 <code>&lt;</code> <code>&gt;</code>、竖线 <code>|</code>、单独的 <code>.</code> 或 <code>..</code></p>
@@ -287,17 +318,17 @@ hr { border: none; border-top: 1px solid #e5e5e5; margin: 48px 0; }
 </div>
 
 <div class="faq">
-<div class="q">Q6. 我不小心删了 .drama-state.json 怎么办？</div>
+<div class="q">Q7. 我不小心删了 .drama-state.json 怎么办？</div>
 <div class="a">集数内容（<code>episodes/*.md</code>）还在 → 可以手动重写 state（联系作者协助）。只是迷失了进度感 → <code>/开始</code> + 选该项目，Claude 会根据 <code>episodes/</code> 目录重建进度感。</div>
 </div>
 
 <div class="faq">
-<div class="q">Q7. /更新 拉不到新版本？</div>
+<div class="q">Q8. /更新 拉不到新版本？</div>
 <div class="a">检查网络 + 确认 skill 目录可写。还不行联系作者。</div>
 </div>
 
 <div class="faq">
-<div class="q">Q8. 我想把剧本 A 的某一集复制到剧本 B？</div>
+<div class="q">Q9. 我想把剧本 A 的某一集复制到剧本 B？</div>
 <div class="a">目前不支持跨剧本复制。手动去 <code>~/short-drama-projects/剧本A/episodes/</code> 下找对应 <code>ep00X.md</code> 复制。</div>
 </div>
 
