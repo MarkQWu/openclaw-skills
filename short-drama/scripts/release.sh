@@ -4,10 +4,13 @@ set -euo pipefail
 
 VERSION="${1:-}"
 SUMMARY="${2:-}"
+USER_MSG="${3:-}"   # 用户可见的更新通知文案（写进 WHATSNEW.md）；不传则用 SUMMARY
 
 if [ -z "$VERSION" ] || ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-  echo "用法: release.sh <版本号> [一句话摘要]"
-  echo "  例: release.sh 1.15.2 'release 工具链工程化'"
+  echo "用法: release.sh <版本号> [commit摘要] [用户通知文案]"
+  echo "  例: release.sh 1.28.0 '新增更新提醒功能' \\"
+  echo "       '⚠️ 两个命令改名了：/创作方案→/策划，/目录→/分集目录'"
+  echo "  注：第3个参数写给用户看（展示在 skill 里），第2个参数写进 git commit message"
   exit 1
 fi
 
@@ -45,6 +48,18 @@ fi
 # 1. 更新权威 master 的 VERSION
 echo "$VERSION" > "$MASTER_DIR/VERSION"
 echo "  ✅ master VERSION → ${VERSION}"
+
+# 1.6 · 写 WHATSNEW.md（sync 前写入 master，会被 sync 带到所有副本）
+# USER_MSG 优先；无 USER_MSG 则 fallback 到 SUMMARY；两者都无则只写版本号
+NOTICE_BODY="${USER_MSG:-${SUMMARY:-}}"
+if [ -n "$NOTICE_BODY" ]; then
+  printf "**v%s**（%s）\n\n%s\n\n输入 \`/帮助\` 查看全部命令\n" \
+    "$VERSION" "$TODAY" "$NOTICE_BODY" > "$MASTER_DIR/WHATSNEW.md"
+else
+  printf "**v%s**（%s）\n\n输入 \`/帮助\` 查看全部命令\n" \
+    "$VERSION" "$TODAY" > "$MASTER_DIR/WHATSNEW.md"
+fi
+echo "  ✅ WHATSNEW.md → v${VERSION}"
 
 # 2. Sync master → 5 副本（含 openclaw-skills 仓库）
 echo ""
