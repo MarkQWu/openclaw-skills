@@ -284,18 +284,15 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 3. **从对齐表生成正文**：严格按"本集迁移写法"列写正文，不偏离对齐表。集末 hooks 对应 source-skeleton 节奏曲线（压迫期→强化信息差；清算期→满足感铺垫）
 
-4. **写文件**：写入 `~/short-drama-projects/<项目>/episodes/ep{NNN}.md`（格式与 `/分集` 完全一致，遵守 format-control.md）。更新 `.drama-state.json#currentEpisode` 和 `#completedEpisodes`
+4. **写文件**：写入 `~/short-drama-projects/<项目>/episodes/ep{NNN}.md`（格式与 `/分集` 完全一致，遵守 format-control.md）。按 Read-Modify-Write 协议（见 `references/project-management.md#State 写入协议`）追加本集到 `.drama-state.json#completedEpisodes`
 
 5. **本集末尾提示**（固定格式）：
    ```
    [仿写完成 ep{NNN}]
    → 继续：/仿写 {N+1}
    → 检验：/自检 {N}
-   → 降 AI 味：/人化（建议全稿写完后批量）
    → 分镜：/分镜 {N}
    ```
-
-**注意：** Phase 3 不自动调用 `/人化`——`/仿写`（结构仿写）与 `/人化`（AI 味减弱）是正交工具，用户按需使用。
 
 ---
 

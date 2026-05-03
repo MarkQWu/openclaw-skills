@@ -221,7 +221,7 @@ C) [社会母体 C]——…
 
 写完正文后：
 - 写入 `~/short-drama-projects/<项目>/episodes/ep{NNN}.md`
-- 更新 `.drama-state.json#currentEpisode` 和 `#completedEpisodes`
+- 按 Read-Modify-Write 协议追加本集到 `.drama-state.json#completedEpisodes`
 - 本集末尾提示：
 
 ```
@@ -230,7 +230,6 @@ C) [社会母体 C]——…
 
 → 继续写：/仿写 {N+1}
 → 检验质量：/自检 {N}（多维打分，确认结构对齐度）
-→ 降 AI 味：/人化（建议在全稿写完后批量处理）
 → 分镜：/分镜 {N}
 ```
 
