@@ -235,12 +235,21 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 **Phase 1：骨架提取**
 
 1. **输入判断**：
-   - 用户粘贴文本 → 写入 `imitation/source-script.md`（原文落盘）→ 进入提取
-   - 提供 `.md` 路径 → cp 到 `imitation/source-script.md`（原文落盘）→ 进入提取
-   - 提供 `.docx` 路径 → `python3 -c "import docx; doc=docx.Document('PATH'); [print(p.text) for p in doc.paragraphs if p.text.strip()]"` 提取正文 → 写入 `imitation/source-script.md`（原文落盘）→ 进入提取
-   - 只给剧名/描述 → 用模型知识重建，所有字段标 `[推断]`，告知用户准确度有限（**不生成** source-script.md）
-   - **大文件警告**：超过 50 集源剧不全读，告知"请提供前 15 集 + 全剧每集一句话大纲"
-   - 落盘规则详见 `references/imitation-protocol.md` §输入处理
+   - 用户粘贴文本 → 先 Write 落盘到 `imitation/source-script.md`，再按下方大文件逻辑处理
+   - 提供 `.md`/`.txt` 路径 → 按大文件逻辑处理
+   - 提供 `.docx` 路径 → 按大文件逻辑处理
+   - 只给剧名/描述 → 用模型知识重建，所有字段标 `[推断]`，告知用户准确度有限
+
+   **大文件自动压缩（任意有文件路径的场景，均调脚本，脚本自判是否需要压缩）**：
+   - 先检查 `imitation/source-script-condensed.md` 是否已存在 → 存在则直接 Read 该文件（复用），跳过压缩
+   - 不存在 → 运行 `python3 ~/.claude/skills/short-drama/references/condense-source.py <路径> --full-episodes 10 --output imitation/source-script-condensed.md`
+     - 脚本 exit 0 + 节省 ≥ 30%：Read `source-script-condensed.md`，告知用户"源剧已自动压缩（前10集全文 + 其余大纲摘要），继续提取骨架"
+     - 脚本 exit 0 + 节省 < 30%（集数不多）：Read 原文件即可，不使用 condensed 版
+     - 脚本失败（exit 1/2）：回退到手动方式，告知"请提供前10集 + 其余每集按格式「Ep{N}: 核心冲突 | 节奏段:压迫/蓄力/清算 | 爽点:类型/无 | 炸点:类型/无 | 卡点:有/无」"
+
+   **两个文件的关系**（Phase 1 始终只读一个）：
+   - `source-script.md` = 原始档案（落盘留存，不在 Phase 1 重复 Read）
+   - `source-script-condensed.md` = Phase 1 实际加载的工作文件（大文件场景）
 
 2. **提取六维 DNA**（详细维度定义见 `references/imitation-protocol.md#Phase-1`）：
    - 维度 1：身份密码（主角隐藏的身份/能力/信息 + 揭露节点）
@@ -250,7 +259,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
    - 维度 5：付费卡点设计模式（叙事技术 + 诱饵情绪）
    - 维度 6：节奏曲线（压迫期/反转期/清算期区间 + 结局类型）
 
-3. **输出文件**：`mkdir -p ~/short-drama-projects/<项目>/imitation/` → 写 `imitation/source-script.md`（有实际原文时）+ `imitation/source-skeleton.md`（格式模板见 imitation-protocol.md）→ 告知用户两个文件路径
+3. **输出文件**：`mkdir -p ~/short-drama-projects/<项目>/imitation/` → 写 `imitation/source-skeleton.md`（格式模板见 imitation-protocol.md）
 
 ---
 
