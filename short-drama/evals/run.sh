@@ -9,7 +9,7 @@
 #   bash evals/run.sh ~/short-drama-projects/CEO-Hidden-Heir overseas-test
 #
 # 前置条件：
-#   1. 已用 sample 内容跑完 /开始 → /创作方案 → /目录 → /分集 1 → /自检 1
+#   1. 已用 sample 内容跑完 /开始 → /策划 → /分集目录 → /分集 1 → /自检 1
 #   2. 项目目录下有 episodes/ep001.md + reviews/ep001-review.md + creative-plan.md
 
 set -uo pipefail
@@ -35,7 +35,7 @@ PLAN="$PROJECT_DIR/creative-plan.md"
 for f in "$EP1" "$REVIEW" "$PLAN"; do
   if [[ ! -f "$f" ]]; then
     echo "❌ 缺文件：$f"
-    echo "   请先跑完 /创作方案 + /分集 1 + /自检 1"
+    echo "   请先跑完 /策划 + /分集 1 + /自检 1"
     exit 1
   fi
 done
