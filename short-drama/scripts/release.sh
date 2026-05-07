@@ -98,8 +98,8 @@ open('README.md', 'w').write(content)
   echo "  ⚠️  README 最新版本行 → v${VERSION}（未提供摘要）"
 fi
 
-# 4. Stage + commit + tag（包含 sync 带来的 short-drama/ 变化）
-git add short-drama README.md
+# 4. Stage + commit + tag（包含 sync 带来的 short-drama/ 变化和 sibling skills）
+git add short-drama short-drama-remake README.md install.sh install.ps1 .github
 git commit -m "release: v${VERSION} — ${SUMMARY:-see commit and GitHub Release}"
 git tag "v${VERSION}"
 echo "  ✅ commit + tag v${VERSION}"

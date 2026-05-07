@@ -101,8 +101,13 @@ foreach ($skillsDir in $targets) {
 
 # 读取版本号（来自仓库 VERSION 文件，由发版流程维护）
 $version = ""
-Get-ChildItem "$cache" -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName "VERSION") } | Select-Object -First 1 | ForEach-Object {
-    $version = (Get-Content (Join-Path $_.FullName "VERSION") -TotalCount 1 -ErrorAction SilentlyContinue)
+$mainVersion = Join-Path $cache "short-drama\VERSION"
+if (Test-Path $mainVersion) {
+    $version = (Get-Content $mainVersion -TotalCount 1 -ErrorAction SilentlyContinue)
+} else {
+    Get-ChildItem "$cache" -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName "VERSION") } | Select-Object -First 1 | ForEach-Object {
+        $version = (Get-Content (Join-Path $_.FullName "VERSION") -TotalCount 1 -ErrorAction SilentlyContinue)
+    }
 }
 if (-not $version) { $version = (& git -C "$cache" log -1 --format="%h" 2>$null) }
 if (-not $version) { $version = "unknown" }

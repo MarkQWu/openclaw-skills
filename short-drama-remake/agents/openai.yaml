@@ -1,0 +1,4 @@
+interface:
+  display_name: "短剧拆解复刻"
+  short_description: "拆解短剧商业骨架，辅助换皮复刻、集纲和正式剧本生成"
+  default_prompt: "Use $short-drama-remake to 拆解参考短剧并提炼可复刻骨架。"

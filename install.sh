@@ -115,12 +115,16 @@ done
 
 # 读取版本号（来自仓库 VERSION 文件，由发版流程维护）
 version=""
-for d in "$CACHE"/*/; do
-  if [ -f "$d/VERSION" ]; then
-    version="$(head -1 "$d/VERSION" 2>/dev/null)"
-    break
-  fi
-done
+if [ -f "$CACHE/short-drama/VERSION" ]; then
+  version="$(head -1 "$CACHE/short-drama/VERSION" 2>/dev/null)"
+else
+  for d in "$CACHE"/*/; do
+    if [ -f "$d/VERSION" ]; then
+      version="$(head -1 "$d/VERSION" 2>/dev/null)"
+      break
+    fi
+  done
+fi
 [ -z "$version" ] && version=$(git -C "$CACHE" log -1 --format="%h" 2>/dev/null || echo "unknown")
 
 echo ""
