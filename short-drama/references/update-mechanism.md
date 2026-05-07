@@ -1,6 +1,6 @@
 # 版本更新机制（Update Mechanism）
 
-> **重要：** 旧版 `/更新` 是 `short-drama/` 目录内局部更新，只覆盖当前 skill 文件；它不能自动补装新增的 sibling skill。涉及新版独立 `/仿写` 能力时，必须提示用户“重装最新版短剧 Skill”，不要承诺局部更新可以补齐。
+> **重要：** 旧版 `/更新` 是 `short-drama/` 目录内局部更新，只覆盖当前 skill 文件；它不能自动补装新增的 sibling skill。涉及新版独立 `/仿写` 能力时，必须提示用户“重装最新版短剧 Skill”，不要承诺局部更新可以补齐。v1.31.1 起还要复制 `WHATSNEW.md`，避免升级后继续显示旧更新说明。
 
 ## 版本更新检测（每次激活自动执行）
 
@@ -39,11 +39,11 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 - **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息并展示更新内容：
   > [完成] 已从 v{旧版本} 升级到 v{新版本}！
   
-  然后读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）：
+  然后读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）。若 `WHATSNEW.md` 缺失或首个版本号与当前版本不一致，输出内置迁移提示：
 
   **本次更新内容：**
 
-  {WHATSNEW.md 全文，每行单独输出}
+  {WHATSNEW.md 全文，每行单独输出，或输出“新版 /仿写 已拆为独立 sibling skill，旧版局部 /更新 不能补装。请重装最新版短剧 Skill，并确认新版仿写能力已安装成功。”}
 
 - **`CHECK_FAILED 7d`** → 网络连续 7 天无法检查更新，显示淡提示：
   > [提示] 已超过 7 天未能检查更新（网络问题）。可手动运行 `/更新` 检查，或确认网络连通后自动恢复。
@@ -117,6 +117,7 @@ fi
 # 覆盖安装（保留用户的创作文件）
 cp -r "$CACHE/short-drama/SKILL.md" "$SKILL_DIR/"
 cp -r "$CACHE/short-drama/VERSION" "$SKILL_DIR/"
+cp -r "$CACHE/short-drama/WHATSNEW.md" "$SKILL_DIR/" 2>/dev/null || true
 cp -r "$CACHE/short-drama/references/" "$SKILL_DIR/" 2>/dev/null || true
 cp -r "$CACHE/short-drama/scripts/" "$SKILL_DIR/" 2>/dev/null || true
 cp -r "$CACHE/short-drama/bin/" "$SKILL_DIR/" 2>/dev/null || true
@@ -130,11 +131,11 @@ NEW_VER="$(head -1 "$SKILL_DIR/VERSION" 2>/dev/null | sed 's/^v//' | awk '{print
 echo "升级完成：v$OLD_VER → v$NEW_VER"
 ```
 
-4. 读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）：
+4. 读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）。若 `WHATSNEW.md` 缺失或首个版本号与当前版本不一致，输出内置迁移提示：
 
    **本次更新内容：**
 
-   {WHATSNEW.md 全文，每行单独输出}
+   {WHATSNEW.md 全文，每行单独输出，或输出“新版 /仿写 已拆为独立 sibling skill，旧版局部 /更新 不能补装。请重装最新版短剧 Skill，并确认新版仿写能力已安装成功。”}
 
 5. 提示用户：
 > [完成] 升级完成！新版本在**下次对话**中生效（当前对话仍使用旧版 SKILL.md）。
