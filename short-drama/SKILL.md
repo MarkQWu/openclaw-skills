@@ -48,7 +48,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 2. Read `{skill目录}/.last-version-shown`（文件不存在视为空字符串）
 3. 若 current_version ≠ last_shown：
    - 若 `{skill目录}/WHATSNEW.md` 存在且首个版本号与 current_version 一致 → 在命令输出最前面展示全部内容（`---` 包围，加「📣 更新提醒」标题）
-   - 若 `{skill目录}/WHATSNEW.md` 不存在，或首个版本号与 current_version 不一致 → 在命令输出最前面展示内置更新提醒：“v1.31.1 更新：新版 /仿写 已拆为独立 sibling skill，旧版局部 /更新 不能补装。请让智能体执行：帮我重装最新版短剧 Skill，并确认新版仿写能力已安装成功。另：剧本正文破折号完全禁用，`——`、`—`、`--` 任意出现均标【严重】。”
+   - 若 `{skill目录}/WHATSNEW.md` 不存在，或首个版本号与 current_version 不一致 → 在命令输出最前面展示内置更新提醒：“v1.31.2 更新：/仿写 已改为新版复刻能力兼容入口，会优先加载同级 short-drama-remake；如未安装，请让智能体执行：帮我重装最新版短剧 Skill，并确认新版仿写能力已安装成功。另：剧本正文破折号完全禁用，`——`、`—`、`--` 任意出现均标【严重】。”
    - `echo {current_version} > {skill目录}/.last-version-shown` 记录已展示
 4. 版本相同 → 跳过，直接进入格式控制步骤
 
@@ -212,14 +212,19 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ### /仿写 [参考剧本]
 
-**状态：** 已迁移到新版独立短剧拆解复刻能力。
+**状态：** 兼容入口。用户仍可输入 `/仿写`，但实际执行新版 `short-drama-remake` 拆解复刻能力。
 
 **执行：**
 1. 不再执行旧版三阶段仿写流程。
 2. 不再加载 `references/imitation-protocol.md`。
 3. 不再调用旧 `references/condense-source.py`。
-4. 如果当前环境已经有新版仿写能力，提醒用户直接继续拆解参考剧本。
-5. 如果无法确认新版能力已安装，输出以下迁移提示：
+4. **不得扫描 `~/short-drama-projects/`，不得列旧项目，除非用户明确要求继续某个旧项目。** `/仿写` 的默认对象是本次用户提供的参考剧本、文件路径、剧情描述或后续粘贴内容。
+5. 定位当前 skill 目录的父目录：`skills_root = dirname({skill目录})`。若 `skills_root/short-drama-remake/SKILL.md` 存在：
+   - Read `skills_root/short-drama-remake/SKILL.md`。
+   - 按其中的 Short Drama Remake workflow 执行用户当前 `/仿写` 请求。
+   - 若用户没有提供参考剧本/文件/剧情描述，直接询问：“请上传或粘贴参考剧本，或提供参考剧本文件路径。我会先拆骨架，再给换皮复刻方向。”
+   - 输出中可说明：“已切换到新版短剧拆解复刻能力。”
+6. 若 `short-drama-remake` 不存在，输出以下安装提示：
 
     ```text
     /仿写 已升级为新版独立能力。
@@ -230,7 +235,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
     安装完成后，关闭当前会话并重新打开，再继续使用新版 /仿写。
     ```
 
-**说明：** 这次更新新增了独立的短剧拆解复刻能力，旧版局部更新无法自动补装新增能力。
+**说明：** `/仿写` 是旧入口兼容层；真正能力在同级 sibling skill `short-drama-remake`。旧版局部更新无法自动补装 sibling，因此找不到时必须引导重装。
 
 ---
 
@@ -963,7 +968,7 @@ clashes/roundtables 按以下规则决定显示内容：
 
 **功能：** 查看最近一次版本更新了什么。
 
-**执行：** Read `{skill目录}/VERSION` 和 `{skill目录}/WHATSNEW.md`。若 `WHATSNEW.md` 首个版本号与 VERSION 一致 → 原文完整输出，不精简；若不一致或文件缺失 → 输出内置更新提醒：“新版 /仿写 已拆为独立 sibling skill，旧版局部 /更新 不能补装。请重装最新版短剧 Skill，并确认新版仿写能力已安装成功。另：剧本正文破折号完全禁用，`——`、`—`、`--` 任意出现均标【严重】。”
+**执行：** Read `{skill目录}/VERSION` 和 `{skill目录}/WHATSNEW.md`。若 `WHATSNEW.md` 首个版本号与 VERSION 一致 → 原文完整输出，不精简；若不一致或文件缺失 → 输出内置更新提醒：“新版 /仿写 已改为 short-drama-remake 兼容入口；如未安装同级 short-drama-remake，请重装最新版短剧 Skill。另：剧本正文破折号完全禁用，`——`、`—`、`--` 任意出现均标【严重】。”
 
 ---
 

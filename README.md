@@ -1,6 +1,6 @@
 # 爆款剧本工坊 | Drama Workshop
 
-**当前版本：v1.31.1**（2026-05-07）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/openclaw-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
+**当前版本：v1.31.2**（2026-05-08）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/openclaw-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
 
 用 AI 写能拍的微短剧，也能拆解参考短剧做换皮复刻——从选题到分镜，一条命令链走完。
 
@@ -160,7 +160,7 @@ AI：把第一集拆成逐镜分镜表，每个镜头附带即梦 AI prompt ↓
 
 | 命令 | 做什么 |
 |------|--------|
-| `/仿写 <参考>` | 已升级为新版独立仿写能力；如未生效，请重装最新版短剧 Skill 后重开会话 |
+| `/仿写 <参考>` | 兼容入口：自动切换到新版 short-drama-remake 拆解复刻能力 |
 | `$short-drama-remake` | 显式调用参考剧本拆解复刻能力，适合长剧本 ingest、换皮方向、集纲和正式剧本 |
 
 ### 分镜 & 视频
@@ -206,8 +206,8 @@ AI：把第一集拆成逐镜分镜表，每个镜头附带即梦 AI prompt ↓
 **Q：安装/更新命令报错、下载失败**
 A：国内网络可能连不上 GitHub。脚本会自动切换镜像源重试。如果镜像也失败：开全局代理重试，或[手动下载 zip](https://github.com/MarkQWu/openclaw-skills/archive/refs/heads/main.zip) 解压后把 `short-drama` 和 `short-drama-remake` 文件夹复制到 skills 目录。
 
-**Q：`/仿写` 还提示旧流程或没有新版能力**
-A：旧版局部更新不能补装新增的并列 skill。请重装最新版短剧 Skill，关闭当前会话并重新打开。
+**Q：`/仿写` 还提示旧流程、扫描旧项目，或没有新版能力**
+A：新版 `/仿写` 会自动切换到同级 `short-drama-remake`。如果仍提示旧流程或扫描旧项目，说明当前会话还挂着旧 skill，请关闭会话重新打开；如果仍无效，请重装最新版短剧 Skill。
 
 **Q：新版拆解复刻项目会写进原创短剧项目目录吗？**
 A：不会自动混写。原创主流程仍使用 `~/short-drama-projects/<项目>/.drama-state.json`、`episodes/`、`characters.md`、`creative-plan.md`；新版拆解复刻会生成独立的 `manifest.yaml`、`00_source/`、`01_skeleton/`、`02_concepts/`、`03_plan/`、`04_outlines/`、`05_scripts/`、`06_state/`。需要接到原创主流程时，人工复制或导入已确认的设定。
