@@ -1,3 +1,9 @@
+**v1.31.3**（2026-05-08）
+
+WorkBuddy 安装修复：安装脚本会自动把 `skills/.trash` 迁移到同级 `.skill-trash/`，避免 WorkBuddy 递归扫描旧版 `short-drama/SKILL.md`，导致 `/仿写` 仍进入旧流程。重装后请关闭/移除当前 WorkBuddy 工作空间项目并重新打开。
+
+---
+
 **v1.31.2**（2026-05-08）
 
 `/仿写` 兼容入口修复：用户继续输入 `/仿写` 时，不再进入旧项目扫描流程；会优先加载同级 `short-drama-remake`，直接执行新版短剧拆解复刻能力。只有未安装 `short-drama-remake` 时，才提示重装最新版短剧 Skill。

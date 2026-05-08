@@ -8,6 +8,33 @@ $cache = Join-Path $env:USERPROFILE ".claude\.skill-repos\openclaw-skills"
 Write-Host "=== gobuildit Skills 安装器 ===" -ForegroundColor Cyan
 Write-Host ""
 
+function Get-Timestamp {
+    return (Get-Date -Format "yyyyMMdd-HHmmss")
+}
+
+function Move-EmbeddedTrash($skillsDir) {
+    $trashDir = Join-Path $skillsDir ".trash"
+    if (-not (Test-Path $trashDir)) { return }
+
+    # WorkBuddy may recursively scan every SKILL.md under skills\. Keep backups
+    # outside the scanned skills tree so old skills cannot shadow current ones.
+    $ownerDir = Split-Path $skillsDir -Parent
+    $safeRoot = Join-Path $ownerDir ".skill-trash"
+    if (-not (Test-Path $safeRoot)) { New-Item -ItemType Directory -Path $safeRoot -Force | Out-Null }
+
+    $dest = Join-Path $safeRoot ("from-skills-trash-" + (Get-Timestamp))
+    if (Test-Path $dest) {
+        $dest = "$dest-$PID"
+    }
+
+    try {
+        Move-Item -Path $trashDir -Destination $dest -Force
+        Write-Host "  已迁移旧备份: $trashDir → $dest" -ForegroundColor Yellow
+    } catch {
+        Write-Host "  警告：无法迁移 $trashDir，请手动移出 skills 目录，避免旧 skill 被扫描。" -ForegroundColor Yellow
+    }
+}
+
 # 检查 git
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Host "错误：未找到 git，请先安装 git（https://git-scm.com）" -ForegroundColor Red
@@ -90,6 +117,7 @@ if ($targets.Count -eq 0) {
 $installed = 0
 foreach ($skillsDir in $targets) {
     if (-not (Test-Path $skillsDir)) { New-Item -ItemType Directory -Path $skillsDir -Force | Out-Null }
+    Move-EmbeddedTrash $skillsDir
     Get-ChildItem "$cache" -Directory | Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } | ForEach-Object {
         $target = Join-Path $skillsDir $_.Name
         if (Test-Path $target) { Remove-Item -Recurse -Force "$target" }

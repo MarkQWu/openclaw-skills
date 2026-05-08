@@ -11,6 +11,37 @@ OPENCLAW_SKILLS_DIR="$HOME/.openclaw/skills"
 echo "=== gobuildit Skills 安装器 ==="
 echo ""
 
+timestamp() {
+  date +"%Y%m%d-%H%M%S"
+}
+
+migrate_embedded_trash() {
+  local skills_dir="$1"
+  local trash_dir="$skills_dir/.trash"
+
+  if [ ! -d "$trash_dir" ]; then
+    return 0
+  fi
+
+  # WorkBuddy may recursively scan every SKILL.md under skills/. Keep backups
+  # outside the scanned skills tree so old skills cannot shadow current ones.
+  local owner_dir
+  owner_dir="$(dirname "$skills_dir")"
+  local safe_root="$owner_dir/.skill-trash"
+  local dest="$safe_root/from-skills-trash-$(timestamp)"
+
+  mkdir -p "$safe_root"
+  if [ -e "$dest" ]; then
+    dest="$dest-$$"
+  fi
+
+  if mv "$trash_dir" "$dest" 2>/dev/null; then
+    echo "  已迁移旧备份: $trash_dir → $dest"
+  else
+    echo "  警告：无法迁移 $trash_dir，请手动移出 skills 目录，避免旧 skill 被扫描。" >&2
+  fi
+}
+
 # 检查 git
 if ! command -v git &>/dev/null; then
   echo "错误：未找到 git，请先安装 git（https://git-scm.com）"
@@ -93,6 +124,7 @@ if [ ${#targets[@]} -eq 0 ]; then
 fi
 
 for skills_dir in "${targets[@]}"; do
+  migrate_embedded_trash "$skills_dir"
   for d in "$CACHE"/*/; do
     if [ -f "$d/SKILL.md" ]; then
       skill_name="$(basename "$d")"

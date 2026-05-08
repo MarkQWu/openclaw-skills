@@ -1,6 +1,6 @@
 # 爆款剧本工坊 | Drama Workshop
 
-**当前版本：v1.31.2**（2026-05-08）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/openclaw-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
+**当前版本：v1.31.3**（2026-05-08）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/openclaw-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
 
 用 AI 写能拍的微短剧，也能拆解参考短剧做换皮复刻——从选题到分镜，一条命令链走完。
 
@@ -40,6 +40,8 @@ irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 |
 ```
 
 安装完成后**关闭当前会话，重新打开**，输入 `/开始` 看到引导就说明装好了。
+
+安装脚本会自动把 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash`、`~/.claude/skills/.trash` 这类旧备份迁移到同级 `.skill-trash/`，避免 WorkBuddy 递归扫描旧版 `SKILL.md`。
 
 > WorkBuddy 用户注意：同一个工作空间项目可能缓存旧 skill。重装后如果仍显示旧版本，请从工作空间移除/关闭当前项目，再重新打开该项目；这不会删除 `~/short-drama-projects/` 下的剧本项目。
 
@@ -209,7 +211,7 @@ AI：把第一集拆成逐镜分镜表，每个镜头附带即梦 AI prompt ↓
 A：国内网络可能连不上 GitHub。脚本会自动切换镜像源重试。如果镜像也失败：开全局代理重试，或[手动下载 zip](https://github.com/MarkQWu/openclaw-skills/archive/refs/heads/main.zip) 解压后把 `short-drama` 和 `short-drama-remake` 文件夹复制到 skills 目录。
 
 **Q：`/仿写` 还提示旧流程、扫描旧项目，或没有新版能力**
-A：新版 `/仿写` 会自动切换到同级 `short-drama-remake`。如果仍提示旧流程或扫描旧项目，说明当前会话或 WorkBuddy 工作空间还挂着旧 skill。请从工作空间移除/关闭当前项目，再重新打开；如果仍无效，请重装最新版短剧 Skill。
+A：新版 `/仿写` 会自动切换到同级 `short-drama-remake`。如果仍提示旧流程或扫描旧项目，说明当前会话或 WorkBuddy 工作空间还挂着旧 skill，或 `~/.workbuddy/skills/.trash` 里有旧版 `short-drama/SKILL.md` 被递归扫描。请重跑安装命令，安装器会把 `.trash` 移出 skills 扫描范围；然后从 WorkBuddy 工作空间移除/关闭当前项目，再重新打开。
 
 **Q：新版拆解复刻项目会写进原创短剧项目目录吗？**
 A：不会自动混写。原创主流程仍使用 `~/short-drama-projects/<项目>/.drama-state.json`、`episodes/`、`characters.md`、`creative-plan.md`；新版拆解复刻会生成独立的 `manifest.yaml`、`00_source/`、`01_skeleton/`、`02_concepts/`、`03_plan/`、`04_outlines/`、`05_scripts/`、`06_state/`。需要接到原创主流程时，人工复制或导入已确认的设定。
@@ -244,6 +246,8 @@ cp -r openclaw-skills/short-drama ~/.workbuddy/skills/short-drama  # WorkBuddy
 cp -r openclaw-skills/short-drama-remake ~/.openclaw/skills/short-drama-remake   # OpenClaw
 cp -r openclaw-skills/short-drama-remake ~/.workbuddy/skills/short-drama-remake  # WorkBuddy
 ```
+
+手动安装前，如果 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash` 或 `~/.claude/skills/.trash` 存在，请先把它们移动到同级 `.skill-trash/`，不要留在 `skills/` 目录内。
 
 ## License
 
