@@ -122,6 +122,8 @@ if ($installed -gt 0) {
     Write-Host "版本：$version" -ForegroundColor Gray
     Write-Host ""
     Write-Host "关闭当前 Claude Code / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
+    Write-Host "WorkBuddy 用户：需要从工作空间移除/关闭当前项目再重新打开，单独新建对话可能仍沿用旧 skill 缓存。"
+    Write-Host "这不会删除 ~/short-drama-projects/ 下的剧本项目。"
 } else {
     Write-Host "警告：未找到任何 Skill，请检查仓库内容。" -ForegroundColor Yellow
 }

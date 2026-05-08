@@ -137,6 +137,8 @@ if [ "$installed" -gt 0 ]; then
   echo "版本：$version"
   echo ""
   echo "关闭当前 Claude Code / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
+  echo "WorkBuddy 用户：需要从工作空间移除/关闭当前项目再重新打开，单独新建对话可能仍沿用旧 skill 缓存。"
+  echo "这不会删除 ~/short-drama-projects/ 下的剧本项目。"
 else
   echo "警告：未找到任何 Skill，请检查仓库内容。"
 fi

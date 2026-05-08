@@ -41,6 +41,8 @@ irm https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/install.ps1 |
 
 安装完成后**关闭当前会话，重新打开**，输入 `/开始` 看到引导就说明装好了。
 
+> WorkBuddy 用户注意：同一个工作空间项目可能缓存旧 skill。重装后如果仍显示旧版本，请从工作空间移除/关闭当前项目，再重新打开该项目；这不会删除 `~/short-drama-projects/` 下的剧本项目。
+
 > 不想跑脚本？见底部[手动安装](#手动安装)。
 
 ## 5 分钟上手
@@ -207,13 +209,13 @@ AI：把第一集拆成逐镜分镜表，每个镜头附带即梦 AI prompt ↓
 A：国内网络可能连不上 GitHub。脚本会自动切换镜像源重试。如果镜像也失败：开全局代理重试，或[手动下载 zip](https://github.com/MarkQWu/openclaw-skills/archive/refs/heads/main.zip) 解压后把 `short-drama` 和 `short-drama-remake` 文件夹复制到 skills 目录。
 
 **Q：`/仿写` 还提示旧流程、扫描旧项目，或没有新版能力**
-A：新版 `/仿写` 会自动切换到同级 `short-drama-remake`。如果仍提示旧流程或扫描旧项目，说明当前会话还挂着旧 skill，请关闭会话重新打开；如果仍无效，请重装最新版短剧 Skill。
+A：新版 `/仿写` 会自动切换到同级 `short-drama-remake`。如果仍提示旧流程或扫描旧项目，说明当前会话或 WorkBuddy 工作空间还挂着旧 skill。请从工作空间移除/关闭当前项目，再重新打开；如果仍无效，请重装最新版短剧 Skill。
 
 **Q：新版拆解复刻项目会写进原创短剧项目目录吗？**
 A：不会自动混写。原创主流程仍使用 `~/short-drama-projects/<项目>/.drama-state.json`、`episodes/`、`characters.md`、`creative-plan.md`；新版拆解复刻会生成独立的 `manifest.yaml`、`00_source/`、`01_skeleton/`、`02_concepts/`、`03_plan/`、`04_outlines/`、`05_scripts/`、`06_state/`。需要接到原创主流程时，人工复制或导入已确认的设定。
 
 **Q：装完后输入 `/开始` 没反应**
-A：关闭旧会话，重新打开新会话。Skill 只在新会话启动时加载。
+A：关闭旧会话，重新打开新会话。WorkBuddy 如果仍不生效，需要从工作空间移除/关闭当前项目再重新打开。Skill 只在工作空间重新加载后生效。
 
 **Q：怎么确认版本号？**
 A：输入 `/帮助`，底部显示版本号。
