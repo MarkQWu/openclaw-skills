@@ -1,0 +1,162 @@
+schema_version: remake.artifact_registry.v1
+purpose: >
+  Canonical registry contract for short-drama-remake projects. The registry is
+  the only owner of artifact_status, derived gate_status, current_pointers,
+  dirty/needs_sync flags, report refs, and transaction refs.
+
+project:
+  project_id: string
+  project_mode: remake
+  project_root: path
+  created_at: ISO-8601
+  updated_at: ISO-8601
+
+registry_status:
+  value:
+    enum: [active, dirty, needs_sync, transaction_failed]
+  reason: string|null
+  derived_summary: true
+  manual_write_allowed: false
+
+artifact_class:
+  enum:
+    - user_confirmed_canonical
+    - machine_report
+
+artifact_status:
+  enum:
+    - missing
+    - temporary
+    - draft
+    - candidate
+    - accepted
+    - superseded
+    - rejected
+    - archived
+    - transaction_failed
+
+gate_status:
+  registry_only: true
+  enum:
+    - not_applicable
+    - pending
+    - blocked
+    - passed
+    - passed_with_deferred_risk
+    - stale
+    - dirty
+    - needs_sync
+    - transaction_failed
+
+artifact_types:
+  - source_manifest
+  - source_index
+  - source_bundle
+  - reference_skeleton
+  - reference_expression_guide
+  - factor_scorecard
+  - reference_map
+  - concept_list
+  - project_bible
+  - characters
+  - setting_bible
+  - research_notes
+  - series_outline
+  - rolling_outline
+  - execution_card
+  - remake_risk_audit
+  - claim_ledger
+  - accepted_canon
+  - project_state
+  - episode_script
+  - review_report
+  - source_integrity_report
+  - reference_mapping_report
+  - fact_gate_report
+  - preflight_report
+  - postflight_report
+  - similarity_risk_report
+  - legacy_candidate
+  - experiment
+
+read_policy:
+  user_confirmed_canonical:
+    requires:
+      artifact_status: accepted
+      gate_status: [passed, passed_with_deferred_risk]
+      current_pointer: required
+      decision_id: required
+      last_transaction_id: committed_in_transaction_ledger
+  machine_report:
+    requires:
+      artifact_status: accepted
+      report_status: [passed]
+      decision_id: not_required
+      current_pointer: not_required
+      freshness: not_stale
+
+current_pointers_item:
+  required_fields:
+    - slot
+    - artifact_id
+    - version_id
+    - decision_id
+    - set_by
+    - set_at
+    - last_transaction_id
+  uniqueness: one_active_pointer_per_slot
+
+artifacts_item:
+  common_required_fields:
+    - artifact_id
+    - artifact_class
+    - artifact_type
+    - slot
+    - path
+    - path_class
+    - version_id
+    - artifact_status
+    - decision_required
+    - may_affect_script
+    - current_pointer_eligible
+    - readable_by_nodes
+  class_specific_required_fields:
+    user_confirmed_canonical:
+      - gate_status
+      - decision_id
+      - last_transaction_id
+      - gate_derived_from_report_id
+    machine_report:
+      - report_status
+      - freshness
+  machine_report_forbidden_fields:
+    - gate_status
+    - current_pointer
+    - decision_id
+    - last_transaction_id
+  gate_derivation:
+    gate_status_must_reference_latest_report: true
+    report_field_name: report_status
+    report_may_not_write_gate_status: true
+
+runtime_packets:
+  registry_artifacts_forbidden: true
+  allowed_debug_ref:
+    packet_type: resume_packet
+    packet_validity: [valid, invalid]
+
+transactions_item:
+  transaction_status:
+    enum: [pending, committed, rolled_back, transaction_failed]
+  required_consistency_checks:
+    - decision_log
+    - registry
+    - artifact_status_blocks
+
+default_forbidden_paths_for_script_nodes:
+  - _legacy_review/**
+  - 09_experiments/**
+  - "**/tmp/**"
+  - "**/drafts/**"
+  - "**/candidates/**"
+  - research-notes.md

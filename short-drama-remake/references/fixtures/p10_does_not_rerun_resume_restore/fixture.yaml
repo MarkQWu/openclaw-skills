@@ -1,0 +1,37 @@
+{
+  "fixture_id": "p10_does_not_rerun_resume_restore",
+  "title": "P10 consumes valid resume packet and does not rerun resume.restore",
+  "problem_refs": ["P10", "P11"],
+  "category": "anti_redundancy",
+  "initial_project_state": {
+    "runtime_packet": {"packet_id": "RP-012", "packet_validity": "valid", "target_episode_no": 12},
+    "files_present": ["06_state/artifact-registry.yaml", "04_outlines/episodes/ep012.execution-card.md"],
+    "current_pointers": ["execution_card:episode_012"],
+    "dirty_flags": []
+  },
+  "user_input": {"text": "继续写第 12 集", "target_episode_no": 12},
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "passed",
+    "body_generated": false,
+    "created_artifacts": ["08_reports/preflight/PFR-episode_012.yaml"],
+    "forbidden_created_artifacts": []
+  },
+  "node_invocation_trace": {
+    "called_nodes": ["script_draft.preflight"],
+    "checker_call_log": ["consume_resume_packet"],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": ["resume.restore", "source.validate", "reference_map.validate", "fact_gate.validate"]
+  },
+  "assertions": {
+    "anti_redundancy_assertion": {
+      "forbidden_node_calls_not_present": ["resume.restore"],
+      "resume_packet_consumed": "RP-012"
+    },
+    "read_trace_assertion": {"actual_reads": ["06_state/artifact-registry.yaml", "04_outlines/episodes/ep012.execution-card.md"], "enforce_default_forbidden_script_reads": true}
+  }
+}

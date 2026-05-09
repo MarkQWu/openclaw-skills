@@ -1,0 +1,90 @@
+{
+  "fixture_id": "research_notes_not_directly_read_by_script",
+  "title": "research-notes.md cannot be read directly by script drafting",
+  "problem_refs": [
+    "P9",
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "research-notes.md",
+      "04_outlines/episodes/ep004.execution-card.md",
+      "06_state/artifact-registry.yaml"
+    ],
+    "registry_excerpt": {
+      "unregistered_files": [
+        "research-notes.md"
+      ]
+    },
+    "current_pointers": [
+      "execution_card:episode_004"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "把研究笔记里的考据直接写进第 4 集",
+    "target_episode_no": 4
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep004.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "FORBIDDEN_DIRECT_RESEARCH_NOTES_READ",
+      "affected_scope": [
+        "research-notes.md",
+        "episode_004_script"
+      ],
+      "user_visible_reason": "正文节点尝试直接读取 research-notes，违反受控读取边界。",
+      "recommended_next_node": "script_draft.preflight",
+      "available_actions": [
+        "改读 fact/source/mapping reports",
+        "移除 forbidden read",
+        "重跑 preflight"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "read_guard_policy"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "FORBIDDEN_DIRECT_RESEARCH_NOTES_READ"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "04_outlines/episodes/ep004.execution-card.md"
+      ],
+      "research_note_reads_not_present": [
+        "research-notes.md"
+      ],
+      "forbidden_reads_not_present": [
+        "research-notes.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

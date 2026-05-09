@@ -1,0 +1,112 @@
+schema_version: remake.node_route_table.v1
+purpose: >
+  Canonical route contract for short-drama-remake nodes. P10 script drafting is
+  the only total gate for script generation and must consume reports/packets
+  instead of rerunning upstream deep interfaces.
+
+project_mode: remake
+
+node_contract:
+  required_fields:
+    - node_id
+    - normalized_intent
+    - bounded_context
+    - target_artifact_type
+    - forbidden_reads
+    - validation_policy
+    - output_contract
+    - regression_assertions
+
+nodes:
+  - node_id: resume.restore
+    normalized_intent: restore_project_state
+    bounded_context: short-drama-remake
+    produces_runtime_packet: resume_packet
+    produces_registry_artifact: false
+    allowed_full_node_call_by: [router, user_resume_entry]
+    forbidden_full_node_call_by: [script_draft.preflight]
+
+  - node_id: source.validate
+    normalized_intent: validate_source_integrity
+    bounded_context: short-drama-remake
+    produces_machine_report: source_integrity_report
+    report_status_field: report_status
+
+  - node_id: reference_map.validate
+    normalized_intent: validate_reference_mapping
+    bounded_context: short-drama-remake
+    produces_machine_report: reference_mapping_report
+    report_status_field: report_status
+
+  - node_id: fact_gate.validate
+    normalized_intent: validate_claims_for_script
+    bounded_context: short-drama-remake
+    produces_machine_report: fact_gate_report
+    report_status_field: report_status
+
+  - node_id: script_draft.preflight
+    user_intents: ["写第 X 集", "继续写", "接着写第 X 集"]
+    normalized_intent: draft_episode_script
+    bounded_context: short-drama-remake
+    consumes_runtime_packets: [resume_packet]
+    consumes_machine_reports:
+      - source_integrity_report
+      - reference_mapping_report
+      - fact_gate_report
+    consumes_canonical_artifacts:
+      - execution_card
+      - reference_expression_guide
+      - factor_scorecard
+      - remake_risk_audit
+      - project_state
+      - accepted_canon
+    forbidden_reads:
+      - short-drama/SKILL.md
+      - short-drama/references/*.md
+      - 00_source/raw/**
+      - 00_source/bundles/**
+      - 00_source/**/*.txt
+      - 00_source/**/*.md
+      - research-notes.md
+      - _legacy_review/**
+      - 09_experiments/**
+    forbidden_full_node_calls:
+      - resume.restore
+      - source.validate
+      - reference_map.validate
+      - fact_gate.validate
+    validation_policy:
+      preflight_order:
+        - active_project_and_bounded_context
+        - resume_packet_validity
+        - execution_card_status
+        - fact_gate_report_for_execution_card_claims
+        - source_integrity_report_validity
+        - reference_mapping_report_validity
+        - remake_risk_gate
+        - artifact_registry_readability
+        - planned_read_manifest_build
+        - forbidden_read_wrapper
+    output_contract:
+      produces_machine_report: preflight_report
+      body_generated_when_blocked: false
+      created_episode_script_when_blocked: false
+    downstream_unlocks:
+      - node_id: script_draft.generate
+        when: preflight_report.report_status == passed
+    regression_assertions:
+      - no_forbidden_read
+      - body_generated_false_when_blocked
+      - p10_consumes_reports_not_full_nodes
+
+  - node_id: script_draft.postflight
+    normalized_intent: close_episode_script
+    bounded_context: short-drama-remake
+    consumes_machine_reports: [preflight_report, similarity_risk_report]
+    consumes_canonical_artifacts: [episode_script:candidate, execution_card]
+    produces_machine_report: postflight_report
+    report_status_field: report_status
+    downstream_unlocks:
+      - node_id: next_episode.resume
+        route_allowed_when: postflight_report.report_status == passed
+        unlock_written_by: registry_continuation_gate

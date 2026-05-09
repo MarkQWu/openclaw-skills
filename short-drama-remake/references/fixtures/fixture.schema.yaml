@@ -1,0 +1,45 @@
+{
+  "schema_version": "remake.fixture_schema.v1",
+  "required_files": [
+    "fixture.yaml",
+    "project/",
+    "snapshots/before/",
+    "snapshots/after_expected/",
+    "call_trace.expected.yaml",
+    "read_trace.expected.yaml"
+  ],
+  "required_top_level_fields": [
+    "fixture_id",
+    "title",
+    "problem_refs",
+    "category",
+    "initial_project_state",
+    "user_input",
+    "expected_route",
+    "expected_result",
+    "node_invocation_trace",
+    "assertions"
+  ],
+  "stable_assertion_fields": [
+    "normalized_intent",
+    "route_result",
+    "artifact_status",
+    "gate_status",
+    "current_pointer",
+    "decision_id",
+    "transaction_status",
+    "body_generated",
+    "blocker_code",
+    "blocking_level",
+    "planned_read_manifest",
+    "actual_read_trace",
+    "node_invocation_trace",
+    "checker_call_log",
+    "undeclared_reads",
+    "forbidden_read_attempts",
+    "consumed_report_ids",
+    "stale_inputs",
+    "downstream_unlocked",
+    "ask_count"
+  ]
+}

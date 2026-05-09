@@ -1,0 +1,72 @@
+{
+  "fixture_id": "confirm_transaction_atomicity",
+  "title": "confirm.transaction prevents half-confirmed state",
+  "problem_refs": [
+    "P8"
+  ],
+  "category": "transaction",
+  "initial_project_state": {
+    "failure_injection": {
+      "step": "registry_write",
+      "mode": "raise_io_error"
+    },
+    "transactions_before": [],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "确认第 5 集执行卡为当前采用版本",
+    "target_episode_no": 5
+  },
+  "expected_route": {
+    "normalized_intent": "confirm_execution_card",
+    "node_id": "confirm.transaction",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "CONFIRM_TRANSACTION_ATOMICITY_FAILED",
+      "affected_scope": [
+        "decision_log",
+        "artifact_registry",
+        "execution_card:episode_005"
+      ],
+      "user_visible_reason": "确认事务写入失败，不能留下半确认状态。",
+      "recommended_next_node": "confirm.transaction.repair",
+      "available_actions": [
+        "回滚事务",
+        "标记 transaction_failed 并修复",
+        "重新发起确认"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "confirm.transaction"
+    ],
+    "checker_call_log": [
+      "write_decision_log_pending",
+      "registry_write_failed",
+      "rollback_decision_log"
+    ],
+    "consumed_report_ids": []
+  },
+  "assertions": {
+    "required_blockers": [
+      "CONFIRM_TRANSACTION_ATOMICITY_FAILED"
+    ],
+    "transaction_assertion": {
+      "transaction_status": "transaction_failed",
+      "no_half_confirmed_state": true,
+      "records": {
+        "decision_log": "rolled_back",
+        "registry": "transaction_failed",
+        "artifact_status": "transaction_failed"
+      }
+    }
+  }
+}

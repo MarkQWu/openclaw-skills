@@ -1,0 +1,78 @@
+{
+  "fixture_id": "missing_outline_blocks_script",
+  "title": "Missing execution card blocks episode script generation",
+  "problem_refs": [
+    "P2",
+    "P6",
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "06_state/artifact-registry.yaml",
+      "06_state/project-state.md"
+    ],
+    "registry_excerpt": {
+      "artifacts": [],
+      "current_pointers": []
+    },
+    "decision_log_excerpt": {
+      "committed_decisions": []
+    },
+    "current_pointers": [],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "把第 12 集写成正式短剧剧本",
+    "target_episode_no": 12
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep012.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "EXECUTION_CARD_MISSING",
+      "affected_scope": [
+        "episode_012_script"
+      ],
+      "user_visible_reason": "缺少目标集写作执行卡，不能直接生成正文。",
+      "recommended_next_node": "execution_card.prepare",
+      "available_actions": [
+        "补齐本集写作执行卡",
+        "返回分集大纲节点",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "execution_card_status"
+    ],
+    "consumed_report_ids": []
+  },
+  "assertions": {
+    "downstream_read_assertion": [
+      "execution_card_missing_blocks_script"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [],
+      "required_reads": [],
+      "forbidden_reads_not_present": [
+        "short-drama/SKILL.md",
+        "short-drama/references/opening-rules.md"
+      ]
+    }
+  }
+}

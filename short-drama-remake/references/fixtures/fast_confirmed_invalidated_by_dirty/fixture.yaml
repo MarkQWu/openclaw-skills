@@ -1,0 +1,91 @@
+{
+  "fixture_id": "fast_confirmed_invalidated_by_dirty",
+  "title": "fast_confirmed becomes invalid when dirty or needs_sync appears",
+  "problem_refs": [
+    "P8",
+    "P10"
+  ],
+  "category": "confirmation",
+  "initial_project_state": {
+    "quick_mode": {
+      "mode": "fast_confirmed",
+      "scope": [
+        "execution_card:episode_005"
+      ]
+    },
+    "dirty_flags": [
+      "dirty:characters:voice"
+    ],
+    "needs_sync_flags": [
+      "needs_sync:project_bible:character_summary"
+    ]
+  },
+  "user_input": {
+    "text": "继续按快速确认写第 5 集",
+    "target_episode_no": 5
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep005.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "FAST_CONFIRMED_INVALIDATED",
+      "affected_scope": [
+        "episode_005_script",
+        "characters",
+        "project_bible"
+      ],
+      "user_visible_reason": "fast_confirmed 已被 dirty 或 needs_sync 状态失效。",
+      "recommended_next_node": "confirm.transaction",
+      "available_actions": [
+        "重新确认当前范围",
+        "先处理 dirty/needs_sync",
+        "退出快速模式"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "quick_mode_validity",
+      "dirty_flag_scan"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "FAST_CONFIRMED_INVALIDATED"
+    ],
+    "fast_confirmed_assertion": {
+      "mode_before": "fast_confirmed",
+      "invalidated_by": [
+        "dirty",
+        "needs_sync"
+      ],
+      "mode_after": "invalidated"
+    },
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

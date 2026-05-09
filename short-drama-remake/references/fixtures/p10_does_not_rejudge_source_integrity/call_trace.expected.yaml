@@ -1,0 +1,5 @@
+{
+  "called_nodes": ["script_draft.preflight"],
+  "forbidden_full_node_calls_not_present": ["resume.restore", "source.validate", "reference_map.validate", "fact_gate.validate"],
+  "consumed_report_ids": ["SIR-001", "RMR-012-001", "FGR-012-001"]
+}

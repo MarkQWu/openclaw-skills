@@ -1,0 +1,99 @@
+{
+  "fixture_id": "partial_source_forbids_full_claim",
+  "title": "P12 partial source cannot support full-series claim",
+  "problem_refs": [
+    "P12",
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "04_outlines/episodes/ep020.execution-card.md",
+      "08_reports/source-integrity/SIR-002.yaml",
+      "06_state/artifact-registry.yaml"
+    ],
+    "source_integrity_report_excerpt": {
+      "report_id": "SIR-002",
+      "report_status": "passed",
+      "source_scope": "partial",
+      "allowed_claim_level": "sample_opening"
+    },
+    "current_pointers": [
+      "execution_card:episode_020"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "基于完整商业模型写第 20 集",
+    "target_episode_no": 20
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep020.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "project",
+      "blocker_code": "SOURCE_SCOPE_PARTIAL_FORBIDS_FULL_CLAIM",
+      "affected_scope": [
+        "full_series_claim",
+        "episode_020_script"
+      ],
+      "user_visible_reason": "当前源材料覆盖范围不足以支撑完整剧集或完整商业模型判断。",
+      "recommended_next_node": "source.validate",
+      "available_actions": [
+        "补齐源材料",
+        "降级为样本骨架",
+        "移除 full-series claim"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "consume_source_integrity_report"
+    ],
+    "consumed_report_ids": [
+      "SIR-002"
+    ],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "SOURCE_SCOPE_PARTIAL_FORBIDS_FULL_CLAIM"
+    ],
+    "anti_redundancy_assertion": {
+      "required_consumed_report_ids": [
+        "SIR-002"
+      ]
+    },
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "08_reports/source-integrity/SIR-002.yaml"
+      ],
+      "required_reads": [
+        "08_reports/source-integrity/SIR-002.yaml"
+      ],
+      "source_bundle_reads_not_present": [
+        "00_source/bundles/eps_011-020.md",
+        "00_source/episodes/ep_020.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

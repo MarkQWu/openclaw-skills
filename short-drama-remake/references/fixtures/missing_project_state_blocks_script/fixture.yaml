@@ -1,0 +1,85 @@
+{
+  "fixture_id": "missing_project_state_blocks_script",
+  "title": "Missing project state blocks continuation script",
+  "problem_refs": [
+    "P5",
+    "P10",
+    "P11"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "04_outlines/episodes/ep009.execution-card.md",
+      "06_state/artifact-registry.yaml"
+    ],
+    "missing_files": [
+      "06_state/project-state.md"
+    ],
+    "current_pointers": [
+      "execution_card:episode_009"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "继续写第 9 集",
+    "target_episode_no": 9
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep009.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "PROJECT_STATE_MISSING",
+      "affected_scope": [
+        "episode_009_continuity",
+        "episode_009_script"
+      ],
+      "user_visible_reason": "缺少项目状态文件，无法确认连续性和下一集承接。",
+      "recommended_next_node": "project_state.restore",
+      "available_actions": [
+        "补齐 project-state.md",
+        "运行恢复节点",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "project_state_presence"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "PROJECT_STATE_MISSING"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "04_outlines/episodes/ep009.execution-card.md"
+      ],
+      "forbidden_reads_not_present": [
+        "05_scripts/episodes/ep009.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

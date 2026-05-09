@@ -1,0 +1,5 @@
+{
+  "called_nodes": ["entry.route"],
+  "checker_call_log_contains": ["legacy_entry_boundary"],
+  "forbidden_full_node_calls_not_present": ["short-drama.load", "short-drama-remake.sibling_read"]
+}

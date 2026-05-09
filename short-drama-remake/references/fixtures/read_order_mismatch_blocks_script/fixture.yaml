@@ -1,0 +1,86 @@
+{
+  "fixture_id": "read_order_mismatch_blocks_script",
+  "title": "Script preflight must consume registry before execution card and reports",
+  "problem_refs": [
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "06_state/artifact-registry.yaml",
+      "04_outlines/episodes/ep012.execution-card.md",
+      "08_reports/fact-gate/episode_012.FGR.yaml"
+    ],
+    "current_pointers": [
+      "execution_card:episode_012"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "写第 12 集正文",
+    "target_episode_no": 12
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep012.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "READ_ORDER_MISMATCH",
+      "affected_scope": [
+        "episode_012_preflight"
+      ],
+      "user_visible_reason": "正文前读取顺序不符合执行卡优先和报告消费规则。",
+      "recommended_next_node": "script_draft.preflight",
+      "available_actions": [
+        "按固定顺序重跑 preflight",
+        "检查 read trace",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "planned_read_manifest_order"
+    ],
+    "consumed_report_ids": [
+      "FGR-012-001"
+    ],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "READ_ORDER_MISMATCH"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "04_outlines/episodes/ep012.execution-card.md",
+        "08_reports/fact-gate/episode_012.FGR.yaml",
+        "06_state/artifact-registry.yaml"
+      ],
+      "expected_order": [
+        "06_state/artifact-registry.yaml",
+        "04_outlines/episodes/ep012.execution-card.md",
+        "08_reports/fact-gate/episode_012.FGR.yaml"
+      ],
+      "expected_order_violation": true,
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

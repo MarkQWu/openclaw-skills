@@ -1,0 +1,5 @@
+{
+  "required_reads": ["06_state/artifact-registry.yaml"],
+  "forbidden_reads_not_present": ["03_plan/project-bible.md"],
+  "episode_script_created": false
+}

@@ -1,0 +1,4 @@
+{
+  "called_nodes": ["confirm.transaction"],
+  "checker_call_log_contains": ["write_decision_log_pending", "registry_write_failed", "rollback_decision_log"]
+}

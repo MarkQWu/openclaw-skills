@@ -1,0 +1,64 @@
+{
+  "fixture_id": "p10_does_not_rejudge_source_integrity",
+  "title": "P10 consumes SIR and does not rerun source.validate or read source bundles",
+  "problem_refs": ["P10", "P12"],
+  "category": "anti_redundancy",
+  "initial_project_state": {
+    "files_present": [
+      "06_state/artifact-registry.yaml",
+      "08_reports/source-integrity/SIR-001.yaml",
+      "08_reports/reference-mapping/RMR-episode_012-001.yaml",
+      "08_reports/fact-gate/episode_012.FGR.yaml",
+      "04_outlines/episodes/ep012.execution-card.md"
+    ],
+    "registry_excerpt": {
+      "artifacts": [
+        {"artifact_id": "SIR-001", "artifact_class": "machine_report", "artifact_type": "source_integrity_report", "artifact_status": "accepted", "report_status": "passed"},
+        {"artifact_id": "RMR-012-001", "artifact_class": "machine_report", "artifact_type": "reference_mapping_report", "artifact_status": "accepted", "report_status": "passed"},
+        {"artifact_id": "FGR-012-001", "artifact_class": "machine_report", "artifact_type": "fact_gate_report", "artifact_status": "accepted", "report_status": "passed"}
+      ]
+    },
+    "decision_log_excerpt": {"committed_decisions": ["D-EXEC-012"]},
+    "current_pointers": ["execution_card:episode_012"],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "继续写第 12 集",
+    "target_episode_no": 12
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "passed",
+    "body_generated": false,
+    "created_artifacts": ["08_reports/preflight/PFR-episode_012.yaml"],
+    "forbidden_created_artifacts": []
+  },
+  "node_invocation_trace": {
+    "called_nodes": ["script_draft.preflight"],
+    "checker_call_log": ["consume_resume_packet", "consume_source_integrity_report", "consume_reference_mapping_report", "consume_fact_gate_report"],
+    "consumed_report_ids": ["SIR-001", "RMR-012-001", "FGR-012-001"],
+    "forbidden_full_node_calls": ["resume.restore", "source.validate", "reference_map.validate", "fact_gate.validate"]
+  },
+  "assertions": {
+    "anti_redundancy_assertion": {
+      "forbidden_node_calls_not_present": ["resume.restore", "source.validate", "reference_map.validate", "fact_gate.validate"],
+      "required_consumed_report_ids": ["SIR-001", "RMR-012-001", "FGR-012-001"],
+      "source_bundle_reads_not_present": ["00_source/bundles/eps_011-020.md", "00_source/episodes/ep_012.md"]
+    },
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "04_outlines/episodes/ep012.execution-card.md",
+        "08_reports/source-integrity/SIR-001.yaml",
+        "08_reports/reference-mapping/RMR-episode_012-001.yaml",
+        "08_reports/fact-gate/episode_012.FGR.yaml"
+      ],
+      "source_bundle_reads_not_present": ["00_source/bundles/eps_011-020.md", "00_source/episodes/ep_012.md"],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

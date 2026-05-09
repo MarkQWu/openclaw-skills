@@ -1,0 +1,138 @@
+schema_version: remake.reports.v1
+purpose: >
+  Machine report schemas used by short-drama-remake gates. Reports use
+  report_status only. gate_status is owned exclusively by artifact-registry.yaml.
+
+report_status_by_report_type:
+  standard_gate_report:
+    applies_to:
+      - source_integrity_report
+      - reference_mapping_report
+      - fact_gate_report
+      - preflight_report
+      - similarity_risk_report
+      - llm_review_report
+    enum: [passed, blocked, stale]
+  postflight_report:
+    enum:
+      - passed
+      - blocked
+      - needs_revision
+      - needs_user_review
+      - pending_commit
+      - pending_state_update
+      - locked
+      - stale
+
+blocker_contract:
+  required_fields:
+    - blocker_code
+    - blocking_level
+    - affected_scope
+    - user_visible_reason
+    - recommended_next_node
+    - available_actions
+  blocking_level:
+    enum: [episode, project, arc, document, field]
+  display_message_is_not_assertion_source: true
+  blocker_code:
+    enum:
+      - EXECUTION_CARD_MISSING
+      - EXECUTION_CARD_NOT_ACCEPTED
+      - PROJECT_STATE_MISSING
+      - RISK_AUDIT_MISSING_OR_STALE
+      - FACT_GATE_BLOCKED
+      - SOURCE_INTEGRITY_BLOCKED
+      - REFERENCE_MAPPING_BLOCKED
+      - EXPRESSION_GUIDE_MISSING
+      - FACTOR_SCORECARD_MISSING
+      - FORBIDDEN_READ_ATTEMPT
+      - UNDECLARED_READ_ATTEMPT
+      - TRANSACTION_FAILED
+      - POSTFLIGHT_USER_REVIEW_MISSING
+      - POSTFLIGHT_CANON_NOT_COMMITTED
+      - POSTFLIGHT_STATE_NOT_UPDATED
+      - POSTFLIGHT_NEXT_EPISODE_LOCKED
+      - SOURCE_SCOPE_PARTIAL_FORBIDS_FULL_CLAIM
+      - DOCUMENT_SYNC_RESIDUE
+      - FAST_CONFIRMED_INVALIDATED
+      - LEGACY_ENTRY_MIGRATION_REQUIRED
+      - CONFIRM_TRANSACTION_ATOMICITY_FAILED
+      - READ_ORDER_MISMATCH
+      - FORBIDDEN_DIRECT_RESEARCH_NOTES_READ
+      - OPEN_RISK_BLOCKS_SCRIPT
+
+source_integrity_report:
+  schema_version: remake.source_integrity_report.v1
+  artifact_class: machine_report
+  report_status: [passed, blocked, stale]
+  source_scope: [complete, partial, incomplete, unknown]
+  source_read_coverage:
+    coverage_type: [metadata_only, sampled, progressive_full, targeted]
+  expression_sample_coverage:
+    coverage_type: [none, sampled, targeted, sufficient_for_target]
+  allowed_claim_levels:
+    - opening_sample
+    - provided_episode_range
+    - full_series_skeleton
+    - full_commercial_model
+    - mid_late_reversal
+
+reference_mapping_report:
+  schema_version: remake.reference_mapping_report.v1
+  artifact_class: machine_report
+  report_status: [passed, blocked, stale]
+  required_mapping_fields:
+    - mapping_id
+    - new_episode_function
+    - reference_function_range
+    - replacement_rule_ids
+    - forbidden_copy_items
+    - expression_tag_ids
+    - factor_ids
+    - risk_ids
+    - based_on_decision_id
+
+fact_gate_report:
+  schema_version: remake.fact_gate_report.v1
+  artifact_class: machine_report
+  report_status: [passed, blocked, stale]
+  claim_status: [passed, blocked, allowed_with_treatment]
+  allowed_script_treatment:
+    - direct_fact
+    - generalized
+    - fictionalized
+    - subjective_character_belief
+    - omit
+  direct_fact_requires_decision_id: true
+
+preflight_report:
+  schema_version: remake.preflight_report.v1
+  artifact_class: machine_report
+  report_status: [passed, blocked, stale]
+  body_generated_default: false
+  consumed_runtime_packets: [resume_packet]
+  consumed_reports:
+    - fact_gate_report
+    - source_integrity_report
+    - reference_mapping_report
+  required_sections:
+    - planned_read_manifest
+    - read_guard_policy
+    - blockers
+    - warnings
+
+postflight_report:
+  schema_version: remake.postflight_report.v1
+  artifact_class: machine_report
+  report_status_ref: report_status_by_report_type.postflight_report
+  passed_requires:
+    - quality_gate_status == passed
+    - user_review_status == accepted
+    - canon_commit_status == committed
+    - state_update_status == updated
+    - next_episode_unlock_status == unlocked
+    - read_trace_diff.clean == true
+    - risk_recheck.status == passed
+    - sync_check.status == passed
+  downstream_must_use_top_level_report_status_only: true

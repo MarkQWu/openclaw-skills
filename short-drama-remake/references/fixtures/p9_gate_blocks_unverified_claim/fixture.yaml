@@ -1,0 +1,100 @@
+{
+  "fixture_id": "p9_gate_blocks_unverified_claim",
+  "title": "P9 fact gate blocked claim prevents script body",
+  "problem_refs": [
+    "P9",
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "04_outlines/episodes/ep012.execution-card.md",
+      "08_reports/fact-gate/episode_012.FGR.yaml",
+      "06_state/artifact-registry.yaml"
+    ],
+    "fact_gate_report_excerpt": {
+      "report_id": "FGR-012-001",
+      "report_status": "blocked",
+      "blocked_claim_ids": [
+        "CLAIM-083"
+      ]
+    },
+    "current_pointers": [
+      "execution_card:episode_012"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "继续写第 12 集",
+    "target_episode_no": 12
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep012.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "FACT_GATE_BLOCKED",
+      "affected_scope": [
+        "claim:CLAIM-083",
+        "episode_012_script"
+      ],
+      "user_visible_reason": "执行卡引用的事实或 claim 未通过正文前 fact gate。",
+      "recommended_next_node": "fact_gate.validate",
+      "available_actions": [
+        "补确认事实",
+        "改为泛化或虚构化处理",
+        "移除该事实引用"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "consume_fact_gate_report"
+    ],
+    "consumed_report_ids": [
+      "FGR-012-001"
+    ],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "FACT_GATE_BLOCKED"
+    ],
+    "anti_redundancy_assertion": {
+      "required_consumed_report_ids": [
+        "FGR-012-001"
+      ],
+      "forbidden_node_calls_not_present": [
+        "fact_gate.validate"
+      ]
+    },
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "04_outlines/episodes/ep012.execution-card.md",
+        "08_reports/fact-gate/episode_012.FGR.yaml"
+      ],
+      "required_reads": [
+        "08_reports/fact-gate/episode_012.FGR.yaml"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

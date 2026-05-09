@@ -1,0 +1,82 @@
+{
+  "fixture_id": "skip_outline_blocks_script",
+  "title": "Script drafting cannot skip episode execution card",
+  "problem_refs": [
+    "P2",
+    "P6",
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "03_plan/project-bible.md",
+      "06_state/artifact-registry.yaml",
+      "06_state/project-state.md"
+    ],
+    "missing_files": [
+      "04_outlines/episodes/ep008.execution-card.md"
+    ],
+    "current_pointers": [],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "不做集纲，直接写第 8 集正文",
+    "target_episode_no": 8
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep008.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "EXECUTION_CARD_MISSING",
+      "affected_scope": [
+        "episode_008_script"
+      ],
+      "user_visible_reason": "缺少目标集写作执行卡，不能直接生成正文。",
+      "recommended_next_node": "execution_card.prepare",
+      "available_actions": [
+        "补齐本集写作执行卡",
+        "返回分集大纲节点",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "execution_card_status"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "EXECUTION_CARD_MISSING"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml"
+      ],
+      "forbidden_reads_not_present": [
+        "03_plan/project-bible.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

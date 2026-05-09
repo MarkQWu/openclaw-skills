@@ -1,0 +1,59 @@
+# short-drama-remake
+
+`short-drama-remake` is the dedicated remake / reference-analysis skill. Use it for `仿写`, reference skeleton extraction, skin-swap concepting, managed remake projects, episode execution cards, and shooting-ready remake scripts.
+
+## Entry
+
+- Main entry: call this skill directly for `/仿写` or remake requests.
+- Do not route remake work through `short-drama`.
+- In managed projects, script drafting is guarded by `script_draft.preflight`; downstream script generation must not rely on memory or ad hoc file search.
+
+## Managed Project Gate
+
+Before writing an episode script, the project must have readable current artifacts:
+
+- accepted execution card for the target episode
+- `fact_gate_report`
+- `source_integrity_report`
+- `reference_mapping_report`
+- `reference-expression-guide.md`
+- `factor-scorecard.yaml`
+- `remake-risk-audit.md`
+- `project-state.md`
+- accepted canon
+
+`script_draft.preflight` consumes those artifacts and reports. It must not rerun full `resume.restore`, `fact_gate.validate`, `source.validate`, or `reference_map.validate` inside the script-drafting node.
+
+## Blocking Summary
+
+When preflight blocks script generation, return one user-visible blocking summary:
+
+- blocking reason
+- affected scope
+- whether it blocks this episode or the whole project
+- recommended next step
+- available user actions
+
+Blocked preflight must set `body_generated=false` and must not create an episode script.
+
+## Validation
+
+Run the minimal gate checks from the skill root:
+
+```bash
+python3 scripts/remake_gate_checker.py --self-test
+```
+
+Run all bundled fixtures:
+
+```bash
+find references/fixtures -name fixture.yaml -print0 | xargs -0 -n1 python3 scripts/remake_gate_checker.py --fixture
+```
+
+Compile the checker:
+
+```bash
+PYTHONPYCACHEPREFIX=/private/tmp/short-drama-remake-pycache python3 -m py_compile scripts/remake_gate_checker.py
+```
+
+Fixture files are JSON-compatible YAML. The checker intentionally validates deterministic contracts only; creative quality remains an LLM review boundary.

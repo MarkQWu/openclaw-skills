@@ -1,0 +1,89 @@
+{
+  "fixture_id": "open_risk_blocks_script",
+  "title": "Open remake risk blocks script drafting",
+  "problem_refs": [
+    "P3",
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "04_outlines/episodes/ep006.execution-card.md",
+      "07_review/remake-risk-audit.md",
+      "06_state/artifact-registry.yaml"
+    ],
+    "risk_audit_excerpt": {
+      "risk_id": "R-014",
+      "domain_status": "open",
+      "severity": "medium"
+    },
+    "current_pointers": [
+      "execution_card:episode_006",
+      "remake_risk_audit"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "写第 6 集正文",
+    "target_episode_no": 6
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep006.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "OPEN_RISK_BLOCKS_SCRIPT",
+      "affected_scope": [
+        "episode_006_script",
+        "risk:R-014"
+      ],
+      "user_visible_reason": "仍有 open 风险会影响当前集正文。",
+      "recommended_next_node": "risk_audit.resolve",
+      "available_actions": [
+        "修复风险后复检",
+        "确认延期并写入执行卡",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "risk_audit_status"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "OPEN_RISK_BLOCKS_SCRIPT"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "04_outlines/episodes/ep006.execution-card.md",
+        "07_review/remake-risk-audit.md"
+      ],
+      "required_reads": [
+        "07_review/remake-risk-audit.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

@@ -6,6 +6,7 @@ description: Analyze reference short-drama scripts or screen-recorded prompt wor
 # Short Drama Remake
 
 > License: SKILL.md, agents metadata, scripts, and bundled code are MIT; references are gobuildit methodology documentation with all rights reserved except use as part of this skill distribution.
+> Version: 0.2.0
 
 ## Core Rule
 
@@ -29,6 +30,40 @@ Required upstream artifacts:
 If the user provides a file path, read it. If the conversation already contains the needed artifact, use it and name the artifact being used.
 
 Source scope gates override stage readiness. A `基于已提供集数的样本骨架` can unlock only sample/opening concepts unless `allow_full_series_concepts` is true. `complete` means the source coverage appears complete; it does not replace post-ingest checks or progressive reading.
+
+## Project Gate Protocol
+
+Use this skill as the authoritative entry for `/仿写`, reference-script拆解, remake concepting, managed remake projects, and remake episode scripts. Do not execute remake work by loading `short-drama` first.
+
+For managed remake projects, use the Phase 4 contract files instead of relying on memory or ad hoc file search:
+
+- `references/schema/artifact-registry.yaml` defines artifact status, derived gate status, current pointers, transaction refs, and forbidden paths.
+- `references/schema/node-route-table.yaml` defines route boundaries and the fixed `script_draft.preflight` order.
+- `references/schema/reports.yaml` defines SIR/RMR/FGR/preflight/postflight report fields. Reports use `report_status`; only the registry owns `gate_status`.
+- `references/checker/deterministic-checker.md` defines deterministic checker scope and the LLM review boundary.
+- `references/fixtures/` contains regression fixture contracts and initial samples.
+
+Before drafting a script in a managed project, run or mentally apply `script_draft.preflight`. This gate is the only script-generation entry; do not skip from project plan or episode outline directly to an episode body.
+
+1. Restore project state through `resume.restore` only when entering from a new/uncertain context. P10 consumes a valid `resume_packet`; it must not rerun full restore.
+2. Verify the target episode has an accepted current `execution_card` with `decision_id` and committed transaction.
+3. Consume the latest `fact_gate_report`, `source_integrity_report`, and `reference_mapping_report`. Do not rejudge P9/P12 inside script drafting.
+4. Verify `reference-expression-guide.md`, `factor-scorecard.yaml`, `remake-risk-audit.md`, `project-state.md`, and accepted canon are registered and readable.
+5. Reject forbidden reads: `short-drama/SKILL.md`, `short-drama/references/*.md`, raw source bundles, `research-notes.md`, `_legacy_review/**`, `09_experiments/**`, candidates, drafts, and tmp files.
+6. If blocked, return one user-visible blocking summary and set `body_generated=false`. Do not create an episode script.
+
+The blocking summary must include: blocking reason, affected scope, whether it blocks only the target episode or the whole project, recommended next step, and available user actions. Do not expose the full internal registry, gate, trace, or transaction fields unless the user explicitly asks for debug detail.
+
+After drafting, run `script_draft.postflight` before unlocking the next episode. A script is not complete until quality passes, user review accepts it, canon is committed, state is updated, risk/sync checks pass, read trace is clean, and the next episode gate is unlocked.
+
+For deterministic validation, run:
+
+```text
+python3 scripts/remake_gate_checker.py --self-test
+python3 scripts/remake_gate_checker.py --fixture references/fixtures/missing_outline_blocks_script/fixture.yaml
+find references/fixtures -name fixture.yaml -print0 | xargs -0 -n1 python3 scripts/remake_gate_checker.py --fixture
+PYTHONPYCACHEPREFIX=/private/tmp/short-drama-remake-pycache python3 -m py_compile scripts/remake_gate_checker.py
+```
 
 ## Source Ingest And File Gates
 
@@ -73,6 +108,7 @@ For each selected concept, perform a second-layer replacement pass before outlin
 2. **拆骨架 before writing**
    - Analyze story core, power relations, episode function, emotional curve,爽点, reversals, and payment/retention hooks.
    - Do not rewrite yet.
+   - For managed projects, create both `01_skeleton/reference-skeleton.md` and `01_skeleton/reference-expression-guide.md`; use `01_skeleton/factor-scorecard.yaml` for evidence-based transferable factors.
 
 3. **Make a reusable skeleton table**
    - Per episode: function, protagonist pressure, antagonist action, viewer emotion,爽点/憋屈点, hook, what to preserve, what to replace.
@@ -93,8 +129,10 @@ For each selected concept, perform a second-layer replacement pass before outlin
    - Include exact episode function and ending hook.
    - Make each episode script-ready: visible opening conflict, pressure action, reversal action, concrete prop/evidence, and a shootable ending image.
    - Avoid outlines that only restate the project plan. Each episode needs new incident detail.
+   - For managed projects, convert the target episode outline into `04_outlines/episodes/epXXX.execution-card.md` before script drafting. The execution card is the direct control surface for script generation.
 
 7. **Draft shooting-ready script**
+   - In managed projects, script drafting starts only after `script_draft.preflight` passes. Missing execution card, stale source/reference reports, open blocking risks, unverified direct facts, or forbidden reads block the draft.
    - Use scene headings, cast, props, visible action, character-fit scene-functional dialogue, and SFX.
    - Dialogue must fit the speaker's identity, power position, emotional state, relationship, and current scene objective.
    - Every line should carry at least one function: pressure, counterattack, information, misdirection, reveal, hook, or emotional release.
@@ -110,6 +148,7 @@ For each selected concept, perform a second-layer replacement pass before outlin
    - Judge dialogue by character fit, scene pressure, plot function, and short-drama rhythm.
    - Check stage leakage: if a script draft starts doing concept planning or if a concept list starts writing full scenes, return it to the requested stage.
    - Check remake distance: preserve the emotional/functional skeleton while increasing the distance of specific incidents from the reference.
+   - In managed projects, use postflight status as the only next-episode unlock signal. Do not unlock continuation from a partial quality pass or from a draft that has not been accepted into canon and state.
 
 ## Continuation Guidance
 

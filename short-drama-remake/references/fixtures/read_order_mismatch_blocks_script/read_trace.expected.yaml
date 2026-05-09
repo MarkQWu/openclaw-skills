@@ -1,0 +1,4 @@
+{
+  "expected_order": ["06_state/artifact-registry.yaml", "04_outlines/episodes/ep012.execution-card.md", "08_reports/fact-gate/episode_012.FGR.yaml"],
+  "episode_script_created": false
+}

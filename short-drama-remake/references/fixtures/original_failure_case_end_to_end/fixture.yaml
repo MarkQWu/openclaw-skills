@@ -1,0 +1,121 @@
+{
+  "fixture_id": "original_failure_case_end_to_end",
+  "title": "Original failure blocks script instead of skipping outlines and state",
+  "problem_refs": [
+    "P1",
+    "P2",
+    "P3",
+    "P5",
+    "P6",
+    "P7",
+    "P10",
+    "P11",
+    "P12"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "00_source/manifest.yaml",
+      "01_skeleton/reference-skeleton.md",
+      "02_concepts/remake-concepts.md",
+      "03_plan/project-bible.md",
+      "characters.md",
+      "setting-bible.md",
+      "episodes/ep001.md"
+    ],
+    "missing_files": [
+      "04_outlines/episodes/ep001.execution-card.md",
+      "06_state/artifact-registry.yaml",
+      "06_state/project-state.md",
+      "07_review/remake-risk-audit.md"
+    ],
+    "legacy_quarantine": [
+      "episodes/ep001.md"
+    ],
+    "registry_excerpt": {
+      "exists": false
+    },
+    "decision_log_excerpt": {
+      "exists": false
+    },
+    "current_pointers": [],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "继续写第 1 集",
+    "target_episode_no": 1
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep001.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "EXECUTION_CARD_MISSING",
+      "additional_blocker_codes": [
+        "PROJECT_STATE_MISSING",
+        "RISK_AUDIT_MISSING_OR_STALE"
+      ],
+      "affected_scope": [
+        "episode_001_script"
+      ],
+      "user_visible_reason": "缺少目标集写作执行卡，不能直接生成正文。",
+      "recommended_next_node": "execution_card.prepare",
+      "available_actions": [
+        "补齐本集写作执行卡",
+        "返回分集大纲节点",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "registry_presence",
+      "execution_card_status",
+      "risk_audit_presence"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "EXECUTION_CARD_MISSING",
+      "PROJECT_STATE_MISSING",
+      "RISK_AUDIT_MISSING_OR_STALE"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml"
+      ],
+      "forbidden_reads_not_present": [
+        "short-drama/SKILL.md",
+        "short-drama/references/opening-rules.md",
+        "short-drama/references/ai-live-rules.md"
+      ]
+    },
+    "anti_redundancy_assertion": {
+      "forbidden_node_calls_not_present": [
+        "resume.restore",
+        "source.validate",
+        "reference_map.validate",
+        "fact_gate.validate"
+      ]
+    }
+  }
+}

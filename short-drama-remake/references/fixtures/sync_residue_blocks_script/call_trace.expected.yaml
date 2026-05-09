@@ -1,0 +1,5 @@
+{
+  "called_nodes": ["script_draft.preflight"],
+  "checker_call_log_contains": ["sync_residue_scan"],
+  "forbidden_full_node_calls_not_present": ["resume.restore", "source.validate", "reference_map.validate", "fact_gate.validate"]
+}

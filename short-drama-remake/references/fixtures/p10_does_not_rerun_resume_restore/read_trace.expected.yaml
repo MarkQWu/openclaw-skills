@@ -1,0 +1,4 @@
+{
+  "required_reads": ["06_state/artifact-registry.yaml", "04_outlines/episodes/ep012.execution-card.md"],
+  "episode_script_created": false
+}

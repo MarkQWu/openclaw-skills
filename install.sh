@@ -2,9 +2,9 @@
 # gobuildit 社区 Skills 一键安装
 set -euo pipefail
 
-REPO_GITHUB="https://github.com/MarkQWu/openclaw-skills.git"
-REPO_MIRROR="https://ghfast.top/https://github.com/MarkQWu/openclaw-skills.git"
-CACHE="$HOME/.claude/.skill-repos/openclaw-skills"
+REPO_GITHUB="https://github.com/MarkQWu/drama-workshop-skills.git"
+REPO_MIRROR="https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
+CACHE="$HOME/.claude/.skill-repos/drama-workshop-skills"
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
 OPENCLAW_SKILLS_DIR="$HOME/.openclaw/skills"
 
@@ -63,7 +63,7 @@ try_clone() {
   fi
   echo ""
   echo "错误：下载失败。请开启全局代理后重试，或手动下载：" >&2
-  echo "  https://github.com/MarkQWu/openclaw-skills/archive/refs/heads/main.zip" >&2
+  echo "  https://github.com/MarkQWu/drama-workshop-skills/archive/refs/heads/main.zip" >&2
   return 1
 }
 

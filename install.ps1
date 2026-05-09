@@ -1,9 +1,9 @@
 # gobuildit 社区 Skills 一键安装 (Windows)
 $ErrorActionPreference = "Stop"
 
-$repoGitHub = "https://github.com/MarkQWu/openclaw-skills.git"
-$repoMirror = "https://ghfast.top/https://github.com/MarkQWu/openclaw-skills.git"
-$cache = Join-Path $env:USERPROFILE ".claude\.skill-repos\openclaw-skills"
+$repoGitHub = "https://github.com/MarkQWu/drama-workshop-skills.git"
+$repoMirror = "https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
+$cache = Join-Path $env:USERPROFILE ".claude\.skill-repos\drama-workshop-skills"
 
 Write-Host "=== gobuildit Skills 安装器 ===" -ForegroundColor Cyan
 Write-Host ""
@@ -57,7 +57,7 @@ function Try-Clone($dest) {
 
     Write-Host ""
     Write-Host "错误：下载失败。请开启全局代理后重试，或手动下载：" -ForegroundColor Red
-    Write-Host "  https://github.com/MarkQWu/openclaw-skills/archive/refs/heads/main.zip" -ForegroundColor Red
+    Write-Host "  https://github.com/MarkQWu/drama-workshop-skills/archive/refs/heads/main.zip" -ForegroundColor Red
     return $false
 }
 

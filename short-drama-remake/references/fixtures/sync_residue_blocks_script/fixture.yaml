@@ -1,0 +1,95 @@
+{
+  "fixture_id": "sync_residue_blocks_script",
+  "title": "Document sync residue blocks script drafting",
+  "problem_refs": [
+    "P4",
+    "P10"
+  ],
+  "category": "script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "03_plan/project-bible.md",
+      "characters.md",
+      "07_review/remake-risk-audit.md",
+      "06_state/artifact-registry.yaml"
+    ],
+    "sync_check_excerpt": {
+      "residue_terms": [
+        "沉睡百年苏醒",
+        "3项中风险"
+      ],
+      "status": "needs_sync"
+    },
+    "current_pointers": [
+      "project_bible",
+      "characters",
+      "remake_risk_audit"
+    ],
+    "dirty_flags": [
+      "needs_sync:project_bible:risk_summary"
+    ]
+  },
+  "user_input": {
+    "text": "按现在设定写第 3 集正文",
+    "target_episode_no": 3
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep003.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "project",
+      "blocker_code": "DOCUMENT_SYNC_RESIDUE",
+      "affected_scope": [
+        "project_bible",
+        "risk_summary",
+        "episode_003_script"
+      ],
+      "user_visible_reason": "上游改动后仍有文档同步残留。",
+      "recommended_next_node": "sync_check.resolve",
+      "available_actions": [
+        "同步派生文档",
+        "复查残留词",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "sync_residue_scan"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "DOCUMENT_SYNC_RESIDUE"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "07_review/remake-risk-audit.md"
+      ],
+      "forbidden_reads_not_present": [
+        "05_scripts/episodes/ep003.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

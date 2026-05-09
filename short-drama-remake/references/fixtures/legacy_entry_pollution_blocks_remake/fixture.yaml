@@ -1,0 +1,73 @@
+{
+  "fixture_id": "legacy_entry_pollution_blocks_remake",
+  "title": "Legacy /仿写 entry must not load original short-drama context",
+  "problem_refs": [
+    "P1",
+    "P7",
+    "P10"
+  ],
+  "category": "entry_pollution",
+  "initial_project_state": {
+    "files_present": [
+      "06_state/artifact-registry.yaml"
+    ],
+    "forbidden_context_sources": [
+      "short-drama/SKILL.md",
+      "short-drama/references/opening-rules.md"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "@skill:short-drama /仿写 继续写第 1 集",
+    "target_episode_no": 1
+  },
+  "expected_route": {
+    "normalized_intent": "migrate_to_short_drama_remake_entry",
+    "node_id": "entry.route",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep001.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "project",
+      "blocker_code": "LEGACY_ENTRY_MIGRATION_REQUIRED",
+      "affected_scope": [
+        "remake_entry"
+      ],
+      "user_visible_reason": "旧 /仿写 入口存在上下文污染风险，需要迁移到 short-drama-remake。",
+      "recommended_next_node": "entry.migrate_to_remake",
+      "available_actions": [
+        "切换到 short-drama-remake",
+        "按 remake gate 重新恢复项目",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "entry.route"
+    ],
+    "checker_call_log": [
+      "legacy_entry_boundary"
+    ],
+    "consumed_report_ids": []
+  },
+  "assertions": {
+    "required_blockers": [
+      "LEGACY_ENTRY_MIGRATION_REQUIRED"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [],
+      "forbidden_reads_not_present": [
+        "short-drama/SKILL.md",
+        "short-drama/references/opening-rules.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

@@ -1,0 +1,411 @@
+#!/usr/bin/env python3
+"""Deterministic checker skeleton for short-drama-remake gates.
+
+The first implementation validates fixture contracts and critical invariants.
+It intentionally does not judge creative quality; that belongs to LLM review.
+Fixture files are JSON-compatible YAML so this script can run with stdlib only.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+
+REQUIRED_FIXTURE_FIELDS = {
+    "fixture_id",
+    "title",
+    "problem_refs",
+    "category",
+    "initial_project_state",
+    "user_input",
+    "expected_route",
+    "expected_result",
+    "node_invocation_trace",
+    "assertions",
+}
+
+FORBIDDEN_P10_FULL_NODE_CALLS = {
+    "resume.restore",
+    "source.validate",
+    "reference_map.validate",
+    "fact_gate.validate",
+}
+
+DEFAULT_FORBIDDEN_SCRIPT_READS = {
+    "short-drama/SKILL.md",
+    "short-drama/references/opening-rules.md",
+    "short-drama/references/ai-live-rules.md",
+    "research-notes.md",
+    "00_source/bundles/eps_011-020.md",
+    "00_source/episodes/ep_012.md",
+}
+
+
+class CheckFailure(Exception):
+    pass
+
+
+def load_json_compatible_yaml(path: Path) -> dict[str, Any]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise CheckFailure(
+            f"{path} is not JSON-compatible YAML. Keep fixture files parseable by stdlib json for now: {exc}"
+        ) from exc
+    if not isinstance(data, dict):
+        raise CheckFailure(f"{path} must contain a mapping/object at top level")
+    return data
+
+
+def assert_required_fields(fixture: dict[str, Any], path: Path) -> None:
+    missing = sorted(REQUIRED_FIXTURE_FIELDS - fixture.keys())
+    if missing:
+        raise CheckFailure(f"{path} missing required fields: {', '.join(missing)}")
+
+
+def assert_required_fixture_files(path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    fixture_dir = path.parent
+    required_dirs = [
+        fixture_dir / "project",
+        fixture_dir / "snapshots" / "before",
+        fixture_dir / "snapshots" / "after_expected",
+    ]
+    required_files = [
+        fixture_dir / "call_trace.expected.yaml",
+        fixture_dir / "read_trace.expected.yaml",
+    ]
+    missing = [str(required) for required in required_dirs if not required.is_dir()]
+    missing.extend(str(required) for required in required_files if not required.is_file())
+    if missing:
+        raise CheckFailure(f"{path.parent}: missing required fixture files/dirs: {', '.join(missing)}")
+    return (
+        load_json_compatible_yaml(fixture_dir / "call_trace.expected.yaml"),
+        load_json_compatible_yaml(fixture_dir / "read_trace.expected.yaml"),
+    )
+
+
+def assert_preflight_blocked_does_not_generate_body(fixture: dict[str, Any]) -> None:
+    route = fixture.get("expected_route", {})
+    result = fixture.get("expected_result", {})
+    if route.get("node_id") == "script_draft.preflight" and result.get("status") == "blocked":
+        if result.get("body_generated") is not False:
+            raise CheckFailure(f"{fixture['fixture_id']}: blocked preflight must set body_generated=false")
+        forbidden_created = result.get("forbidden_created_artifacts", [])
+        created = set(result.get("created_artifacts", []))
+        leaked = created.intersection(forbidden_created)
+        if leaked:
+            raise CheckFailure(f"{fixture['fixture_id']}: blocked preflight created forbidden artifacts: {sorted(leaked)}")
+
+
+def assert_bounded_context(fixture: dict[str, Any]) -> None:
+    route = fixture.get("expected_route", {})
+    if route.get("bounded_context") != "short-drama-remake":
+        raise CheckFailure(f"{fixture['fixture_id']}: route must stay in short-drama-remake bounded context")
+
+
+def assert_p10_anti_redundancy(fixture: dict[str, Any]) -> None:
+    route = fixture.get("expected_route", {})
+    trace = fixture.get("node_invocation_trace", {})
+    if route.get("node_id") != "script_draft.preflight":
+        return
+
+    called = set(trace.get("called_nodes", []))
+    forbidden_calls = set(trace.get("forbidden_full_node_calls", []))
+    unexpected = called.intersection(FORBIDDEN_P10_FULL_NODE_CALLS)
+    if unexpected:
+        raise CheckFailure(f"{fixture['fixture_id']}: P10 called forbidden full nodes: {sorted(unexpected)}")
+
+    missing_declared_forbidden = FORBIDDEN_P10_FULL_NODE_CALLS.difference(forbidden_calls)
+    if "anti_redundancy" in fixture.get("category", "") and missing_declared_forbidden:
+        raise CheckFailure(
+            f"{fixture['fixture_id']}: anti-redundancy fixture must declare forbidden full node calls: {sorted(missing_declared_forbidden)}"
+        )
+
+
+def assert_blocker_contract(fixture: dict[str, Any]) -> None:
+    result = fixture.get("expected_result", {})
+    summary = result.get("blocking_summary")
+    if result.get("status") != "blocked":
+        return
+    if not isinstance(summary, dict):
+        raise CheckFailure(f"{fixture['fixture_id']}: blocked result requires blocking_summary")
+    for field in (
+        "blocker_code",
+        "blocking_level",
+        "affected_scope",
+        "user_visible_reason",
+        "recommended_next_node",
+        "available_actions",
+    ):
+        if field not in summary:
+            raise CheckFailure(f"{fixture['fixture_id']}: blocking_summary missing {field}")
+    if not isinstance(summary["user_visible_reason"], str) or not summary["user_visible_reason"].strip():
+        raise CheckFailure(f"{fixture['fixture_id']}: blocking_summary.user_visible_reason must be a non-empty string")
+    if not isinstance(summary["recommended_next_node"], str) or not summary["recommended_next_node"].strip():
+        raise CheckFailure(f"{fixture['fixture_id']}: blocking_summary.recommended_next_node must be a non-empty string")
+    if not isinstance(summary["available_actions"], list) or not summary["available_actions"]:
+        raise CheckFailure(f"{fixture['fixture_id']}: blocking_summary.available_actions must be a non-empty list")
+
+
+def assert_required_blockers(fixture: dict[str, Any]) -> None:
+    assertions = fixture.get("assertions", {})
+    required = set(assertions.get("required_blockers", []))
+    if not required:
+        return
+    summary = fixture.get("expected_result", {}).get("blocking_summary", {})
+    observed = set(summary.get("additional_blocker_codes", []))
+    if "blocker_code" in summary:
+        observed.add(summary["blocker_code"])
+    missing = required.difference(observed)
+    if missing:
+        raise CheckFailure(f"{fixture['fixture_id']}: missing required blocker codes: {sorted(missing)}")
+
+
+def assert_read_trace_contract(fixture: dict[str, Any], expected_read_trace: dict[str, Any] | None = None) -> None:
+    assertions = fixture.get("assertions", {})
+    read_assertion = assertions.get("read_trace_assertion", {})
+    if not isinstance(read_assertion, dict):
+        read_assertion = {}
+
+    expected_read_trace = expected_read_trace or {}
+    actual_reads_list = read_assertion.get("actual_reads", [])
+    if not isinstance(actual_reads_list, list):
+        raise CheckFailure(f"{fixture['fixture_id']}: read_trace_assertion.actual_reads must be a list")
+    actual_reads = set(actual_reads_list)
+    required_reads = set(read_assertion.get("required_reads", []))
+    required_reads.update(expected_read_trace.get("required_reads", []))
+    missing_required = required_reads.difference(actual_reads)
+    if missing_required:
+        raise CheckFailure(f"{fixture['fixture_id']}: required reads missing from actual_reads: {sorted(missing_required)}")
+
+    forbidden_reads = set(read_assertion.get("forbidden_reads_not_present", []))
+    forbidden_reads.update(read_assertion.get("source_bundle_reads_not_present", []))
+    forbidden_reads.update(read_assertion.get("research_note_reads_not_present", []))
+    forbidden_reads.update(expected_read_trace.get("forbidden_reads_not_present", []))
+    forbidden_reads.update(expected_read_trace.get("source_bundle_reads_not_present", []))
+    forbidden_reads.update(expected_read_trace.get("research_note_reads_not_present", []))
+    if forbidden_reads and "actual_reads" not in read_assertion:
+        raise CheckFailure(f"{fixture['fixture_id']}: forbidden read assertions require explicit actual_reads")
+    forbidden_hits = actual_reads.intersection(forbidden_reads)
+    if forbidden_hits:
+        raise CheckFailure(f"{fixture['fixture_id']}: forbidden reads present: {sorted(forbidden_hits)}")
+
+    expected_order = read_assertion.get("expected_order", []) or expected_read_trace.get("expected_order", [])
+    if expected_order:
+        actual_order = actual_reads_list
+        positions: list[int] = []
+        for required_path in expected_order:
+            try:
+                positions.append(actual_order.index(required_path))
+            except ValueError as exc:
+                raise CheckFailure(f"{fixture['fixture_id']}: expected ordered read missing: {required_path}") from exc
+        order_is_valid = positions == sorted(positions)
+        if read_assertion.get("expected_order_violation") is True:
+            if order_is_valid:
+                raise CheckFailure(f"{fixture['fixture_id']}: expected read order violation was not present")
+        elif not order_is_valid:
+            raise CheckFailure(f"{fixture['fixture_id']}: actual_reads do not match expected read order")
+
+    if read_assertion.get("enforce_default_forbidden_script_reads") is True:
+        default_hits = actual_reads.intersection(DEFAULT_FORBIDDEN_SCRIPT_READS)
+        if default_hits:
+            raise CheckFailure(f"{fixture['fixture_id']}: default forbidden script reads present: {sorted(default_hits)}")
+
+
+def assert_call_trace_contract(fixture: dict[str, Any], expected_call_trace: dict[str, Any]) -> None:
+    trace = fixture.get("node_invocation_trace", {})
+    called = set(trace.get("called_nodes", []))
+    expected_called = set(expected_call_trace.get("called_nodes", []))
+    missing_called = expected_called.difference(called)
+    if missing_called:
+        raise CheckFailure(f"{fixture['fixture_id']}: expected called nodes missing: {sorted(missing_called)}")
+
+    checker_log = set(trace.get("checker_call_log", []))
+    required_log = set(expected_call_trace.get("checker_call_log_contains", []))
+    missing_log = required_log.difference(checker_log)
+    if missing_log:
+        raise CheckFailure(f"{fixture['fixture_id']}: checker_call_log missing entries: {sorted(missing_log)}")
+
+    consumed = set(trace.get("consumed_report_ids", []))
+    required_consumed = set(expected_call_trace.get("consumed_report_ids", []))
+    missing_consumed = required_consumed.difference(consumed)
+    if missing_consumed:
+        raise CheckFailure(f"{fixture['fixture_id']}: expected consumed report ids missing: {sorted(missing_consumed)}")
+
+    forbidden = set(expected_call_trace.get("forbidden_full_node_calls_not_present", []))
+    forbidden_hits = called.intersection(forbidden)
+    if forbidden_hits:
+        raise CheckFailure(f"{fixture['fixture_id']}: forbidden call trace nodes present: {sorted(forbidden_hits)}")
+
+
+def assert_report_consumption(fixture: dict[str, Any]) -> None:
+    assertions = fixture.get("assertions", {})
+    anti_redundancy = assertions.get("anti_redundancy_assertion", {})
+    trace = fixture.get("node_invocation_trace", {})
+
+    required = set(anti_redundancy.get("required_consumed_report_ids", []))
+    if required:
+        consumed = set(trace.get("consumed_report_ids", []))
+        missing = required.difference(consumed)
+        if missing:
+            raise CheckFailure(f"{fixture['fixture_id']}: required report ids were not consumed: {sorted(missing)}")
+
+    expected_packet_id = anti_redundancy.get("resume_packet_consumed")
+    if expected_packet_id:
+        packet = fixture.get("initial_project_state", {}).get("runtime_packet", {})
+        actual_packet_id = packet.get("packet_id")
+        if actual_packet_id != expected_packet_id:
+            raise CheckFailure(
+                f"{fixture['fixture_id']}: expected resume packet {expected_packet_id}, got {actual_packet_id}"
+            )
+
+
+def assert_transaction_contract(fixture: dict[str, Any]) -> None:
+    assertions = fixture.get("assertions", {}).get("transaction_assertion", {})
+    if not assertions:
+        return
+
+    status = assertions.get("transaction_status")
+    if status not in {"committed", "rolled_back", "transaction_failed"}:
+        raise CheckFailure(f"{fixture['fixture_id']}: transaction_assertion requires stable transaction_status")
+
+    records = assertions.get("records", {})
+    if not isinstance(records, dict):
+        raise CheckFailure(f"{fixture['fixture_id']}: transaction_assertion.records must be an object")
+
+    if assertions.get("no_half_confirmed_state") is True:
+        committed = records.get("decision_log") == "committed"
+        registry_updated = records.get("registry") == "updated"
+        artifact_updated = records.get("artifact_status") == "updated"
+        if len({committed, registry_updated, artifact_updated}) > 1 and status != "transaction_failed":
+            raise CheckFailure(f"{fixture['fixture_id']}: half-confirmed state must be transaction_failed")
+
+    if status == "transaction_failed":
+        allowed = {"transaction_failed", "rolled_back", "not_written"}
+        invalid = {name: value for name, value in records.items() if value not in allowed}
+        if invalid:
+            raise CheckFailure(f"{fixture['fixture_id']}: transaction_failed has inconsistent records: {invalid}")
+
+
+def assert_fast_confirmed_invalidation(fixture: dict[str, Any]) -> None:
+    assertions = fixture.get("assertions", {}).get("fast_confirmed_assertion", {})
+    if not assertions:
+        return
+
+    if assertions.get("mode_before") != "fast_confirmed":
+        raise CheckFailure(f"{fixture['fixture_id']}: fast fixture must start with fast_confirmed mode")
+    invalidators = set(assertions.get("invalidated_by", []))
+    if not invalidators.intersection({"dirty", "needs_sync"}):
+        raise CheckFailure(f"{fixture['fixture_id']}: fast_confirmed must be invalidated by dirty or needs_sync")
+    if assertions.get("mode_after") != "invalidated":
+        raise CheckFailure(f"{fixture['fixture_id']}: fast_confirmed dirty/needs_sync must end as invalidated")
+
+
+def assert_phase5_specific_contracts(fixture: dict[str, Any]) -> None:
+    fixture_id = fixture.get("fixture_id", "")
+    summary = fixture.get("expected_result", {}).get("blocking_summary", {})
+    blocker_code = summary.get("blocker_code")
+
+    if fixture_id == "p9_gate_blocks_unverified_claim" and blocker_code != "FACT_GATE_BLOCKED":
+        raise CheckFailure(f"{fixture_id}: expected blocker_code FACT_GATE_BLOCKED")
+    if fixture_id == "partial_source_forbids_full_claim" and blocker_code != "SOURCE_SCOPE_PARTIAL_FORBIDS_FULL_CLAIM":
+        raise CheckFailure(f"{fixture_id}: expected blocker_code SOURCE_SCOPE_PARTIAL_FORBIDS_FULL_CLAIM")
+    if fixture_id == "research_notes_not_directly_read_by_script":
+        read_assertion = fixture.get("assertions", {}).get("read_trace_assertion", {})
+        if "research-notes.md" not in read_assertion.get("research_note_reads_not_present", []):
+            raise CheckFailure(f"{fixture_id}: must assert research-notes.md is not directly read")
+
+
+def check_fixture(path: Path) -> list[str]:
+    fixture = load_json_compatible_yaml(path)
+    assert_required_fields(fixture, path)
+    expected_call_trace, expected_read_trace = assert_required_fixture_files(path)
+    assert_bounded_context(fixture)
+    assert_preflight_blocked_does_not_generate_body(fixture)
+    assert_p10_anti_redundancy(fixture)
+    assert_blocker_contract(fixture)
+    assert_required_blockers(fixture)
+    assert_call_trace_contract(fixture, expected_call_trace)
+    assert_read_trace_contract(fixture, expected_read_trace)
+    assert_report_consumption(fixture)
+    assert_transaction_contract(fixture)
+    assert_fast_confirmed_invalidation(fixture)
+    assert_phase5_specific_contracts(fixture)
+    return [f"ok fixture {fixture['fixture_id']}"]
+
+
+def run_self_test() -> list[str]:
+    synthetic = {
+        "fixture_id": "self_test_missing_outline",
+        "title": "self test",
+        "problem_refs": ["P10"],
+        "category": "script_preflight",
+        "initial_project_state": {},
+        "user_input": {"text": "继续写第 12 集"},
+        "expected_route": {
+            "normalized_intent": "draft_episode_script",
+            "node_id": "script_draft.preflight",
+            "bounded_context": "short-drama-remake",
+        },
+        "expected_result": {
+            "status": "blocked",
+            "body_generated": False,
+            "created_artifacts": [],
+            "forbidden_created_artifacts": ["05_scripts/episodes/ep012.md"],
+            "blocking_summary": {
+                "blocker_code": "EXECUTION_CARD_MISSING",
+                "blocking_level": "episode",
+                "affected_scope": ["episode_012_script"],
+                "user_visible_reason": "缺少第 12 集写作执行卡，不能直接生成正文。",
+                "recommended_next_node": "execution_card.prepare",
+                "available_actions": ["补齐本集写作执行卡", "返回分集大纲节点", "暂缓正文生成"],
+            },
+        },
+        "node_invocation_trace": {
+            "called_nodes": ["script_draft.preflight"],
+            "forbidden_full_node_calls": ["resume.restore", "source.validate", "reference_map.validate", "fact_gate.validate"],
+        },
+        "assertions": {},
+    }
+    assert_bounded_context(synthetic)
+    assert_preflight_blocked_does_not_generate_body(synthetic)
+    assert_p10_anti_redundancy(synthetic)
+    assert_blocker_contract(synthetic)
+    assert_required_blockers(synthetic)
+    assert_read_trace_contract(synthetic)
+    assert_report_consumption(synthetic)
+    assert_transaction_contract(synthetic)
+    assert_fast_confirmed_invalidation(synthetic)
+    assert_phase5_specific_contracts(synthetic)
+    return ["ok self-test"]
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="Check short-drama-remake deterministic gate fixtures.")
+    parser.add_argument("--fixture", action="append", default=[], help="Path to a JSON-compatible YAML fixture file.")
+    parser.add_argument("--self-test", action="store_true", help="Run built-in smoke test.")
+    args = parser.parse_args(argv)
+
+    messages: list[str] = []
+    try:
+        if args.self_test:
+            messages.extend(run_self_test())
+        for raw_path in args.fixture:
+            messages.extend(check_fixture(Path(raw_path)))
+    except CheckFailure as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
+        return 1
+
+    if not messages:
+        parser.error("provide --self-test or at least one --fixture")
+    for message in messages:
+        print(message)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
