@@ -6,10 +6,10 @@
 #
 # 5 副本清单（所有均指 short-drama/ 子目录）：
 #   1. ~/.claude/skills/                    （权威版本，主开发位置）
-#   2. ~/.claude/.skill-repos/openclaw-skills/  （git 仓库，push origin）
+#   2. ~/.claude/.skill-repos/drama-workshop-skills/  （git 仓库，push origin）
 #   3. ~/.workbuddy/skills/                 （WorkBuddy 运行时）
 #   4. ~/.openclaw/skills/                  （OpenClaw 运行时）
-#   5. ~/碳基生命数据库/.tools/openclaw-skills/  （vault 内独立 git 仓库，rsync 等效 git pull）
+#   5. ~/碳基生命数据库/.tools/drama-workshop-skills/  （vault 内独立 git 仓库，rsync 等效 git pull）
 #
 # 用法：
 #   bash scripts/sync-all-locations.sh          # 实际同步
@@ -17,7 +17,7 @@
 #
 # Maintainer-only 文件物理隔离（2026-04-26 v1.20.0 OPTIMIZATION_PLAN.md 泄漏复盘新增）：
 #   master 下任何放在 `.maintainer/` 子目录里的文件**不会被 sync 到 5 副本**——
-#   即不会进 openclaw-skills 公开仓。用法：
+#   即不会进 drama-workshop-skills 公开仓。用法：
 #     - 升级动议草稿、设计 journal、内部分析文档 → 放 `.maintainer/`
 #     - 用户文档、SKILL.md、references/ 等照常放 master 顶层（会被 sync）
 #   起源：`feedback_meta-rule-application-failure.md` 复发案例 2026-04-26（公开仓准入规则未主动唤起）。
@@ -40,11 +40,11 @@ if [[ "${1:-}" == "--dry" ]]; then
 fi
 
 DESTINATIONS=(
-  "$HOME/.claude/.skill-repos/openclaw-skills/short-drama"
+  "$HOME/.claude/.skill-repos/drama-workshop-skills/short-drama"
   "$HOME/.claude/skills/short-drama"
   "$HOME/.workbuddy/skills/short-drama"
   "$HOME/.openclaw/skills/short-drama"
-  "$HOME/碳基生命数据库/.tools/openclaw-skills/short-drama"
+  "$HOME/碳基生命数据库/.tools/drama-workshop-skills/short-drama"
 )
 
 MASTER_VERSION=$(cat "$MASTER_DIR/VERSION" 2>/dev/null || echo "unknown")

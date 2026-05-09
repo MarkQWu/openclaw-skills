@@ -235,7 +235,7 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
     安装完成后，关闭当前会话并重新打开，再继续使用新版 /仿写。
     ```
 
-**说明：** `/仿写` 是旧入口兼容层；真正能力在同级 sibling skill `short-drama-remake`。旧版局部更新无法自动补装 sibling，因此找不到时必须引导重装。
+**说明：** `/仿写` 是旧入口兼容层；真正能力在同级 sibling skill `short-drama-remake`。若找不到 sibling，必须引导用户执行仓库级 `/更新` 或重新运行安装命令。
 
 ---
 
@@ -974,7 +974,7 @@ clashes/roundtables 按以下规则决定显示内容：
 
 ### /更新
 
-**功能：** 检查最新版本并升级。详细流程见 `references/update-mechanism.md#更新-命令详细流程`
+**功能：** 检查并安装 `drama-workshop-skills` 仓库最新版。必须按 `references/update-mechanism.md#更新-命令详细流程` 执行仓库级更新，同时更新 `short-drama` 和 `short-drama-remake` 等 sibling skills。
 
 ---
 

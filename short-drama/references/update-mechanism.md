@@ -1,6 +1,6 @@
 # 版本更新机制（Update Mechanism）
 
-> **重要：** 旧版 `/更新` 是 `short-drama/` 目录内局部更新，只覆盖当前 skill 文件；它不能自动补装新增的 sibling skill。涉及新版独立 `/仿写` 能力时，必须提示用户“重装最新版短剧 Skill”，不要承诺局部更新可以补齐。v1.31.1 起还要复制 `WHATSNEW.md`，避免升级后继续显示旧更新说明。
+> **重要：** `/更新` 是仓库级更新。它必须从 `drama-workshop-skills` 仓库拉取最新版，并重新安装仓库内全部 sibling skills（当前至少包含 `short-drama` 与 `short-drama-remake`）。不得再只覆盖 `short-drama/` 单目录。
 
 ## 版本更新检测（每次激活自动执行）
 
@@ -13,7 +13,7 @@ bash "$(dirname "$(find ~/.claude/skills ~/.openclaw/skills ~/.workbuddy/skills 
 
 Windows（PowerShell）：
 ```powershell
-$s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workbuddy\skills" -Recurse -Filter "VERSION" -ErrorAction SilentlyContinue | Where-Object { $_.FullName -match "short-drama" } | Select-Object -First 1; if ($s) { $local = (Get-Content $s.FullName -TotalCount 1).Trim() -replace '^v',''; try { $remote = ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/short-drama/VERSION" -TimeoutSec 5 -ErrorAction Stop).Content -split "`n")[0].Trim() -replace '^v',''; if ($remote -match '^\d+\.\d' -and $remote -ne $local) { "UPGRADE_AVAILABLE $local $remote" } } catch {} }
+$roots = @("$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workbuddy\skills"); $base = "https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main"; $skills = @("short-drama","short-drama-remake"); $local = @(); $remote = @(); foreach ($name in $skills) { $v = Get-ChildItem $roots -ErrorAction SilentlyContinue -Filter VERSION -Recurse | Where-Object { $_.FullName -match "\\$name\\VERSION$" } | Select-Object -First 1; $local += "$name=" + ($(if ($v) { (Get-Content $v.FullName -TotalCount 1).Trim() -replace '^v','' } else { "missing" })); try { $rv = ((Invoke-WebRequest -Uri "$base/$name/VERSION" -TimeoutSec 5 -ErrorAction Stop).Content -split "`n")[0].Trim() -replace '^v',''; $remote += "$name=$rv" } catch {} }; if ($remote.Count -eq $skills.Count -and (($local -join ';') -ne ($remote -join ';'))) { "UPGRADE_AVAILABLE " + ($local -join ';') + " " + ($remote -join ';') }
 ```
 
 ### 输出处理
@@ -23,7 +23,7 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 - **无输出** → 已是最新，正常进入创作流程
 - **`UPGRADE_AVAILABLE <旧版本> <新版本>`** → 用 `AskUserQuestion` 让用户选择（不要先回答用户命令再问，直接先问）：
 
-  问题：「[锚点] 新版本 v{新版本} 可用（当前 v{旧版本}），是否更新？」
+  问题：「[锚点] 新版本可用（当前 {旧版本}，远端 {新版本}），是否更新？」
 
   选项：
   1. **立即更新** → 执行下方升级流程
@@ -32,18 +32,18 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
   4. **永远不提醒** → 写入 `update_check: false`，继续响应用户原始命令
 
 - **`AUTO_UPGRADE <旧版本> <新版本>`** → 用户已开启自动更新，不询问，直接执行升级流程，完成后显示：
-  > [完成] 已自动升级到 v{新版本}（从 v{旧版本}）。下次对话生效。
+  > [完成] 已自动升级到 {新版本}（从 {旧版本}）。下次对话生效。
 
   然后继续响应用户原始命令。
 
 - **`JUST_UPGRADED <旧版本> <新版本>`** → 显示升级成功信息并展示更新内容：
-  > [完成] 已从 v{旧版本} 升级到 v{新版本}！
+  > [完成] 已从 {旧版本} 升级到 {新版本}！
   
-  然后读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）。若 `WHATSNEW.md` 缺失或首个版本号与当前版本不一致，输出内置迁移提示：
+  然后读取仓库内各 skill 的 `WHATSNEW.md`，逐行原文输出匹配当前版本的内容（保留换行与分段，不合并，不精简）。若某个 `WHATSNEW.md` 缺失或首个版本号与当前版本不一致，只提示该 skill “无匹配更新说明”：
 
   **本次更新内容：**
 
-  {WHATSNEW.md 全文，每行单独输出，或输出“新版 /仿写 已拆为独立 sibling skill，旧版局部 /更新 不能补装。请重装最新版短剧 Skill，并确认新版仿写能力已安装成功。”}
+  {`short-drama/WHATSNEW.md` 与 `short-drama-remake/WHATSNEW.md` 中与当前 VERSION 匹配的内容。若某个文件缺失或首个版本号与 VERSION 不一致，输出该 skill 名称和“无匹配更新说明”。}
 
 - **`CHECK_FAILED 7d`** → 网络连续 7 天无法检查更新，显示淡提示：
   > [提示] 已超过 7 天未能检查更新（网络问题）。可手动运行 `/更新` 检查，或确认网络连通后自动恢复。
@@ -56,16 +56,7 @@ $s = Get-ChildItem "$HOME\.claude\skills","$HOME\.openclaw\skills","$HOME\.workb
 
 **功能：** 检查最新版本并升级。
 
-**边界：** 本命令只更新已安装的 `short-drama`。如果用户是为了获得新版独立仿写能力，输出迁移提示：
-
-```text
-/仿写 已升级为新版独立能力。
-
-请让你的智能体执行：
-“帮我重装最新版短剧 Skill，并确认新版仿写能力已安装成功。”
-
-安装完成后，关闭当前会话并重新打开，再继续使用新版 /仿写。
-```
+**边界：** 本命令必须更新整个 `drama-workshop-skills` 仓库并重新安装所有 sibling skills。当前不得只更新 `short-drama`，否则会漏掉 `short-drama-remake` 的 schema、checker、fixtures 或版本说明。
 
 ### 步骤 1：强制检查版本
 
@@ -77,7 +68,7 @@ bash "$SKILL_DIR/bin/update-check" --force 2>/dev/null || true
 ### 步骤 2：根据输出决定行为
 
 **无输出（已是最新）：**
-> [完成] 当前已是最新版本 v{版本号}，无需更新。
+> [完成] 当前已是最新版本：{版本号}，无需更新。
 
 **`UPGRADE_AVAILABLE <旧版本> <新版本>`：**
 
@@ -96,46 +87,67 @@ STATE_DIR="$HOME/.openclaw"
 mkdir -p "$STATE_DIR"
 
 # 记录旧版本（升级后首次检测显示 JUST_UPGRADED）
-OLD_VER="$(head -1 "$SKILL_DIR/VERSION" 2>/dev/null | sed 's/^v//' | awk '{print $1}')"
+SKILLS_ROOT="$(dirname "$SKILL_DIR")"
+collect_versions() {
+  for name in short-drama short-drama-remake; do
+    vf="$SKILLS_ROOT/$name/VERSION"
+    if [ -f "$vf" ]; then
+      printf "%s=%s;" "$name" "$(head -1 "$vf" | sed 's/^v//' | awk '{print $1}')"
+    else
+      printf "%s=missing;" "$name"
+    fi
+  done | sed 's/;$//'
+}
+OLD_VER="$(collect_versions)"
 echo "$OLD_VER" > "$STATE_DIR/just-upgraded-from"
 
 # 拉取最新代码
-CACHE="$HOME/.claude/.skill-repos/openclaw-skills"
+REPO_GITHUB="https://github.com/MarkQWu/drama-workshop-skills.git"
+REPO_MIRROR="https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
+CACHE="$HOME/.claude/.skill-repos/drama-workshop-skills"
 if [ -d "$CACHE/.git" ]; then
   git -C "$CACHE" pull --ff-only 2>/dev/null || {
     echo "GitHub 连接失败，尝试镜像源..."
-    git -C "$CACHE" remote set-url origin "https://ghfast.top/https://github.com/MarkQWu/openclaw-skills.git"
-    git -C "$CACHE" pull --ff-only
-    git -C "$CACHE" remote set-url origin "https://github.com/MarkQWu/openclaw-skills.git"
+    git -C "$CACHE" pull --ff-only "$REPO_MIRROR" main
   }
 else
   mkdir -p "$(dirname "$CACHE")"
-  git clone "https://github.com/MarkQWu/openclaw-skills.git" "$CACHE" 2>/dev/null || \
-  git clone "https://ghfast.top/https://github.com/MarkQWu/openclaw-skills.git" "$CACHE"
+  git clone "$REPO_GITHUB" "$CACHE" 2>/dev/null || \
+  git clone "$REPO_MIRROR" "$CACHE"
 fi
 
-# 覆盖安装（保留用户的创作文件）
-cp -r "$CACHE/short-drama/SKILL.md" "$SKILL_DIR/"
-cp -r "$CACHE/short-drama/VERSION" "$SKILL_DIR/"
-cp -r "$CACHE/short-drama/WHATSNEW.md" "$SKILL_DIR/" 2>/dev/null || true
-cp -r "$CACHE/short-drama/references/" "$SKILL_DIR/" 2>/dev/null || true
-cp -r "$CACHE/short-drama/scripts/" "$SKILL_DIR/" 2>/dev/null || true
-cp -r "$CACHE/short-drama/bin/" "$SKILL_DIR/" 2>/dev/null || true
-chmod +x "$SKILL_DIR/bin/"* 2>/dev/null || true
+# 覆盖安装仓库内所有 skill（保留用户的创作项目文件；旧 skill 目录移入 .skill-trash）
+STAMP="$(date +%Y%m%d-%H%M%S)"
+for skills_root in "$HOME/.claude/skills" "$HOME/.openclaw/skills" "$HOME/.workbuddy/skills"; do
+  [ -d "$(dirname "$skills_root")" ] || continue
+  mkdir -p "$skills_root"
+  for d in "$CACHE"/*/; do
+    [ -f "$d/SKILL.md" ] || continue
+    skill_name="$(basename "$d")"
+    target="$skills_root/$skill_name"
+    if [ -e "$target" ] || [ -L "$target" ]; then
+      trash="$(dirname "$skills_root")/.skill-trash/$STAMP"
+      mkdir -p "$trash"
+      mv "$target" "$trash/$skill_name"
+    fi
+    cp -r "$d" "$skills_root/$skill_name"
+  done
+done
+find "$HOME/.claude/skills" "$HOME/.openclaw/skills" "$HOME/.workbuddy/skills" -path "*/bin/*" -type f -exec chmod +x {} \; 2>/dev/null || true
 
 # 清除缓存
 rm -f "$STATE_DIR/last-update-check"
 rm -f "$STATE_DIR/update-snoozed"
 
-NEW_VER="$(head -1 "$SKILL_DIR/VERSION" 2>/dev/null | sed 's/^v//' | awk '{print $1}')"
-echo "升级完成：v$OLD_VER → v$NEW_VER"
+NEW_VER="$(collect_versions)"
+echo "升级完成：$OLD_VER → $NEW_VER"
 ```
 
-4. 读取 `WHATSNEW.md`，逐行原文输出其内容（保留换行与分段，不合并，不精简）。若 `WHATSNEW.md` 缺失或首个版本号与当前版本不一致，输出内置迁移提示：
+4. 读取仓库内各 skill 的 `WHATSNEW.md`，逐行原文输出匹配当前版本的内容（保留换行与分段，不合并，不精简）。若某个 `WHATSNEW.md` 缺失或首个版本号与当前版本不一致，只提示该 skill “无匹配更新说明”：
 
    **本次更新内容：**
 
-   {WHATSNEW.md 全文，每行单独输出，或输出“新版 /仿写 已拆为独立 sibling skill，旧版局部 /更新 不能补装。请重装最新版短剧 Skill，并确认新版仿写能力已安装成功。”}
+   {逐个读取 `short-drama/WHATSNEW.md` 与 `short-drama-remake/WHATSNEW.md`，匹配各自 VERSION 后原文输出；不再输出旧迁移提示。}
 
 5. 提示用户：
 > [完成] 升级完成！新版本在**下次对话**中生效（当前对话仍使用旧版 SKILL.md）。

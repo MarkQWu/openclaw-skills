@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# openclaw-skills update-check — 版本更新检测
+# drama-workshop-skills update-check — repository-level version detection
 #
 # 输出（单行，或无输出）：
 #   JUST_UPGRADED <old> <new>       — 刚完成升级
@@ -7,19 +7,20 @@
 #   (无输出)                        — 已是最新 / 已暂缓 / 已禁用 / 跳过检查
 #
 # 环境变量覆盖（测试用）：
-#   OPENCLAW_SKILL_DIR    — 覆盖 skill 根目录
-#   OPENCLAW_REMOTE_URL   — 覆盖远程 VERSION URL
+#   OPENCLAW_SKILL_DIR    — 覆盖 short-drama skill 根目录
+#   OPENCLAW_REMOTE_BASE  — 覆盖远程 raw base URL
 #   OPENCLAW_STATE_DIR    — 覆盖状态目录
 set -euo pipefail
 
 SKILL_DIR="${OPENCLAW_SKILL_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+SKILLS_ROOT="$(cd "$SKILL_DIR/.." && pwd)"
 STATE_DIR="${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
 CACHE_FILE="$STATE_DIR/last-update-check"
 MARKER_FILE="$STATE_DIR/just-upgraded-from"
 SNOOZE_FILE="$STATE_DIR/update-snoozed"
 CONFIG_FILE="$STATE_DIR/config.yaml"
-VERSION_FILE="$SKILL_DIR/VERSION"
-REMOTE_URL="${OPENCLAW_REMOTE_URL:-https://raw.githubusercontent.com/MarkQWu/openclaw-skills/main/short-drama/VERSION}"
+REMOTE_BASE="${OPENCLAW_REMOTE_BASE:-https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main}"
+SKILLS_TO_CHECK="short-drama short-drama-remake"
 
 # ─── Force flag（/更新 命令使用）──────────────────────
 if [ "${1:-}" = "--force" ]; then
@@ -83,12 +84,47 @@ check_snooze() {
   return 1  # 暂缓已过期
 }
 
-# ─── Step 1: 读取本地版本 ────────────────────────────
-LOCAL=""
-if [ -f "$VERSION_FILE" ]; then
-  # 只取第一行，去除空白（VERSION 文件可能有描述行）
-  LOCAL="$(head -1 "$VERSION_FILE" 2>/dev/null | sed 's/^v//' | awk '{print $1}' | tr -d '[:space:]')"
-fi
+read_local_versions() {
+  local parts=()
+  local skill version_file version
+  for skill in $SKILLS_TO_CHECK; do
+    version_file="$SKILLS_ROOT/$skill/VERSION"
+    if [ -f "$version_file" ]; then
+      version="$(head -1 "$version_file" 2>/dev/null | sed 's/^v//' | awk '{print $1}' | tr -d '[:space:]')"
+    else
+      version="missing"
+    fi
+    parts+=("$skill=$version")
+  done
+  (IFS=';'; echo "${parts[*]}")
+}
+
+fetch_remote_version() {
+  local skill="$1"
+  local url="$REMOTE_BASE/$skill/VERSION"
+  local remote
+  remote="$(curl -sf --max-time 3 "$url" 2>/dev/null || true)"
+  if [ -z "$remote" ]; then
+    remote="$(curl -sf --max-time 5 "https://ghfast.top/$url" 2>/dev/null || true)"
+  fi
+  echo "$remote" | head -1 | sed 's/^v//' | awk '{print $1}' | tr -d '[:space:]'
+}
+
+read_remote_versions() {
+  local parts=()
+  local skill version
+  for skill in $SKILLS_TO_CHECK; do
+    version="$(fetch_remote_version "$skill")"
+    if ! echo "$version" | grep -qE '^[0-9]+\.[0-9.]+'; then
+      return 1
+    fi
+    parts+=("$skill=$version")
+  done
+  (IFS=';'; echo "${parts[*]}")
+}
+
+# ─── Step 1: 读取本地仓库级版本 ──────────────────────
+LOCAL="$(read_local_versions)"
 if [ -z "$LOCAL" ]; then
   exit 0  # 没有 VERSION 文件 → 跳过
 fi
@@ -148,21 +184,11 @@ if [ -f "$CACHE_FILE" ]; then
   fi
 fi
 
-# ─── Step 4: 慢路径 — 拉取远程版本 ─────────────────
+# ─── Step 4: 慢路径 — 拉取远程仓库级版本 ─────────────
 mkdir -p "$STATE_DIR"
 
-REMOTE=""
-REMOTE="$(curl -sf --max-time 3 "$REMOTE_URL" 2>/dev/null || true)"
-# GitHub 失败（中国大陆被墙），走镜像
+REMOTE="$(read_remote_versions || true)"
 if [ -z "$REMOTE" ]; then
-  MIRROR_URL="https://ghfast.top/$REMOTE_URL"
-  REMOTE="$(curl -sf --max-time 5 "$MIRROR_URL" 2>/dev/null || true)"
-fi
-# 只取第一行的版本号
-REMOTE="$(echo "$REMOTE" | head -1 | sed 's/^v//' | awk '{print $1}' | tr -d '[:space:]')"
-
-# 校验：必须像版本号（防 HTML 错误页污染）
-if ! echo "$REMOTE" | grep -qE '^[0-9]+\.[0-9.]+'; then
   # 网络失败 — 不写 UP_TO_DATE 缓存（下次重试）
   # 检查上次成功检测距今是否超过 7 天
   if [ -f "$CACHE_FILE" ]; then

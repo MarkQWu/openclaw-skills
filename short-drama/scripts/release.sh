@@ -16,7 +16,7 @@ fi
 
 TODAY=$(date +%Y-%m-%d)
 MASTER_DIR="$HOME/.claude/skills/short-drama"
-REPO_DIR="$HOME/.claude/.skill-repos/openclaw-skills"
+REPO_DIR="$HOME/.claude/.skill-repos/drama-workshop-skills"
 
 if [ ! -d "$MASTER_DIR" ]; then
   echo "❌ 权威 master 目录不存在：$MASTER_DIR"
@@ -24,7 +24,7 @@ if [ ! -d "$MASTER_DIR" ]; then
 fi
 
 if [ ! -d "$REPO_DIR/.git" ]; then
-  echo "❌ openclaw-skills 仓库不存在：$REPO_DIR"
+  echo "❌ drama-workshop-skills 仓库不存在：$REPO_DIR"
   exit 1
 fi
 
@@ -61,12 +61,12 @@ else
 fi
 echo "  ✅ WHATSNEW.md → v${VERSION}"
 
-# 2. Sync master → 5 副本（含 openclaw-skills 仓库）
+# 2. Sync master → 5 副本（含 drama-workshop-skills 仓库）
 echo ""
 echo "📂 Sync master → 5 副本..."
 bash "$MASTER_DIR/scripts/sync-all-locations.sh"
 
-# 3. 切到 openclaw-skills 仓库，更新 README 并提交
+# 3. 切到 drama-workshop-skills 仓库，更新 README 并提交
 cd "$REPO_DIR"
 
 # README 第 3 行（版本号 + 日期）
@@ -113,10 +113,10 @@ echo ""
 echo "⏳ 等待 GH Actions workflow 建 Release（15s）..."
 sleep 15
 
-if ! gh release view "v${VERSION}" --repo MarkQWu/openclaw-skills > /dev/null 2>&1; then
+if ! gh release view "v${VERSION}" --repo MarkQWu/drama-workshop-skills > /dev/null 2>&1; then
   echo "  ⚠️  Release v${VERSION} 未建 — GH Actions workflow 可能失败或延迟"
-  echo "      查看运行日志：gh run list --repo MarkQWu/openclaw-skills --limit 3"
-  echo "      手动补建：gh release create v${VERSION} --repo MarkQWu/openclaw-skills --generate-notes"
+  echo "      查看运行日志：gh run list --repo MarkQWu/drama-workshop-skills --limit 3"
+  echo "      手动补建：gh release create v${VERSION} --repo MarkQWu/drama-workshop-skills --generate-notes"
 else
   echo "  ✅ Release v${VERSION} 已建立"
 fi
