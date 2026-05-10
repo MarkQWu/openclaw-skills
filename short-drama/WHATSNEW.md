@@ -1,3 +1,9 @@
+**v1.31.5**（2026-05-10）
+
+安装器改为 zip 下载优先：不再要求用户机器先安装 git。GitHub 直连失败时会自动尝试镜像 zip；镜像也失败时，再提示安装 git 或手动下载 zip。适配 WorkBuddy 用户无 VPN、无 git 的安装场景。
+
+---
+
 **v1.31.4**（2026-05-09）
 
 `/更新` 已改为仓库级更新：会从 `drama-workshop-skills` 拉取最新版并重新安装仓库内全部 sibling skills，包括 `short-drama` 和 `short-drama-remake`。同时清理旧仓库名引用。
