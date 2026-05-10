@@ -1,13 +1,9 @@
 # gobuildit 社区 Skills 一键安装 (Windows)
 $ErrorActionPreference = "Stop"
 
-$repoGitHub = if ($env:DRAMA_WORKSHOP_REPO_GIT) { $env:DRAMA_WORKSHOP_REPO_GIT } else { "https://github.com/MarkQWu/drama-workshop-skills.git" }
-$repoMirror = if ($env:DRAMA_WORKSHOP_REPO_GIT_MIRROR) { $env:DRAMA_WORKSHOP_REPO_GIT_MIRROR } else { "https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git" }
-$repoZip = if ($env:DRAMA_WORKSHOP_REPO_ZIP) { $env:DRAMA_WORKSHOP_REPO_ZIP } else { "https://github.com/MarkQWu/drama-workshop-skills/archive/refs/heads/main.zip" }
-$repoZipCodeload = if ($env:DRAMA_WORKSHOP_REPO_ZIP_CODELOAD) { $env:DRAMA_WORKSHOP_REPO_ZIP_CODELOAD } else { "https://codeload.github.com/MarkQWu/drama-workshop-skills/zip/refs/heads/main" }
-$repoZipMirror = if ($env:DRAMA_WORKSHOP_REPO_ZIP_MIRROR) { $env:DRAMA_WORKSHOP_REPO_ZIP_MIRROR } else { "https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills/archive/refs/heads/main.zip" }
-$repoZipCodeloadMirror = if ($env:DRAMA_WORKSHOP_REPO_ZIP_CODELOAD_MIRROR) { $env:DRAMA_WORKSHOP_REPO_ZIP_CODELOAD_MIRROR } else { "https://ghfast.top/https://codeload.github.com/MarkQWu/drama-workshop-skills/zip/refs/heads/main" }
-$cache = if ($env:DRAMA_WORKSHOP_CACHE) { $env:DRAMA_WORKSHOP_CACHE } else { Join-Path $env:USERPROFILE ".claude\.skill-repos\drama-workshop-skills" }
+$repoGitHub = "https://github.com/MarkQWu/drama-workshop-skills.git"
+$repoMirror = "https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
+$cache = Join-Path $env:USERPROFILE ".claude\.skill-repos\drama-workshop-skills"
 
 Write-Host "=== gobuildit Skills 安装器 ===" -ForegroundColor Cyan
 Write-Host ""
@@ -39,36 +35,17 @@ function Move-EmbeddedTrash($skillsDir) {
     }
 }
 
-function Try-DownloadZip($dest) {
-    $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("drama-workshop-skills-" + [guid]::NewGuid().ToString("N"))
-    New-Item -ItemType Directory -Path $tmp -Force | Out-Null
-    $zip = Join-Path $tmp "main.zip"
-
-    Write-Host "正在下载仓库 zip（不需要 git）..."
-    foreach ($url in @($repoZip, $repoZipCodeload, $repoZipMirror, $repoZipCodeloadMirror)) {
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing -TimeoutSec 90 -ErrorAction Stop
-            Expand-Archive -Path $zip -DestinationPath $tmp -Force
-            $extracted = Get-ChildItem $tmp -Directory | Where-Object { $_.Name -like "drama-workshop-skills-*" } | Select-Object -First 1
-            if ($extracted) {
-                if (Test-Path $dest) {
-                    Move-Item -Path $dest -Destination "$dest.backup-$(Get-Timestamp)" -Force -ErrorAction SilentlyContinue
-                    if (Test-Path $dest) { Remove-Item -Recurse -Force "$dest" }
-                }
-                Move-Item -Path $extracted.FullName -Destination $dest -Force
-                Write-Host "仓库 zip 下载完成。"
-                return $true
-            }
-        } catch {
-            Write-Host "下载失败，尝试下一个源..." -ForegroundColor Yellow
-        }
-    }
-    return $false
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    Write-Host "错误：未找到 git。请先安装 Git 后重新运行本安装命令。" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Windows 可让 AI agent 运行：" -ForegroundColor Yellow
+    Write-Host "  winget install --id Git.Git -e --source winget" -ForegroundColor Yellow
+    Write-Host "安装完成后重新打开终端，再运行安装命令。" -ForegroundColor Yellow
+    throw "git not found"
 }
 
 # 尝试 clone，GitHub 失败则自动切镜像
 function Try-Clone($dest) {
-    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $false }
     Write-Host "正在下载..."
     & git clone $repoGitHub $dest 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) { return $true }
@@ -82,13 +59,12 @@ function Try-Clone($dest) {
     }
 
     Write-Host ""
-    Write-Host "git 下载失败，继续使用 zip 下载结果或最终错误提示。" -ForegroundColor Yellow
+    Write-Host "错误：GitHub 下载失败。请打开全局代理后重新运行安装命令。" -ForegroundColor Red
     return $false
 }
 
 # 尝试 pull，GitHub 失败则通过镜像 fetch
 function Try-Pull($dir) {
-    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $false }
     Write-Host "检测到已安装，正在更新..."
     & git -C "$dir" pull --ff-only 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) { return $true }
@@ -101,31 +77,27 @@ function Try-Pull($dir) {
     if ($pullOk) { return $true }
 
     Write-Host "更新失败，正在重新安装..." -ForegroundColor Yellow
-    if (Try-DownloadZip $dir) { return $true }
-    Remove-Item -Recurse -Force "$dir"
+    Move-Item -Path $dir -Destination "$dir.backup-$(Get-Timestamp)" -Force -ErrorAction SilentlyContinue
+    if (Test-Path $dir) { return $false }
     return (Try-Clone $dir)
 }
 
-# 下载或更新仓库到缓存目录。zip 优先，避免用户机器没有 git 或 git 被网络拦截。
+# Clone 或更新仓库到缓存目录
 $cacheParent = Split-Path $cache -Parent
 if (-not (Test-Path $cacheParent)) { New-Item -ItemType Directory -Path $cacheParent -Force | Out-Null }
 
-if (Try-DownloadZip $cache) {
-    $ok = $true
-} elseif (Test-Path (Join-Path $cache ".git")) {
+if (Test-Path (Join-Path $cache ".git")) {
     $ok = Try-Pull $cache
 } else {
-    if (Test-Path $cache) { Remove-Item -Recurse -Force "$cache" }
+    if (Test-Path $cache) {
+        Move-Item -Path $cache -Destination "$cache.backup-$(Get-Timestamp)" -Force -ErrorAction SilentlyContinue
+        if (Test-Path $cache) { throw "无法备份旧缓存目录，请关闭占用它的程序后重试：$cache" }
+    }
     $ok = Try-Clone $cache
 }
 if (-not $ok) {
     Write-Host ""
-    Write-Host "错误：下载失败。可把以下链接复制给 WorkBuddy，让它直接下载 zip 后解压安装：" -ForegroundColor Red
-    Write-Host "  $repoZipCodeloadMirror" -ForegroundColor Red
-    Write-Host "  $repoZipMirror" -ForegroundColor Red
-    Write-Host "  $repoZipCodeload" -ForegroundColor Red
-    Write-Host "  $repoZip" -ForegroundColor Red
-    Write-Host "也可以先安装 Git：https://git-scm.com/downloads，然后重新运行安装命令。" -ForegroundColor Yellow
+    Write-Host "错误：下载失败。请确认已安装 Git，并打开全局代理后重新运行安装命令。" -ForegroundColor Red
     throw "安装失败"
 }
 
@@ -163,7 +135,10 @@ foreach ($skillsDir in $targets) {
             if (-not (Test-Path $safeRoot)) { New-Item -ItemType Directory -Path $safeRoot -Force | Out-Null }
             $backup = Join-Path $safeRoot ("reinstall-" + $_.Name + "-" + (Get-Timestamp))
             Move-Item -Path $target -Destination $backup -Force -ErrorAction SilentlyContinue
-            if (Test-Path $target) { Remove-Item -Recurse -Force "$target" }
+            if (Test-Path $target) {
+                Write-Host "  警告：无法备份旧目录 $target，请关闭占用它的程序后重试。" -ForegroundColor Yellow
+                return
+            }
         }
         Copy-Item -Recurse -Force $_.FullName "$target"
         Write-Host "  已安装: $($_.Name)"

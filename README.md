@@ -1,6 +1,6 @@
 # 爆款剧本工坊 | Drama Workshop
 
-**当前版本：v1.31.5**（2026-05-10）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/drama-workshop-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
+**当前版本：v1.31.6**（2026-05-10）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/drama-workshop-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
 
 用 AI 写能拍的微短剧，也能拆解参考短剧做换皮复刻——从选题到分镜，一条命令链走完。
 
@@ -25,7 +25,7 @@
 
 ## 安装
 
-前置条件：已安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)、[OpenClaw](https://github.com/nicekate/OpenClaw) 或 [WorkBuddy](https://workbuddy.app) 任意一个。安装器优先下载 zip，不要求用户先安装 git。
+前置条件：已安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)、[OpenClaw](https://github.com/nicekate/OpenClaw) 或 [WorkBuddy](https://workbuddy.app) 任意一个，并已安装 [Git](https://git-scm.com/downloads)。如果 GitHub 下载失败，请打开全局代理后重试。
 
 **Mac / Linux**（打开终端，粘贴）：
 
@@ -33,22 +33,10 @@
 curl -fsSL https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main/install.sh | bash
 ```
 
-国内网络如果 `raw.githubusercontent.com` 失败，改用镜像入口：
-
-```bash
-curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main/install.sh | bash
-```
-
 **Windows**（按 `Win+X` → 选「终端」，粘贴）：
 
 ```powershell
 irm https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main/install.ps1 | iex
-```
-
-国内网络如果 `raw.githubusercontent.com` 失败，改用镜像入口：
-
-```powershell
-irm https://ghfast.top/https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main/install.ps1 | iex
 ```
 
 安装完成后**关闭当前会话，重新打开**，输入 `/开始` 看到引导就说明装好了。
@@ -220,7 +208,7 @@ AI：把第一集拆成逐镜分镜表，每个镜头附带即梦 AI prompt ↓
 ## 常见问题
 
 **Q：安装/更新命令报错、下载失败**
-A：国内网络可能连不上 GitHub。脚本会优先下载仓库 zip，并自动切换镜像源重试，不要求先安装 git。如果镜像也失败：可以先安装 [git](https://git-scm.com/downloads) 后重试，或[手动下载镜像 zip](https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills/archive/refs/heads/main.zip) 解压后把 `short-drama` 和 `short-drama-remake` 文件夹复制到 skills 目录。
+A：先确认已安装 [Git](https://git-scm.com/downloads)。Windows 可让 AI agent 运行 `winget install --id Git.Git -e --source winget`。如果已经有 Git 但仍下载失败，请打开全局代理后重新运行安装命令。
 
 **Q：`/仿写` 还提示旧流程、扫描旧项目，或没有新版能力**
 A：新版 `/仿写` 会自动切换到同级 `short-drama-remake`。如果仍提示旧流程或扫描旧项目，说明当前会话或 WorkBuddy 工作空间还挂着旧 skill，或 `~/.workbuddy/skills/.trash` 里有旧版 `short-drama/SKILL.md` 被递归扫描。请重跑安装命令，安装器会把 `.trash` 移出 skills 扫描范围；然后从 WorkBuddy 工作空间移除/关闭当前项目，再重新打开。

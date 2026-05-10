@@ -2,13 +2,9 @@
 # gobuildit 社区 Skills 一键安装
 set -euo pipefail
 
-REPO_GITHUB="${DRAMA_WORKSHOP_REPO_GIT:-https://github.com/MarkQWu/drama-workshop-skills.git}"
-REPO_MIRROR="${DRAMA_WORKSHOP_REPO_GIT_MIRROR:-https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git}"
-REPO_ZIP="${DRAMA_WORKSHOP_REPO_ZIP:-https://github.com/MarkQWu/drama-workshop-skills/archive/refs/heads/main.zip}"
-REPO_ZIP_CODELOAD="${DRAMA_WORKSHOP_REPO_ZIP_CODELOAD:-https://codeload.github.com/MarkQWu/drama-workshop-skills/zip/refs/heads/main}"
-REPO_ZIP_MIRROR="${DRAMA_WORKSHOP_REPO_ZIP_MIRROR:-https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills/archive/refs/heads/main.zip}"
-REPO_ZIP_CODELOAD_MIRROR="${DRAMA_WORKSHOP_REPO_ZIP_CODELOAD_MIRROR:-https://ghfast.top/https://codeload.github.com/MarkQWu/drama-workshop-skills/zip/refs/heads/main}"
-CACHE="${DRAMA_WORKSHOP_CACHE:-$HOME/.claude/.skill-repos/drama-workshop-skills}"
+REPO_GITHUB="https://github.com/MarkQWu/drama-workshop-skills.git"
+REPO_MIRROR="https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
+CACHE="$HOME/.claude/.skill-repos/drama-workshop-skills"
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
 OPENCLAW_SKILLS_DIR="$HOME/.openclaw/skills"
 
@@ -46,60 +42,18 @@ migrate_embedded_trash() {
   fi
 }
 
-download_file() {
-  local url="$1"
-  local dest="$2"
-  if command -v curl >/dev/null 2>&1; then
-    curl -fL --connect-timeout 10 --max-time 90 "$url" -o "$dest" >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-      return 0
-    fi
-    curl --noproxy '*' -fL --connect-timeout 10 --max-time 90 "$url" -o "$dest" >/dev/null 2>&1
-    return $?
-  fi
-  if command -v wget >/dev/null 2>&1; then
-    wget -q "$url" -O "$dest" >/dev/null 2>&1
-    return $?
-  fi
-  return 1
-}
-
-try_zip_download() {
-  local dest="$1"
-  local tmp zip extracted url
-
-  if ! command -v unzip >/dev/null 2>&1; then
-    return 1
-  fi
-
-  tmp="$(mktemp -d "${TMPDIR:-/tmp}/drama-workshop-skills.XXXXXX")"
-  zip="$tmp/main.zip"
-
-  echo "正在下载仓库 zip（不需要 git）..."
-  for url in "$REPO_ZIP" "$REPO_ZIP_CODELOAD" "$REPO_ZIP_MIRROR" "$REPO_ZIP_CODELOAD_MIRROR"; do
-    if download_file "$url" "$zip"; then
-      if unzip -q "$zip" -d "$tmp" 2>/dev/null; then
-        extracted="$(find "$tmp" -maxdepth 1 -type d -name 'drama-workshop-skills-*' | head -1)"
-        if [ -d "$extracted" ]; then
-          [ -d "$dest" ] && mv "$dest" "$dest.backup-$(timestamp)" 2>/dev/null || true
-          mv "$extracted" "$dest"
-          echo "仓库 zip 下载完成。"
-          return 0
-        fi
-      fi
-    fi
-    echo "下载失败，尝试下一个源..."
-  done
-
-  return 1
-}
+if ! command -v git >/dev/null 2>&1; then
+  echo "错误：未找到 git。请先安装 Git 后重新运行本安装命令。" >&2
+  echo "" >&2
+  echo "Mac 可运行：xcode-select --install" >&2
+  echo "或安装 Homebrew 后运行：brew install git" >&2
+  echo "Windows 可让 AI agent 运行：winget install --id Git.Git -e --source winget" >&2
+  exit 1
+fi
 
 # 尝试 clone，GitHub 失败则自动切镜像
 try_clone() {
   local dest="$1"
-  if ! command -v git &>/dev/null; then
-    return 1
-  fi
   echo "正在下载..."
   if git clone "$REPO_GITHUB" "$dest" 2>/dev/null; then
     return 0
@@ -111,16 +65,13 @@ try_clone() {
     return 0
   fi
   echo ""
-  echo "git 下载失败，继续使用 zip 下载结果或最终错误提示。" >&2
+  echo "错误：GitHub 下载失败。请打开全局代理后重新运行安装命令。" >&2
   return 1
 }
 
 # 尝试 pull，GitHub 失败则通过镜像 fetch
 try_pull() {
   local dir="$1"
-  if ! command -v git &>/dev/null; then
-    return 1
-  fi
   echo "检测到已安装，正在更新..."
   if git -C "$dir" pull --ff-only 2>/dev/null; then
     return 0
@@ -136,34 +87,22 @@ try_pull() {
   git -C "$dir" remote set-url origin "$REPO_GITHUB"
   # 镜像也失败，重新 clone
   echo "更新失败，正在重新安装..."
-  try_zip_download "$dir" || {
-    rm -rf "$dir"
-    try_clone "$dir"
-  }
+  mv "$dir" "$dir.backup-$(timestamp)" 2>/dev/null || return 1
+  try_clone "$dir"
 }
 
-# 下载或更新仓库到缓存目录。zip 优先，避免用户机器没有 git 或 git 被网络拦截。
+# Clone 或更新仓库到缓存目录
 mkdir -p "$(dirname "$CACHE")"
-download_ok=0
-if try_zip_download "$CACHE"; then
-  download_ok=1
-elif [ -d "$CACHE/.git" ] && try_pull "$CACHE"; then
-  download_ok=1
+if [ -d "$CACHE/.git" ]; then
+  try_pull "$CACHE"
 else
   [ -d "$CACHE" ] && mv "$CACHE" "$CACHE.backup-$(timestamp)" 2>/dev/null || true
-  if try_clone "$CACHE"; then
-    download_ok=1
-  fi
+  try_clone "$CACHE"
 fi
 
-if [ "$download_ok" -ne 1 ] || [ ! -d "$CACHE" ]; then
+if [ ! -d "$CACHE" ]; then
   echo ""
-  echo "错误：下载失败。可把以下链接复制给 WorkBuddy，让它直接下载 zip 后解压安装：" >&2
-  echo "  $REPO_ZIP_CODELOAD_MIRROR" >&2
-  echo "  $REPO_ZIP_MIRROR" >&2
-  echo "  $REPO_ZIP_CODELOAD" >&2
-  echo "  $REPO_ZIP" >&2
-  echo "也可以先安装 Git：https://git-scm.com/downloads，然后重新运行安装命令。" >&2
+  echo "错误：下载失败。请确认已安装 Git，并打开全局代理后重新运行安装命令。" >&2
   exit 1
 fi
 
@@ -201,7 +140,10 @@ for skills_dir in "${targets[@]}"; do
       if [ -e "$target" ] || [ -L "$target" ]; then
         safe_root="$(dirname "$skills_dir")/.skill-trash"
         mkdir -p "$safe_root"
-        mv "$target" "$safe_root/reinstall-$skill_name-$(timestamp)" 2>/dev/null || rm -rf "$target"
+        mv "$target" "$safe_root/reinstall-$skill_name-$(timestamp)" 2>/dev/null || {
+          echo "  警告：无法备份旧目录 $target，请关闭占用它的程序后重试。" >&2
+          continue
+        }
       fi
       cp -r "$d" "$target"
       installed=$((installed + 1))
