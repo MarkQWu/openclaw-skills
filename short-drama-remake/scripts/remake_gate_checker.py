@@ -402,6 +402,11 @@ def assert_postflight_contract(fixture: dict[str, Any]) -> None:
             raise CheckFailure(f"{fixture['fixture_id']}: non-passed postflight must set downstream_unlocked=false")
         if report.get("next_episode_unlock_status") == "unlocked":
             raise CheckFailure(f"{fixture['fixture_id']}: non-passed postflight cannot unlock next episode")
+        forbidden_created = set(result.get("forbidden_created_artifacts", []))
+        created = set(result.get("created_artifacts", []))
+        leaked = created.intersection(forbidden_created)
+        if leaked:
+            raise CheckFailure(f"{fixture['fixture_id']}: non-passed postflight created forbidden artifacts: {sorted(leaked)}")
 
     trace = fixture.get("node_invocation_trace", {})
     consumed_reports = set(trace.get("consumed_report_ids", []))
