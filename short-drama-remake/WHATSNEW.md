@@ -1,3 +1,13 @@
+**v0.3.0**（2026-05-10）
+
+Postflight Reliability：增强 managed remake 项目的写后 gate，防止候选剧本未闭环就误解锁下一集。
+
+- 新增 postflight fixture：`postflight_missing_user_review_blocks_next_episode`，覆盖“候选稿已生成、质量初审通过，但用户未确认 / canon 未提交 / state 未更新时不能继续下一集”的失败路径。
+- 扩展 deterministic checker：校验 postflight `report_status` 枚举、passed 所需子状态、非 passed 禁止 downstream unlock、postflight report 不得写 registry-owned 字段、postflight 必须消费上游 report 和候选稿 artifact。
+- 补充 `postflight_report` schema 字段与禁止字段，明确 `quality_gate_status=passed` 不等于下一集可解锁。
+- 新增极薄 agent contract：`agents/contracts/script-postflight-auditor.yaml`，只作为 `script_draft.postflight` 的角色边界，不引入平台级 agent runtime。
+- 更新 `short-drama-remake/README.md` 的 postflight 使用说明。
+
 **v0.2.0**（2026-05-09）
 
 Phase 6 Packaging & Release：把 Phase 4/5 的 managed project gate 打包成可发布版本。

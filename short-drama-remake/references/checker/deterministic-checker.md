@@ -45,3 +45,15 @@ The checker validates fixture contracts and the critical Phase 3-5 invariants th
 7. forbidden direct reads block script generation
 8. transaction atomicity prevents half-confirmed state
 9. dirty / needs_sync invalidates `fast_confirmed`
+
+## v0.3.0 Postflight Reliability Target
+
+The checker now validates the write-after gate that sits between a candidate episode script and the next episode unlock:
+
+1. `postflight_report.report_status` must use the postflight report enum.
+2. `report_status=passed` requires all postflight substatuses to be complete: quality passed, user accepted, canon committed, project state updated, read trace clean, risk/sync checks passed, and next episode unlocked.
+3. Any non-passed postflight status keeps `downstream_unlocked=false` and prevents `next_episode_unlock_status=unlocked`.
+4. `postflight_report` must not own registry fields such as `gate_status`, `current_pointer`, or `last_transaction_id`.
+5. Postflight must consume the upstream `preflight_report`, `similarity_risk_report`, `episode_script:candidate`, and `execution_card`.
+
+The checker still does not compare full script text or decide whether the drama is creatively strong. It only verifies that a candidate script cannot silently become continuation state before postflight closes.

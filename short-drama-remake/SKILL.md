@@ -6,7 +6,7 @@ description: Analyze reference short-drama scripts or screen-recorded prompt wor
 # Short Drama Remake
 
 > License: SKILL.md, agents metadata, scripts, and bundled code are MIT; references are gobuildit methodology documentation with all rights reserved except use as part of this skill distribution.
-> Version: 0.2.0
+> Version: 0.3.0
 
 ## Core Rule
 
@@ -54,7 +54,7 @@ Before drafting a script in a managed project, run or mentally apply `script_dra
 
 The blocking summary must include: blocking reason, affected scope, whether it blocks only the target episode or the whole project, recommended next step, and available user actions. Do not expose the full internal registry, gate, trace, or transaction fields unless the user explicitly asks for debug detail.
 
-After drafting, run `script_draft.postflight` before unlocking the next episode. A script is not complete until quality passes, user review accepts it, canon is committed, state is updated, risk/sync checks pass, read trace is clean, and the next episode gate is unlocked.
+After drafting, run `script_draft.postflight` before unlocking the next episode. A script is not complete until quality passes, user review accepts it, canon is committed, state is updated, risk/sync checks pass, read trace is clean, and the next episode gate is unlocked. `quality_gate_status=passed` alone is not enough; continuation must use top-level `postflight_report.report_status == passed`.
 
 For deterministic validation, run:
 
@@ -149,6 +149,7 @@ For each selected concept, perform a second-layer replacement pass before outlin
    - Check stage leakage: if a script draft starts doing concept planning or if a concept list starts writing full scenes, return it to the requested stage.
    - Check remake distance: preserve the emotional/functional skeleton while increasing the distance of specific incidents from the reference.
    - In managed projects, use postflight status as the only next-episode unlock signal. Do not unlock continuation from a partial quality pass or from a draft that has not been accepted into canon and state.
+   - If a candidate script exists but postflight is missing, incomplete, not user-accepted, or not committed to canon/state, block continuation and return a user-visible postflight blocking summary instead of writing the next episode.
 
 ## Continuation Guidance
 

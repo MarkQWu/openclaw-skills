@@ -36,6 +36,14 @@ When preflight blocks script generation, return one user-visible blocking summar
 
 Blocked preflight must set `body_generated=false` and must not create an episode script.
 
+## Postflight Reliability
+
+After a candidate episode script is drafted, `script_draft.postflight` must close the episode before the next episode can unlock.
+
+`quality_gate_status=passed` is not enough by itself. The next episode remains locked until postflight confirms user acceptance, canon commit, project-state update, clean read trace, passed risk/sync checks, and top-level `postflight_report.report_status=passed`.
+
+The bundled `script-postflight-auditor` contract is a thin role boundary around the existing route table and report schema. It is not a platform runtime and does not replace `SKILL.md` as workflow authority.
+
 ## Validation
 
 Run the minimal gate checks from the skill root:
