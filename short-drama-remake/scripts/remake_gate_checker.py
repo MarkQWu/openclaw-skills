@@ -44,6 +44,23 @@ DEFAULT_FORBIDDEN_SCRIPT_READS = {
     "00_source/episodes/ep_012.md",
 }
 
+POSTFLIGHT_REPORT_STATUSES = {
+    "passed",
+    "blocked",
+    "needs_revision",
+    "needs_user_review",
+    "pending_commit",
+    "pending_state_update",
+    "locked",
+    "stale",
+}
+
+POSTFLIGHT_REGISTRY_OWNED_FIELDS = {
+    "gate_status",
+    "current_pointer",
+    "last_transaction_id",
+}
+
 
 class CheckFailure(Exception):
     pass
@@ -236,6 +253,14 @@ def assert_call_trace_contract(fixture: dict[str, Any], expected_call_trace: dic
     if missing_consumed:
         raise CheckFailure(f"{fixture['fixture_id']}: expected consumed report ids missing: {sorted(missing_consumed)}")
 
+    consumed_artifacts = set(trace.get("consumed_artifact_ids", []))
+    required_consumed_artifacts = set(expected_call_trace.get("consumed_artifact_ids", []))
+    missing_consumed_artifacts = required_consumed_artifacts.difference(consumed_artifacts)
+    if missing_consumed_artifacts:
+        raise CheckFailure(
+            f"{fixture['fixture_id']}: expected consumed artifact ids missing: {sorted(missing_consumed_artifacts)}"
+        )
+
     forbidden = set(expected_call_trace.get("forbidden_full_node_calls_not_present", []))
     forbidden_hits = called.intersection(forbidden)
     if forbidden_hits:
@@ -320,6 +345,79 @@ def assert_phase5_specific_contracts(fixture: dict[str, Any]) -> None:
             raise CheckFailure(f"{fixture_id}: must assert research-notes.md is not directly read")
 
 
+def assert_postflight_contract(fixture: dict[str, Any]) -> None:
+    route = fixture.get("expected_route", {})
+    result = fixture.get("expected_result", {})
+    assertions = fixture.get("assertions", {}).get("postflight_assertion", {})
+    report = result.get("postflight_report")
+
+    if route.get("node_id") != "script_draft.postflight" and not report and not assertions:
+        return
+    if not isinstance(report, dict):
+        raise CheckFailure(f"{fixture['fixture_id']}: postflight fixture requires expected_result.postflight_report")
+
+    report_status = report.get("report_status")
+    if report_status not in POSTFLIGHT_REPORT_STATUSES:
+        raise CheckFailure(f"{fixture['fixture_id']}: invalid postflight report_status: {report_status}")
+
+    expected_report_status = assertions.get("expected_report_status")
+    if expected_report_status and report_status != expected_report_status:
+        raise CheckFailure(
+            f"{fixture['fixture_id']}: expected postflight report_status {expected_report_status}, got {report_status}"
+        )
+
+    leaked_registry_fields = sorted(POSTFLIGHT_REGISTRY_OWNED_FIELDS.intersection(report.keys()))
+    if leaked_registry_fields:
+        raise CheckFailure(
+            f"{fixture['fixture_id']}: postflight_report contains registry-owned fields: {leaked_registry_fields}"
+        )
+
+    if report_status == "passed":
+        required_values = {
+            "quality_gate_status": "passed",
+            "user_review_status": "accepted",
+            "canon_commit_status": "committed",
+            "state_update_status": "updated",
+            "next_episode_unlock_status": "unlocked",
+        }
+        mismatches = {
+            field: report.get(field)
+            for field, expected in required_values.items()
+            if report.get(field) != expected
+        }
+        if mismatches:
+            raise CheckFailure(f"{fixture['fixture_id']}: postflight passed with failing substatuses: {mismatches}")
+
+        read_trace_diff = report.get("read_trace_diff", {})
+        risk_recheck = report.get("risk_recheck", {})
+        sync_check = report.get("sync_check", {})
+        if read_trace_diff.get("clean") is not True:
+            raise CheckFailure(f"{fixture['fixture_id']}: postflight passed requires read_trace_diff.clean=true")
+        if risk_recheck.get("status") != "passed":
+            raise CheckFailure(f"{fixture['fixture_id']}: postflight passed requires risk_recheck.status=passed")
+        if sync_check.get("status") != "passed":
+            raise CheckFailure(f"{fixture['fixture_id']}: postflight passed requires sync_check.status=passed")
+    else:
+        if result.get("downstream_unlocked") is not False:
+            raise CheckFailure(f"{fixture['fixture_id']}: non-passed postflight must set downstream_unlocked=false")
+        if report.get("next_episode_unlock_status") == "unlocked":
+            raise CheckFailure(f"{fixture['fixture_id']}: non-passed postflight cannot unlock next episode")
+
+    trace = fixture.get("node_invocation_trace", {})
+    consumed_reports = set(trace.get("consumed_report_ids", []))
+    consumed_artifacts = set(trace.get("consumed_artifact_ids", []))
+    required_reports = set(assertions.get("required_consumed_report_ids", []))
+    required_artifacts = set(assertions.get("required_consumed_artifact_ids", []))
+
+    missing_reports = required_reports.difference(consumed_reports)
+    if missing_reports:
+        raise CheckFailure(f"{fixture['fixture_id']}: postflight required reports missing: {sorted(missing_reports)}")
+
+    missing_artifacts = required_artifacts.difference(consumed_artifacts)
+    if missing_artifacts:
+        raise CheckFailure(f"{fixture['fixture_id']}: postflight required artifacts missing: {sorted(missing_artifacts)}")
+
+
 def check_fixture(path: Path) -> list[str]:
     fixture = load_json_compatible_yaml(path)
     assert_required_fields(fixture, path)
@@ -335,6 +433,7 @@ def check_fixture(path: Path) -> list[str]:
     assert_transaction_contract(fixture)
     assert_fast_confirmed_invalidation(fixture)
     assert_phase5_specific_contracts(fixture)
+    assert_postflight_contract(fixture)
     return [f"ok fixture {fixture['fixture_id']}"]
 
 

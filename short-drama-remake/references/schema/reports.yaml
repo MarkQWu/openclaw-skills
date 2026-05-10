@@ -126,6 +126,31 @@ postflight_report:
   schema_version: remake.postflight_report.v1
   artifact_class: machine_report
   report_status_ref: report_status_by_report_type.postflight_report
+  required_fields:
+    - target_episode_no
+    - candidate_script_artifact_id
+    - preflight_report_id
+    - similarity_risk_report_id
+    - report_status
+    - quality_gate_status
+    - user_review_status
+    - canon_commit_status
+    - state_update_status
+    - next_episode_unlock_status
+    - read_trace_diff
+    - risk_recheck
+    - sync_check
+    - blocking_summary
+  status_fields:
+    quality_gate_status: [passed, blocked, needs_revision]
+    user_review_status: [accepted, missing, pending, revision_requested]
+    canon_commit_status: [committed, not_committed, failed]
+    state_update_status: [updated, not_updated, failed]
+    next_episode_unlock_status: [unlocked, locked]
+  registry_owned_fields_forbidden:
+    - gate_status
+    - current_pointer
+    - last_transaction_id
   passed_requires:
     - quality_gate_status == passed
     - user_review_status == accepted
