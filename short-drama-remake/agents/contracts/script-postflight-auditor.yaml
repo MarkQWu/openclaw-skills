@@ -1,0 +1,91 @@
+schema_version: remake.agent_contract.v0
+contract_id: script-postflight-auditor
+node_id: script_draft.postflight
+bounded_context: short-drama-remake
+normalized_intent: close_episode_script
+
+authority_refs:
+  - short-drama-remake/SKILL.md#project-gate-protocol
+  - short-drama-remake/references/schema/node-route-table.yaml#script_draft.postflight
+  - short-drama-remake/references/schema/reports.yaml#postflight_report
+  - short-drama-remake/references/schema/artifact-registry.yaml
+  - short-drama-remake/references/checker/deterministic-checker.md
+
+input_refs:
+  required_machine_reports:
+    - preflight_report
+    - similarity_risk_report
+  required_artifacts:
+    - episode_script:candidate
+    - execution_card
+  required_state:
+    - accepted_canon
+    - project_state
+    - artifact_registry
+
+output_contract:
+  produces_machine_report: postflight_report
+  result_status_field: report_status
+  may_return_status:
+    - passed
+    - blocked
+    - needs_revision
+    - needs_user_review
+    - pending_commit
+    - pending_state_update
+    - locked
+    - stale
+  must_include_blocking_summary_when_not_passed: true
+
+validation_policy:
+  creative_review_dimensions:
+    - continuity
+    - remake_distance
+    - shootability
+    - hook_strength
+    - dialogue_function
+  unlock_requires:
+    - quality_gate_status == passed
+    - user_review_status == accepted
+    - canon_commit_status == committed
+    - state_update_status == updated
+    - read_trace_diff.clean == true
+    - risk_recheck.status == passed
+    - sync_check.status == passed
+    - next_episode_unlock_status == unlocked
+
+forbidden_reads:
+  - short-drama/SKILL.md
+  - short-drama/references/*.md
+  - 00_source/raw/**
+  - 00_source/bundles/**
+  - research-notes.md
+  - _legacy_review/**
+  - 09_experiments/**
+  - candidates/**
+  - drafts/**
+  - tmp/**
+
+forbidden_writes:
+  - gate_status
+  - current_pointer
+  - last_transaction_id
+
+forbidden_full_node_calls:
+  - resume.restore
+  - source.validate
+  - reference_map.validate
+  - fact_gate.validate
+
+blocking_contract:
+  ref: short-drama-remake/references/schema/reports.yaml#blocker_contract
+
+read_trace_required: true
+call_trace_required: true
+
+must_not:
+  - define a second workflow order
+  - promote candidate script to accepted canon
+  - unlock next episode from quality_gate_status alone
+  - treat user chat approval as committed canon without registry transaction
+  - write gate_status or registry-owned fields inside postflight_report

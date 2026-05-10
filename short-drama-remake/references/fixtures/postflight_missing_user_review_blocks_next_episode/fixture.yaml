@@ -1,0 +1,146 @@
+{
+  "fixture_id": "postflight_missing_user_review_blocks_next_episode",
+  "title": "Missing user review keeps next episode locked after candidate script",
+  "problem_refs": [
+    "P13"
+  ],
+  "category": "script_postflight",
+  "initial_project_state": {
+    "files_present": [
+      "04_outlines/episodes/ep012.execution-card.md",
+      "05_scripts/episodes/ep012.md",
+      "06_state/artifact-registry.yaml",
+      "07_review/remake-risk-audit.md",
+      "07_review/postflight/ep012.postflight-report.yaml"
+    ],
+    "target_episode_no": 12,
+    "candidate_script": {
+      "artifact_id": "episode_script_ep012_candidate_v1",
+      "artifact_status": "candidate"
+    },
+    "preflight_report": {
+      "report_id": "PRF-012-001",
+      "report_status": "passed"
+    },
+    "similarity_risk_report": {
+      "report_id": "SRR-012-001",
+      "report_status": "passed"
+    },
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "第 12 集写完了，继续写第 13 集",
+    "target_episode_no": 13
+  },
+  "expected_route": {
+    "normalized_intent": "continue_after_candidate_script",
+    "node_id": "script_draft.postflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": true,
+    "created_artifacts": [
+      "07_review/postflight/ep012.postflight-report.yaml"
+    ],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep013.md"
+    ],
+    "downstream_unlocked": false,
+    "postflight_report": {
+      "schema_version": "remake.postflight_report.v1",
+      "report_id": "PFR-012-001",
+      "artifact_class": "machine_report",
+      "artifact_type": "postflight_report",
+      "target_episode_no": 12,
+      "candidate_script_artifact_id": "episode_script_ep012_candidate_v1",
+      "preflight_report_id": "PRF-012-001",
+      "similarity_risk_report_id": "SRR-012-001",
+      "report_status": "needs_user_review",
+      "quality_gate_status": "passed",
+      "user_review_status": "missing",
+      "canon_commit_status": "not_committed",
+      "state_update_status": "not_updated",
+      "next_episode_unlock_status": "locked",
+      "read_trace_diff": {
+        "clean": true,
+        "forbidden_reads": [],
+        "undeclared_reads": []
+      },
+      "risk_recheck": {
+        "status": "passed",
+        "open_risk_ids": []
+      },
+      "sync_check": {
+        "status": "passed",
+        "residue_terms": []
+      }
+    },
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "POSTFLIGHT_USER_REVIEW_MISSING",
+      "affected_scope": [
+        "episode_012_script",
+        "episode_013_unlock"
+      ],
+      "user_visible_reason": "第 12 集候选稿尚未获得用户确认，不能写入 canon 或解锁第 13 集。",
+      "recommended_next_node": "user_review.accept_or_request_revision",
+      "available_actions": [
+        "确认采用本集",
+        "要求修改本集",
+        "暂缓下一集"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.postflight"
+    ],
+    "checker_call_log": [
+      "postflight_status",
+      "postflight_pass_requires",
+      "postflight_downstream_unlock",
+      "postflight_registry_owned_fields",
+      "postflight_required_inputs"
+    ],
+    "consumed_report_ids": [
+      "PRF-012-001",
+      "SRR-012-001"
+    ],
+    "consumed_artifact_ids": [
+      "execution_card_ep012_current",
+      "episode_script_ep012_candidate_v1"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "POSTFLIGHT_USER_REVIEW_MISSING"
+    ],
+    "postflight_assertion": {
+      "expected_report_status": "needs_user_review",
+      "required_consumed_report_ids": [
+        "PRF-012-001",
+        "SRR-012-001"
+      ],
+      "required_consumed_artifact_ids": [
+        "execution_card_ep012_current",
+        "episode_script_ep012_candidate_v1"
+      ]
+    },
+    "read_trace_assertion": {
+      "actual_reads": [
+        "06_state/artifact-registry.yaml",
+        "04_outlines/episodes/ep012.execution-card.md",
+        "05_scripts/episodes/ep012.md",
+        "07_review/remake-risk-audit.md",
+        "07_review/postflight/ep012.postflight-report.yaml"
+      ],
+      "required_reads": [
+        "04_outlines/episodes/ep012.execution-card.md",
+        "05_scripts/episodes/ep012.md",
+        "07_review/postflight/ep012.postflight-report.yaml"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

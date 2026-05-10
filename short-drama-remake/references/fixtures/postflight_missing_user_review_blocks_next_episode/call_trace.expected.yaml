@@ -1,0 +1,18 @@
+{
+  "called_nodes": ["script_draft.postflight"],
+  "checker_call_log_contains": [
+    "postflight_status",
+    "postflight_pass_requires",
+    "postflight_downstream_unlock",
+    "postflight_registry_owned_fields",
+    "postflight_required_inputs"
+  ],
+  "consumed_report_ids": [
+    "PRF-012-001",
+    "SRR-012-001"
+  ],
+  "consumed_artifact_ids": [
+    "execution_card_ep012_current",
+    "episode_script_ep012_candidate_v1"
+  ]
+}
