@@ -1,0 +1,573 @@
+#!/usr/bin/env python3
+"""Read-only release gate for drama-workshop-skills.
+
+The gate inspects the canonical package and configured runtime roots. It never
+installs, syncs, deletes, or overwrites files.
+"""
+
+from __future__ import annotations
+
+import argparse
+import fnmatch
+import hashlib
+import json
+import os
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath
+from typing import Any
+
+
+CHECK_DESCRIPTIONS = {
+    "VERSION_DRIFT": "Runtime VERSION differs from the package VERSION.",
+    "WHATSNEW_MISMATCH": "WHATSNEW.md first version does not match VERSION.",
+    "DUPLICATE_AUTHORITY_DOCS": "Root docs duplicate references/ docs without an allowed wrapper declaration.",
+    "DUPLICATE_AUTHORITY_SCRIPTS": "Root scripts duplicate scripts/ files without an allowed wrapper declaration.",
+    "UPDATE_REPO_NAME_DRIFT": "Forbidden legacy repository name appears in update surfaces.",
+    "UPDATE_CHECK_SPLIT": "Root update-check and bin/update-check both exist or differ.",
+    "RUNTIME_POLICY_FALSE": "Runtime root is not hash-equivalent, declared symlink, or excluded by manifest.",
+    "BYTECODE_IN_PACKAGE": "Python bytecode or __pycache__ exists inside the package root.",
+    "SIBLING_MISSING": "Required sibling skill is missing beside the package or a runtime root.",
+}
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Read-only release gate")
+    parser.add_argument(
+        "--manifest",
+        default="release-manifest.json",
+        help="Path to release-manifest.json",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Required. Inspect only; no install/sync/delete/overwrite.",
+    )
+    parser.add_argument(
+        "--json-out",
+        help="Optional path to write the full JSON report with complete evidence.",
+    )
+    parser.add_argument(
+        "--check",
+        "--only",
+        dest="checks",
+        action="append",
+        help="Only report one or more check IDs. May be repeated or comma-separated.",
+    )
+    return parser.parse_args()
+
+
+def load_manifest(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def expand(path_text: str, repo_root: Path) -> Path:
+    path = Path(os.path.expanduser(path_text))
+    if not path.is_absolute():
+        path = repo_root / path
+    return path.resolve()
+
+
+def rel(path: Path, base: Path) -> str:
+    try:
+        return path.relative_to(base).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def read_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return path.read_text(encoding="utf-8", errors="replace")
+
+
+def read_version(root: Path, source: str) -> str | None:
+    path = root / source
+    if not path.exists():
+        return None
+    return read_text(path).strip().splitlines()[0].strip().lstrip("v")
+
+
+def first_whatsnew_version(root: Path, source: str) -> str | None:
+    path = root / source
+    if not path.exists():
+        return None
+    match = re.search(r"\*\*v?([0-9]+(?:\.[0-9]+)+)\*\*", read_text(path))
+    return match.group(1) if match else None
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def is_excluded(relpath: str, patterns: list[str]) -> bool:
+    posix = PurePosixPath(relpath).as_posix()
+    for pattern in patterns:
+        if fnmatch.fnmatch(posix, pattern) or fnmatch.fnmatch("/" + posix, pattern):
+            return True
+        if pattern.endswith("/**"):
+            prefix = pattern[:-3].rstrip("/")
+            if posix == prefix or posix.startswith(prefix + "/"):
+                return True
+            if posix.endswith("/" + prefix) or ("/" + prefix + "/") in posix:
+                return True
+    return False
+
+
+def list_files(root: Path, excluded: list[str]) -> dict[str, str]:
+    files: dict[str, str] = {}
+    if not root.exists():
+        return files
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        relpath = path.relative_to(root).as_posix()
+        if is_excluded(relpath, excluded):
+            continue
+        files[relpath] = sha256(path)
+    return files
+
+
+def package_bytecode(root: Path) -> list[str]:
+    hits: list[str] = []
+    for path in root.rglob("*"):
+        relpath = path.relative_to(root).as_posix()
+        if "__pycache__" in path.parts or path.suffix == ".pyc":
+            hits.append(relpath)
+    return sorted(hits)
+
+
+def root_doc_duplicates(root: Path, allowed: list[str]) -> list[dict[str, Any]]:
+    refs = root / "references"
+    if not refs.exists():
+        return []
+    ref_names = {path.name: path for path in refs.glob("*.md")}
+    duplicates = []
+    for root_doc in root.glob("*.md"):
+        if root_doc.name in ref_names and root_doc.name not in allowed:
+            ref_doc = ref_names[root_doc.name]
+            duplicates.append(
+                {
+                    "path": str(root_doc),
+                    "canonical_candidate": str(ref_doc),
+                    "same_hash": sha256(root_doc) == sha256(ref_doc),
+                }
+            )
+    return duplicates
+
+
+def root_script_duplicates(root: Path, allowed: list[str]) -> list[dict[str, Any]]:
+    scripts = root / "scripts"
+    if not scripts.exists():
+        return []
+    script_names = {path.name: path for path in scripts.iterdir() if path.is_file()}
+    duplicates = []
+    for root_script in root.iterdir() if root.exists() else []:
+        if not root_script.is_file() or root_script.name not in script_names:
+            continue
+        if root_script.name in allowed:
+            continue
+        if root_script.suffix in {".py", ".sh"} or os.access(root_script, os.X_OK):
+            script = script_names[root_script.name]
+            duplicates.append(
+                {
+                    "path": str(root_script),
+                    "canonical_candidate": str(script),
+                    "same_hash": sha256(root_script) == sha256(script),
+                }
+            )
+    return duplicates
+
+
+def update_check_split(root: Path, root_allowed: bool) -> dict[str, Any] | None:
+    root_check = root / "update-check"
+    bin_check = root / "bin" / "update-check"
+    if root_check.exists() and bin_check.exists():
+        same_hash = sha256(root_check) == sha256(bin_check)
+        if not root_allowed or not same_hash:
+            return {
+                "root_update_check": str(root_check),
+                "bin_update_check": str(bin_check),
+                "same_hash": same_hash,
+                "root_allowed": root_allowed,
+            }
+    if root_check.exists() and not root_allowed:
+        return {
+            "root_update_check": str(root_check),
+            "bin_update_check": str(bin_check),
+            "same_hash": None,
+            "root_allowed": root_allowed,
+        }
+    return None
+
+
+def scan_repo_name_drift(root: Path, scan_paths: list[str], manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    policy = manifest["repo_name_policy"]
+    forbidden = policy.get("forbidden", [])
+    hits: list[dict[str, Any]] = []
+    for scan_path in scan_paths:
+        path = root / scan_path
+        if not path.exists() or not path.is_file():
+            continue
+        text = read_text(path)
+        for name in forbidden:
+            for line_no, line in enumerate(text.splitlines(), start=1):
+                if name in line:
+                    hits.append({"path": str(path), "line": line_no, "forbidden": name})
+    return hits
+
+
+def compare_runtime(
+    package_root: Path,
+    runtime: dict[str, Any],
+    excluded: list[str],
+    package_files: dict[str, str],
+) -> dict[str, Any]:
+    raw_runtime_root = Path(os.path.expanduser(runtime["path"]))
+    if not raw_runtime_root.is_absolute():
+        raw_runtime_root = raw_runtime_root.resolve()
+    resolved_runtime_root = raw_runtime_root.resolve()
+    policy = runtime.get("policy")
+    status: dict[str, Any] = {
+        "name": runtime["name"],
+        "path": str(raw_runtime_root),
+        "resolved_path": str(resolved_runtime_root),
+        "policy": policy,
+        "exists": raw_runtime_root.exists(),
+        "symlink": raw_runtime_root.is_symlink(),
+    }
+    if policy in {"excluded", "intentionally_excluded", "intentionally excluded by manifest"} or runtime.get("excluded"):
+        status["state"] = "intentionally excluded by manifest"
+        return status
+
+    if policy in {"symlink", "declared_symlink", "declared symlink"}:
+        expected_target = runtime.get("target") or runtime.get("symlink_target")
+        status["symlink_target"] = str(resolved_runtime_root) if raw_runtime_root.is_symlink() else None
+        if expected_target:
+            status["expected_symlink_target"] = str(Path(os.path.expanduser(expected_target)).resolve())
+        target_ok = not expected_target or status["symlink_target"] == status.get("expected_symlink_target")
+        if raw_runtime_root.is_symlink() and target_ok:
+            status["state"] = "declared symlink"
+        else:
+            status["state"] = "symlink-policy-false"
+        return status
+
+    if not raw_runtime_root.exists():
+        status["state"] = "missing"
+        return status
+
+    runtime_files = list_files(resolved_runtime_root, excluded)
+    package_keys = set(package_files)
+    runtime_keys = set(runtime_files)
+    missing = sorted(package_keys - runtime_keys)
+    extra = sorted(runtime_keys - package_keys)
+    changed = sorted(
+        relpath
+        for relpath in package_keys & runtime_keys
+        if package_files[relpath] != runtime_files[relpath]
+    )
+
+    status.update(
+        {
+            "version": read_version(resolved_runtime_root, "VERSION"),
+            "files_checked": len(runtime_files),
+            "missing_count": len(missing),
+            "extra_count": len(extra),
+            "changed_count": len(changed),
+            "sample_missing": missing[:12],
+            "sample_extra": extra[:12],
+            "sample_changed": changed[:12],
+            "state": "hash-equivalent"
+            if not missing and not extra and not changed
+            else "not-hash-equivalent",
+        }
+    )
+    return status
+
+
+def finding(
+    check_id: str,
+    evidence: Any,
+    manifest: dict[str, Any],
+    severity: str = "blocking",
+) -> dict[str, Any]:
+    return {
+        "id": check_id,
+        "severity": severity,
+        "description": CHECK_DESCRIPTIONS[check_id],
+        "evidence": evidence,
+        "recommended_next_owner": manifest.get("owners", {}).get(check_id, "release maintainer"),
+    }
+
+
+def selected_check_ids(raw_checks: list[str] | None) -> set[str] | None:
+    if not raw_checks:
+        return None
+    selected: set[str] = set()
+    for raw in raw_checks:
+        for part in raw.split(","):
+            check_id = part.strip()
+            if check_id:
+                selected.add(check_id)
+    unknown = sorted(selected - set(CHECK_DESCRIPTIONS))
+    if unknown:
+        raise ValueError(f"Unknown check id(s): {', '.join(unknown)}")
+    return selected
+
+
+def evidence_items(check_id: str, evidence: Any) -> list[dict[str, Any]]:
+    if check_id == "BYTECODE_IN_PACKAGE" and isinstance(evidence, dict):
+        root = evidence.get("root")
+        return [{"root": root, "path": path} for path in evidence.get("paths", [])]
+
+    if check_id in {"DUPLICATE_AUTHORITY_DOCS", "DUPLICATE_AUTHORITY_SCRIPTS"}:
+        items: list[dict[str, Any]] = []
+        for group in evidence if isinstance(evidence, list) else []:
+            root = group.get("root")
+            for duplicate in group.get("duplicates", []):
+                items.append({"root": root, **duplicate})
+        return items
+
+    if isinstance(evidence, list):
+        return [item if isinstance(item, dict) else {"value": item} for item in evidence]
+    if isinstance(evidence, dict):
+        return [evidence]
+    return [{"value": evidence}]
+
+
+def compact_finding(item: dict[str, Any], sample_size: int = 10) -> dict[str, Any]:
+    items = evidence_items(item["id"], item.get("evidence"))
+    return {
+        "id": item["id"],
+        "severity": item["severity"],
+        "description": item["description"],
+        "evidence_summary": {
+            "count": len(items),
+            "sample_size": min(len(items), sample_size),
+            "truncated": max(0, len(items) - sample_size),
+            "sample": items[:sample_size],
+        },
+        "recommended_next_owner": item["recommended_next_owner"],
+    }
+
+
+def compact_report(report: dict[str, Any]) -> dict[str, Any]:
+    compact = dict(report)
+    compact["blocking_findings"] = [
+        compact_finding(item) for item in report["blocking_findings"]
+    ]
+    compact["nonblocking_findings"] = [
+        compact_finding(item) for item in report["nonblocking_findings"]
+    ]
+    compact["evidence_mode"] = {
+        "stdout": "summary",
+        "json_out": "full evidence when --json-out is provided",
+    }
+    return compact
+
+
+def main() -> int:
+    args = parse_args()
+    if not args.dry_run:
+        print("release-gate is read-only in Phase 3; pass --dry-run.", file=sys.stderr)
+        return 1
+    try:
+        only_checks = selected_check_ids(args.checks)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+    manifest_path = Path(args.manifest).resolve()
+    repo_root = manifest_path.parent
+    manifest = load_manifest(manifest_path)
+    package_root = expand(manifest["package_root"], repo_root)
+    excluded = manifest.get("excluded_paths", [])
+    version_source = manifest.get("version_source", "VERSION")
+    whatsnew_source = manifest.get("whatsnew_source", "WHATSNEW.md")
+
+    package_version = read_version(package_root, version_source)
+    package_files = list_files(package_root, excluded)
+
+    findings: list[dict[str, Any]] = []
+
+    bytecode_hits = package_bytecode(package_root)
+    if bytecode_hits:
+        findings.append(
+            finding(
+                "BYTECODE_IN_PACKAGE",
+                {"root": str(package_root), "paths": bytecode_hits},
+                manifest,
+            )
+        )
+
+    wrappers = manifest.get("allowed_wrappers", {})
+    roots_to_check = [{"name": "package", "path": str(package_root)}]
+    roots_to_check.extend(manifest.get("runtime_roots", []))
+
+    duplicate_doc_evidence = []
+    duplicate_script_evidence = []
+    update_split_evidence = []
+    whatsnew_mismatch_evidence = []
+    version_drift_evidence = []
+    runtime_statuses = []
+    runtime_policy_evidence = []
+    sibling_missing_evidence = []
+
+    for root_info in roots_to_check:
+        root = Path(os.path.expanduser(root_info["path"])).resolve()
+        if not root.exists():
+            continue
+        docs = root_doc_duplicates(root, wrappers.get("root_docs", []))
+        if docs:
+            duplicate_doc_evidence.append({"root": str(root), "duplicates": docs})
+        scripts = root_script_duplicates(root, wrappers.get("root_scripts", []))
+        if scripts:
+            duplicate_script_evidence.append({"root": str(root), "duplicates": scripts})
+        split = update_check_split(root, bool(wrappers.get("root_update_check", False)))
+        if split:
+            update_split_evidence.append({"root": str(root), **split})
+        root_version = read_version(root, version_source)
+        root_whatsnew_version = first_whatsnew_version(root, whatsnew_source)
+        if root_version != root_whatsnew_version:
+            whatsnew_mismatch_evidence.append(
+                {
+                    "root": str(root),
+                    "version": root_version,
+                    "whatsnew_first_version": root_whatsnew_version,
+                }
+            )
+        if root_info.get("name") != "package" and root_version != package_version:
+            version_drift_evidence.append(
+                {
+                    "runtime": root_info.get("name"),
+                    "path": str(root),
+                    "runtime_version": root_version,
+                    "package_version": package_version,
+                }
+            )
+
+    if duplicate_doc_evidence:
+        findings.append(finding("DUPLICATE_AUTHORITY_DOCS", duplicate_doc_evidence, manifest))
+    if duplicate_script_evidence:
+        findings.append(finding("DUPLICATE_AUTHORITY_SCRIPTS", duplicate_script_evidence, manifest))
+    if update_split_evidence:
+        findings.append(finding("UPDATE_CHECK_SPLIT", update_split_evidence, manifest))
+    if whatsnew_mismatch_evidence:
+        findings.append(finding("WHATSNEW_MISMATCH", whatsnew_mismatch_evidence, manifest))
+    if version_drift_evidence:
+        findings.append(finding("VERSION_DRIFT", version_drift_evidence, manifest))
+
+    repo_name_hits = scan_repo_name_drift(
+        repo_root,
+        manifest["repo_name_policy"].get("scan_paths", []),
+        manifest,
+    )
+    for runtime in manifest.get("runtime_roots", []):
+        runtime_root = Path(os.path.expanduser(runtime["path"])).resolve()
+        repo_name_hits.extend(
+            scan_repo_name_drift(
+                runtime_root,
+                manifest["repo_name_policy"].get("runtime_scan_paths", []),
+                manifest,
+            )
+        )
+    if repo_name_hits:
+        findings.append(finding("UPDATE_REPO_NAME_DRIFT", repo_name_hits, manifest))
+
+    for runtime in manifest.get("runtime_roots", []):
+        status = compare_runtime(package_root, runtime, excluded, package_files)
+        runtime_statuses.append(status)
+        allowed_states = set(manifest.get("runtime_policy", {}).get("allowed_states", ["hash-equivalent"]))
+        if status["state"] not in allowed_states:
+            runtime_policy_evidence.append(status)
+
+        if status["state"] == "intentionally excluded by manifest":
+            continue
+
+        runtime_root = Path(os.path.expanduser(runtime["path"])).resolve()
+        for sibling in manifest.get("sibling_skills", []):
+            if not sibling.get("runtime_required", False):
+                continue
+            sibling_root = runtime_root.parent / sibling["name"]
+            if not sibling_root.exists():
+                sibling_missing_evidence.append(
+                    {
+                        "runtime": runtime["name"],
+                        "expected": str(sibling_root),
+                        "required_for": sibling.get("required_for", []),
+                    }
+                )
+
+    for sibling in manifest.get("sibling_skills", []):
+        sibling_package = repo_root / sibling["name"]
+        if not sibling_package.exists():
+            sibling_missing_evidence.append(
+                {
+                    "runtime": "distribution",
+                    "expected": str(sibling_package),
+                    "required_for": sibling.get("required_for", []),
+                }
+            )
+
+    if runtime_policy_evidence:
+        findings.append(finding("RUNTIME_POLICY_FALSE", runtime_policy_evidence, manifest))
+    if sibling_missing_evidence:
+        findings.append(finding("SIBLING_MISSING", sibling_missing_evidence, manifest))
+    if only_checks is not None:
+        findings = [item for item in findings if item["id"] in only_checks]
+
+    blocking = [item for item in findings if item["severity"] == "blocking"]
+    status = "fail" if blocking else "pass"
+    report = {
+        "schema_version": "1.0",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "dry_run": True,
+        "status": status,
+        "package": {
+            "name": manifest["skill"],
+            "version": package_version,
+            "canonical_repo": str(repo_root),
+            "package_root": str(package_root),
+            "files_checked": len(package_files),
+        },
+        "runtime_roots": runtime_statuses,
+        "blocking_findings": blocking,
+        "nonblocking_findings": [item for item in findings if item["severity"] != "blocking"],
+        "summary": {
+            "blocking_count": len(blocking),
+            "checks_failed": sorted({item["id"] for item in blocking}),
+            "checks_selected": sorted(only_checks) if only_checks is not None else None,
+            "message": "release gate failed" if blocking else "release gate passed",
+        },
+    }
+
+    rendered = json.dumps(compact_report(report), ensure_ascii=False, indent=2)
+    print(rendered)
+    if args.json_out:
+        full_rendered = json.dumps(report, ensure_ascii=False, indent=2)
+        Path(args.json_out).write_text(full_rendered + "\n", encoding="utf-8")
+
+    print("", file=sys.stderr)
+    print("Release gate dry-run summary", file=sys.stderr)
+    print(f"- status: {status}", file=sys.stderr)
+    print(f"- package: {manifest['skill']} v{package_version}", file=sys.stderr)
+    print(f"- canonical: {repo_root}", file=sys.stderr)
+    if only_checks is not None:
+        print(f"- selected checks: {', '.join(sorted(only_checks))}", file=sys.stderr)
+    print(f"- blocking findings: {len(blocking)}", file=sys.stderr)
+    for item in blocking:
+        count = compact_finding(item)["evidence_summary"]["count"]
+        print(f"  - {item['id']} ({count} evidence): {item['recommended_next_owner']}", file=sys.stderr)
+
+    return 2 if blocking else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

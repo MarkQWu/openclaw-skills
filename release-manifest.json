@@ -1,0 +1,201 @@
+{
+  "schema_version": "1.0",
+  "skill": "short-drama",
+  "canonical_repo": {
+    "path": "/Users/gobuildit/碳基生命数据库/.tools/drama-workshop-skills",
+    "remote": "https://github.com/MarkQWu/drama-workshop-skills.git",
+    "branch": "main",
+    "repo_name": "drama-workshop-skills"
+  },
+  "distribution_repo": {
+    "path": "/Users/gobuildit/碳基生命数据库/.tools/drama-workshop-skills",
+    "package_roots": [
+      "short-drama",
+      "short-drama-remake"
+    ],
+    "installers": [
+      "install.sh",
+      "install.ps1"
+    ]
+  },
+  "package_root": "short-drama",
+  "version_source": "VERSION",
+  "whatsnew_source": "WHATSNEW.md",
+  "help_source": "references/output-templates.md#帮助",
+  "update_mechanism_source": "references/update-mechanism.md",
+  "authority_sources": {
+    "skill_entrypoint": "SKILL.md",
+    "version": "VERSION",
+    "whatsnew": "WHATSNEW.md",
+    "references": "references/**",
+    "scripts": "scripts/**",
+    "update_checker": "bin/update-check",
+    "assets": "assets/**"
+  },
+  "runtime_policy": {
+    "default": "generated_copy",
+    "allowed_states": [
+      "hash-equivalent",
+      "declared symlink",
+      "intentionally excluded by manifest"
+    ],
+    "delete_on_destination_allowed": false,
+    "install_or_sync_allowed_in_gate": false
+  },
+  "runtime_roots": [
+    {
+      "name": "claude",
+      "path": "~/.claude/skills/short-drama",
+      "policy": "generated_copy",
+      "required": true
+    },
+    {
+      "name": "codex",
+      "path": "~/.codex/skills/short-drama",
+      "policy": "generated_copy",
+      "required": true
+    },
+    {
+      "name": "workbuddy",
+      "path": "~/.workbuddy/skills/short-drama",
+      "policy": "generated_copy",
+      "required": true
+    },
+    {
+      "name": "openclaw",
+      "path": "~/.openclaw/skills/short-drama",
+      "policy": "generated_copy",
+      "required": true
+    }
+  ],
+  "sibling_skills": [
+    {
+      "name": "short-drama-remake",
+      "required_for": [
+        "/仿写 compatibility route",
+        "repository-level /更新"
+      ],
+      "runtime_required": true
+    }
+  ],
+  "allowed_wrappers": {
+    "root_docs": [],
+    "root_scripts": [],
+    "root_update_check": false
+  },
+  "excluded_paths": [
+    ".git/**",
+    ".github/**",
+    ".maintainer/**",
+    ".trash/**",
+    ".skill-trash/**",
+    ".last-version-shown",
+    "**/.last-version-shown",
+    "**/__pycache__/**",
+    "**/*.pyc"
+  ],
+  "repo_name_policy": {
+    "allowed": "drama-workshop-skills",
+    "forbidden": [
+      "openclaw-skills"
+    ],
+    "scan_paths": [
+      "README.md",
+      "install.sh",
+      "install.ps1",
+      "short-drama/SKILL.md",
+      "short-drama/WHATSNEW.md",
+      "short-drama/bin/update-check",
+      "short-drama/references/update-mechanism.md",
+      "short-drama/references/output-templates.md",
+      "short-drama/scripts/release.sh",
+      "short-drama/scripts/sync-all-locations.sh"
+    ],
+    "runtime_scan_paths": [
+      "SKILL.md",
+      "WHATSNEW.md",
+      "bin/update-check",
+      "references/update-mechanism.md",
+      "references/output-templates.md",
+      "scripts/release.sh",
+      "scripts/sync-all-locations.sh"
+    ]
+  },
+  "checks": {
+    "blocking": [
+      "VERSION_DRIFT",
+      "WHATSNEW_MISMATCH",
+      "DUPLICATE_AUTHORITY_DOCS",
+      "DUPLICATE_AUTHORITY_SCRIPTS",
+      "UPDATE_REPO_NAME_DRIFT",
+      "UPDATE_CHECK_SPLIT",
+      "RUNTIME_POLICY_FALSE",
+      "BYTECODE_IN_PACKAGE",
+      "SIBLING_MISSING"
+    ]
+  },
+  "dry_run_contract": {
+    "command": "./release-gate --dry-run",
+    "stdout": "compact JSON report with evidence summaries",
+    "stderr": "short human-readable summary",
+    "exit_codes": {
+      "0": "pass",
+      "1": "usage or manifest error",
+      "2": "blocking findings present"
+    },
+    "writes_allowed": false
+  },
+  "smoke_tests": [
+    {
+      "name": "frontmatter_parse",
+      "authority": "short-drama/SKILL.md"
+    },
+    {
+      "name": "version_whatsnew_match",
+      "authority": "short-drama/VERSION + short-drama/WHATSNEW.md"
+    },
+    {
+      "name": "help_source_match",
+      "authority": "short-drama/references/output-templates.md#帮助"
+    },
+    {
+      "name": "update_policy_repo_name",
+      "authority": "short-drama/references/update-mechanism.md + short-drama/bin/update-check"
+    },
+    {
+      "name": "duplicate_authority_check",
+      "authority": "allowed_wrappers"
+    },
+    {
+      "name": "runtime_hash_check",
+      "authority": "runtime_policy"
+    },
+    {
+      "name": "sibling_presence_check",
+      "authority": "sibling_skills"
+    },
+    {
+      "name": "bytecode_exclusion_check",
+      "authority": "excluded_paths"
+    }
+  ],
+  "release_checklist": [
+    "Confirm canonical repo visibility before public-distribution writes.",
+    "Update package root only; runtime roots are validation targets until an explicit install/sync phase.",
+    "Update VERSION and WHATSNEW.md together.",
+    "Run ./release-gate --dry-run and inspect JSON blocking_findings.",
+    "Do not sync, delete, overwrite, or install from release-gate.",
+    "Only proceed to install/sync after blockers are intentionally fixed in a later phase."
+  ],
+  "owners": {
+    "VERSION_DRIFT": "release maintainer",
+    "WHATSNEW_MISMATCH": "release maintainer",
+    "DUPLICATE_AUTHORITY_DOCS": "skill maintainer",
+    "DUPLICATE_AUTHORITY_SCRIPTS": "release maintainer",
+    "UPDATE_REPO_NAME_DRIFT": "release maintainer",
+    "UPDATE_CHECK_SPLIT": "release maintainer",
+    "RUNTIME_POLICY_FALSE": "installer maintainer",
+    "BYTECODE_IN_PACKAGE": "release maintainer",
+    "SIBLING_MISSING": "installer maintainer"
+  }
+}
