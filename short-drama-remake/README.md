@@ -5,16 +5,51 @@
 ## Entry
 
 - Main entry: call this skill directly for `/仿写` or remake requests.
+- Command help: `/仿写 帮助`
 - Do not route remake work through `short-drama`.
 - In managed projects, script drafting is guarded by `script_draft.preflight`; downstream script generation must not rely on memory or ad hoc file search.
 
 ## Quick Start
 
-1. Send `/仿写` with a script file path, attached file, pasted script, or screen-recorded prompt workflow description.
+1. Send `/仿写 开始` with a script file path, attached file, pasted script, or screen-recorded prompt workflow description.
 2. The skill first judges source scope and extracts a reusable story-function skeleton. It does not rewrite immediately.
 3. Continue through the guided chain: skeleton table -> 10 skin-swap concepts -> selected concept plan -> episode outlines -> shooting-ready script.
 
 After every substantial output, the skill should show what was completed, what files or artifacts now matter, why the next stage follows, and 2-4 copy-paste next commands.
+
+## Command Layer
+
+The `/仿写` command layer is a lightweight entry map, not a second workflow engine.
+
+| Command | Use |
+|---|---|
+| `/仿写 开始 [参考]` | Start ingest from a reference script, file path, pasted text, or prompt workflow. |
+| `/仿写 状态 [项目目录]` | Read-only progress summary for a managed remake project. |
+| `/仿写 继续 [项目目录]` | Restore context and recommend the next valid command without generating downstream artifacts. |
+| `/仿写 帮助` | Show remake command help and recovery examples. |
+| `/仿写 骨架` | Extract the reusable reference skeleton. |
+| `/仿写 换皮` | Generate skin-swap concepts from the skeleton. |
+| `/仿写 定案` | Deepen a selected concept into the project plan. |
+| `/仿写 集纲` | Generate detailed episode outlines. |
+| `/仿写 写集 N` | Draft episode N through `script_draft.preflight`; blocked preflight creates no script body. |
+| `/仿写 审稿 N` | Review episode N; next-episode unlock still requires canonical postflight. |
+
+Optional advisory entries:
+
+| Command | Use |
+|---|---|
+| `/仿写 方向会` | Evaluate remake directions when the user is unsure. |
+| `/仿写 方案会` | Pressure-test a selected plan for cost, clarity, hooks, and similarity risk. |
+| `/仿写 诊断会 N` | Diagnose episode N without unlocking gates or continuation. |
+
+New chat recovery:
+
+```text
+/仿写 状态 PROJECT_DIR
+/仿写 继续 PROJECT_DIR
+```
+
+`/仿写 状态` is read-only. `/仿写 继续` recommends the next action; it is not a hidden "write next episode" command.
 
 ## Managed Project Gate
 

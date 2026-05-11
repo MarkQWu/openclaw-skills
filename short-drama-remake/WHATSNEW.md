@@ -1,3 +1,13 @@
+**v0.4.0**（2026-05-11）
+
+Command Layer：新增轻量 `/仿写` 子命令层，不改 gate/schema/checker。
+
+- 新增 `references/command-layer.md`，统一 `/仿写 开始 / 状态 / 继续 / 帮助 / 骨架 / 换皮 / 定案 / 集纲 / 写集 N / 审稿 N` 的入口映射。
+- 新增可选增强入口：`/仿写 方向会`、`/仿写 方案会`、`/仿写 诊断会 N`。这些只做 advisory，不解锁 gate，不生成正文，不写 registry current pointer。
+- 明确 `/仿写 状态 PROJECT_DIR` 是只读恢复入口，`/仿写 继续 PROJECT_DIR` 只推荐下一步，不越权写正文。
+- 明确 `/仿写 写集 N` 仍必须经过 `script_draft.preflight`，下一集继续仍以 `script_draft.postflight` 为唯一解锁信号。
+- 每一步输出必须交代已生成文件、文件作用、推荐下一步和可选增强项。
+
 **v0.3.1**（2026-05-11）
 
 UX Patch：补齐 `/仿写` 普通用户引导，不改 gate/schema/checker。

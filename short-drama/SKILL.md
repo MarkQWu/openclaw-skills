@@ -230,8 +230,9 @@ description: "爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 4. **不得扫描 `~/short-drama-projects/`，不得列旧项目，除非用户明确要求继续某个旧项目。** `/仿写` 的默认对象是本次用户提供的参考剧本、文件路径、剧情描述或后续粘贴内容。
 5. 定位当前 skill 目录的父目录：`skills_root = dirname({skill目录})`。若 `skills_root/short-drama-remake/SKILL.md` 存在：
    - Read `skills_root/short-drama-remake/SKILL.md`。
+   - 若用户输入 `/仿写 帮助`、`/仿写 状态`、`/仿写 继续` 或任何 `/仿写` 子命令，按 sibling `short-drama-remake` 的 command-layer 规则处理；本 skill 只做兼容跳转。
    - 按其中的 Short Drama Remake workflow 执行用户当前 `/仿写` 请求。
-   - 若用户没有提供参考剧本/文件/剧情描述，直接询问：“请上传或粘贴参考剧本，或提供参考剧本文件路径。我会先拆骨架，再给换皮复刻方向。”
+   - 若用户没有提供参考剧本/文件/剧情描述，也没有输入帮助/状态/继续类子命令，直接询问：“请上传或粘贴参考剧本，或提供参考剧本文件路径。我会先拆骨架，再给换皮复刻方向。换新对话后可用 `/仿写 状态 PROJECT_DIR` 或 `/仿写 继续 PROJECT_DIR` 恢复。”
    - 输出中可说明：“已切换到新版短剧拆解复刻能力。”
 6. 若 `short-drama-remake` 不存在，输出以下安装提示：
 

@@ -1,6 +1,6 @@
 # 爆款剧本工坊 | Drama Workshop
 
-**当前版本：v1.31.7**（2026-05-11）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/drama-workshop-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
+**当前版本：v1.31.8**（2026-05-11）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/drama-workshop-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
 
 用 AI 写能拍的微短剧，也能拆解参考短剧做换皮复刻——从选题到分镜，一条命令链走完。
 
@@ -165,6 +165,11 @@ AI：把第一集拆成逐镜分镜表，每个镜头附带即梦 AI prompt ↓
 | 命令 | 做什么 |
 |------|--------|
 | `/仿写 <参考>` | 兼容入口：自动切换到新版 short-drama-remake 拆解复刻能力 |
+| `/仿写 帮助` | 查看复刻流程、子命令和换新对话恢复方法 |
+| `/仿写 状态 PROJECT_DIR` | 只读查看复刻项目进度、已生成文件和下一步 |
+| `/仿写 继续 PROJECT_DIR` | 恢复复刻项目并推荐下一步，不自动写正文 |
+| `/仿写 写集 N` | 写第 N 集，仍必须通过 remake preflight/postflight |
+| `/仿写 方向会` / `/仿写 方案会` / `/仿写 诊断会 N` | 可选评审入口，不解锁 gate |
 | `$short-drama-remake` | 显式调用参考剧本拆解复刻能力，适合长剧本 ingest、换皮方向、集纲和正式剧本 |
 
 ### 分镜 & 视频
@@ -214,7 +219,7 @@ A：先确认已安装 [Git](https://git-scm.com/downloads)。Windows 可让 AI 
 A：新版 `/仿写` 会自动切换到同级 `short-drama-remake`。如果仍提示旧流程或扫描旧项目，说明当前会话或 WorkBuddy 工作空间还挂着旧 skill，或 `~/.workbuddy/skills/.trash` 里有旧版 `short-drama/SKILL.md` 被递归扫描。请重跑安装命令，安装器会把 `.trash` 移出 skills 扫描范围；然后从 WorkBuddy 工作空间移除/关闭当前项目，再重新打开。
 
 **Q：新版拆解复刻项目会写进原创短剧项目目录吗？**
-A：不会自动混写。原创主流程仍使用 `~/short-drama-projects/<项目>/.drama-state.json`、`episodes/`、`characters.md`、`creative-plan.md`；新版拆解复刻会生成独立的 `manifest.yaml`、`00_source/`、`01_skeleton/`、`02_concepts/`、`03_plan/`、`04_outlines/`、`05_scripts/`、`06_state/`。需要接到原创主流程时，人工复制或导入已确认的设定。
+A：不会自动混写。原创主流程仍使用 `~/short-drama-projects/<项目>/.drama-state.json`、`episodes/`、`characters.md`、`creative-plan.md`；新版拆解复刻会生成独立的 `manifest.yaml`、`00_source/`、`01_skeleton/`、`02_concepts/`、`03_plan/`、`04_outlines/`、`05_scripts/`、`06_state/`。需要接到原创主流程时，人工复制或导入已确认的设定。换新对话后用 `/仿写 状态 PROJECT_DIR` 或 `/仿写 继续 PROJECT_DIR` 恢复，不用原创 `/开始`。
 
 **Q：装完后输入 `/开始` 没反应**
 A：关闭旧会话，重新打开新会话。WorkBuddy 如果仍不生效，需要从工作空间移除/关闭当前项目再重新打开。Skill 只在工作空间重新加载后生效。
