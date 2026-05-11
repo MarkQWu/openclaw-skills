@@ -34,6 +34,7 @@
 |---|---|
 | `anchor-library.md` | Genre anchor examples and emotional reference pool |
 | `anchor-trigger.md` | Anchor activation logic for planning and episodes |
+| `creative-intent-ledger.md` | `control=creative_guidance`; original premise, core relationship, satisfaction engine, ending preference, and non-negotiables |
 | `genre-guide.md` | Genre taxonomy, audience fit, and configuration choices |
 | `hook-design.md` | Episode-ending hook types and placement strategy |
 | `opening-rules.md` | Opening structure and first-episode entry patterns |
@@ -100,6 +101,51 @@ These references now carry explicit metadata fields:
 | `ai-live-rules.md` | `hard_gate` | `medium=ai_live` or missing medium |
 | `comic-rules.md` | `hard_gate` | `medium=comic` |
 | `overseas/hard-rules.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, and `/自检` |
+
+## Control Boundary
+
+### Hard Gates
+
+Hard gates block continuation, export, delivery, or publishability advice when evidence is objective. They must include evidence, next owner, and the smallest repair action.
+
+| Control | References | Blocks when |
+|---|---|---|
+| Format and output contract | `format-control.md` | Output violates command format, dialogue rules, export structure, or medium contract |
+| Project state and write safety | `project-management.md` | Command would read/write the wrong project, overwrite state, or corrupt project progress |
+| Compliance and platform risk | `compliance-checklist.md` | Content crosses legal, platform, or publishability red lines |
+| Research and factual traceability | `research-guide.md`, `research-fallback.md` | Thick or medium-weight topics rely on fabricated, untraceable, or contradicted facts |
+| Medium and market hard rules | `ai-live-rules.md`, `comic-rules.md`, `overseas/hard-rules.md` | Script is unfilmable, medium-mismatched, or violates declared market constraints |
+| Release/update behavior | `update-mechanism.md` | `/更新` or startup update checks point to the wrong repo or split authority |
+
+### Soft Rubrics
+
+Soft rubrics diagnose quality and prioritize revision. They do not block by themselves unless they cross a hard-gate boundary.
+
+| Control | References | Use for |
+|---|---|---|
+| Commercial vitality score | `quality-rubric.md` | Rhythm, satisfaction, dialogue, mainline continuity, AI Slop, research score |
+| Craft polish | `dramatic-truth.md`, `quality-rules.md`, `realism-checklist.md`, `vertical-drama-craft.md` | Dialogue truth, grounded behavior, line density, scene polish |
+| Structural strength | `hook-design.md`, `opening-rules.md`, `paywall-design.md`, `rhythm-curve.md`, `satisfaction-matrix.md`, `villain-design.md` | Hook strength, paid pressure, escalation, payoff mapping |
+
+### Creative Guidance
+
+Creative guidance preserves intent and improves taste. It should steer choices, not masquerade as objective failure.
+
+| Control | References | Use for |
+|---|---|---|
+| Original intent | `creative-intent-ledger.md` | Preserve original premise, core relationship, satisfaction engine, ending preference, and non-negotiables |
+| Genre and anchor imagination | `genre-guide.md`, `anchor-library.md`, `anchor-trigger.md`, `plot-types.md`, `short-dynasties.md` | Select genre fit, emotional anchors, story archetypes, and world shorthand |
+| Character and voice references | `roundtable-figures.md` | Improve voice and perspective without creating hard constraints |
+
+### Template Contracts
+
+Template contracts are strict about output shape and loose about creative method.
+
+| Control | References | Use for |
+|---|---|---|
+| User-facing command templates | `output-templates.md` | Keep `/帮助`, command output, and generated project documents consistent |
+| Project artifact templates | `brainstorm.md`, `setting-bible-template.md` | Preserve expected sections while allowing content variation |
+| Extraction contracts | `script-element-extraction.md`, `storyboard-guide.md`, `storyboard-rules.md` | Keep downstream script parsing and storyboard handoff stable |
 
 ## Next Metadata Pass
 

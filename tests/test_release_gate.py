@@ -15,9 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 GATE = REPO_ROOT / "release-gate"
 MANIFEST = REPO_ROOT / "release-manifest.json"
 
-EXPECTED_CURRENT_BLOCKERS = {
-    "DUPLICATE_AUTHORITY_DOCS",
-    "DUPLICATE_AUTHORITY_SCRIPTS",
+EXPECTED_RUNTIME_FIXTURE_BLOCKERS = {
     "VERSION_DRIFT",
     "RUNTIME_POLICY_FALSE",
 }
@@ -53,27 +51,71 @@ class ReleaseGateTests(unittest.TestCase):
     def check_ids(self, report: dict) -> set[str]:
         return set(report["summary"]["checks_failed"])
 
-    def test_real_manifest_full_dry_run_fails_current_four_blockers(self) -> None:
-        result, report = run_gate_json("--dry-run")
+    def write_runtime_drift_fixture_manifest(self, tmp_path: Path) -> Path:
+        runtime_parent = tmp_path / "runtime"
+        runtime_root = runtime_parent / "short-drama"
+        runtime_root.mkdir(parents=True)
+        (runtime_root / "VERSION").write_text("0.0.1\n", encoding="utf-8")
+        (runtime_root / "WHATSNEW.md").write_text("**v0.0.1**\n", encoding="utf-8")
+        (runtime_parent / "short-drama-remake").mkdir()
+        (tmp_path / "short-drama-remake").mkdir()
+
+        manifest = self.load_real_manifest()
+        manifest["package_root"] = str(REPO_ROOT / "short-drama")
+        manifest["runtime_roots"] = [
+            {
+                "name": "fixture-runtime",
+                "path": str(runtime_root),
+                "policy": "generated_copy",
+                "required": True,
+            }
+        ]
+        return write_manifest(tmp_path / "release-manifest.json", manifest)
+
+    def test_fixture_full_dry_run_fails_expected_runtime_blockers(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-runtime-") as tmp:
+            manifest_path = self.write_runtime_drift_fixture_manifest(Path(tmp))
+            result, report = run_gate_json("--dry-run", "--manifest", str(manifest_path))
 
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(report["status"], "fail")
-        self.assertEqual(self.check_ids(report), EXPECTED_CURRENT_BLOCKERS)
+        self.assertEqual(self.check_ids(report), EXPECTED_RUNTIME_FIXTURE_BLOCKERS)
 
     def test_check_version_drift_returns_only_version_drift(self) -> None:
-        result, report = run_gate_json("--dry-run", "--check", "VERSION_DRIFT")
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-runtime-") as tmp:
+            manifest_path = self.write_runtime_drift_fixture_manifest(Path(tmp))
+            result, report = run_gate_json(
+                "--dry-run",
+                "--manifest",
+                str(manifest_path),
+                "--check",
+                "VERSION_DRIFT",
+            )
 
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(self.check_ids(report), {"VERSION_DRIFT"})
 
     def test_check_runtime_policy_false_returns_only_runtime_policy_false(self) -> None:
-        result, report = run_gate_json("--dry-run", "--check", "RUNTIME_POLICY_FALSE")
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-runtime-") as tmp:
+            manifest_path = self.write_runtime_drift_fixture_manifest(Path(tmp))
+            result, report = run_gate_json(
+                "--dry-run",
+                "--manifest",
+                str(manifest_path),
+                "--check",
+                "RUNTIME_POLICY_FALSE",
+            )
 
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(self.check_ids(report), {"RUNTIME_POLICY_FALSE"})
 
-    def test_update_checks_only_scan_current_package_surfaces(self) -> None:
-        for check_id in ("UPDATE_CHECK_SPLIT", "UPDATE_REPO_NAME_DRIFT"):
+    def test_package_surface_scope_checks_pass_current_package(self) -> None:
+        for check_id in (
+            "DUPLICATE_AUTHORITY_DOCS",
+            "DUPLICATE_AUTHORITY_SCRIPTS",
+            "UPDATE_CHECK_SPLIT",
+            "UPDATE_REPO_NAME_DRIFT",
+        ):
             with self.subTest(check_id=check_id):
                 result, report = run_gate_json("--dry-run", "--check", check_id)
 

@@ -1,3 +1,19 @@
+**v1.31.13**（2026-05-11）
+
+补齐 v1.31.12 的独立审查修复：`/分集` 与 `/自检` 显式加载 `creative-intent-ledger.md`，让原始冲动记录的 read contract 与命令加载清单一致；release-gate 单测改用临时 runtime fixture，不再依赖本机 HOME 下的 runtime 副本状态。不迁移 runtime。
+
+输入 `/帮助` 查看全部命令
+
+---
+
+**v1.31.12**（2026-05-11）
+
+新增 `references/creative-intent-ledger.md`，并在 `brainstorm.md` 模板中加入「原始冲动记录」字段：原始前提、核心关系、爽感引擎、结局偏好、不可牺牲点。同时在 `reference-layers.md` 明确 hard gates、soft rubrics、creative guidance、template contracts 的职责边界，避免把创作偏好误当阻断门槛。不迁移 runtime。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.11**（2026-05-11）
 
 重构 `references/quality-rubric.md` 顶部总纲，明确 `/自检` 先判定 hard gates，再做商业生命力评分，最后执行 anti-greenlight 机制。触发阻断门槛时总分只保留诊断意义，不能洗白阻断结论；craft 层规则默认仍是软评分，只有 OOC、违规、不可拍、媒介不匹配或事实矛盾时升级阻断。不迁移 runtime。

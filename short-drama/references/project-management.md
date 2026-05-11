@@ -31,7 +31,7 @@ read_when: /开始, /新建, /分集, /自检, and any command that reads or wri
 
 ```
 {项目目录}/
-├── brainstorm.md            # 构思记录（选中+淘汰方向 + 配置决策历史，/开始 写入）
+├── brainstorm.md            # 构思记录（选中+淘汰方向 + 原始冲动记录 + 配置决策历史，/开始 写入）
 ├── README.md                # 项目自述（/项目状态 生成/更新）
 ├── creative-plan.md          # 创作方案
 ├── characters.md             # 角色档案
