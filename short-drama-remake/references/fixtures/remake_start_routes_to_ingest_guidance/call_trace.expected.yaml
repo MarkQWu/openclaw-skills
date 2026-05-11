@@ -1,0 +1,5 @@
+{
+  "called_nodes": ["command.start"],
+  "checker_call_log_contains": ["command_layer_route"],
+  "forbidden_full_node_calls_not_present": ["short-drama.start", "script_draft.preflight", "script_draft.generate"]
+}

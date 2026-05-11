@@ -1,0 +1,5 @@
+{
+  "called_nodes": ["command.status"],
+  "checker_call_log_contains": ["command_layer_route", "status_readonly"],
+  "forbidden_full_node_calls_not_present": ["source.validate", "reference_map.validate", "fact_gate.validate", "script_draft.preflight", "script_draft.postflight"]
+}

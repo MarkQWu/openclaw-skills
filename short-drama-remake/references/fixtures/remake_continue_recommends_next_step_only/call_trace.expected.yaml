@@ -1,0 +1,5 @@
+{
+  "called_nodes": ["command.continue"],
+  "checker_call_log_contains": ["command_layer_route", "continue_recommend_only"],
+  "forbidden_full_node_calls_not_present": ["script_draft.preflight", "script_draft.generate", "script_draft.postflight"]
+}

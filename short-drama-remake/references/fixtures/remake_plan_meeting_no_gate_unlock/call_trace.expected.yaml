@@ -1,0 +1,5 @@
+{
+  "called_nodes": ["advisory.plan_review"],
+  "checker_call_log_contains": ["advisory_no_unlock"],
+  "forbidden_full_node_calls_not_present": ["script_draft.preflight", "script_draft.generate", "script_draft.postflight"]
+}

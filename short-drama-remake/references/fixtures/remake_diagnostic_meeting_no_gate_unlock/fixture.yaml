@@ -1,0 +1,59 @@
+{
+  "fixture_id": "remake_diagnostic_meeting_no_gate_unlock",
+  "title": "/仿写 诊断会 N is advisory and does not unlock continuation",
+  "problem_refs": [
+    "command_layer",
+    "advisory_boundary"
+  ],
+  "category": "command_route_advisory",
+  "initial_project_state": {
+    "files_present": [
+      "04_outlines/episodes/ep012.execution-card.md",
+      "05_scripts/candidates/ep012.candidate.md",
+      "06_state/project-state.md"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "/仿写 诊断会 12",
+    "target_episode_no": 12
+  },
+  "expected_route": {
+    "normalized_intent": "advisory_episode_diagnosis",
+    "node_id": "advisory.episode_diagnosis",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "passed",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep012.md",
+      "06_state/artifact-registry.yaml"
+    ],
+    "downstream_unlocked": false
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "advisory.episode_diagnosis"
+    ],
+    "checker_call_log": [
+      "advisory_no_unlock"
+    ],
+    "consumed_report_ids": []
+  },
+  "assertions": {
+    "read_trace_assertion": {
+      "actual_reads": [
+        "04_outlines/episodes/ep012.execution-card.md",
+        "05_scripts/candidates/ep012.candidate.md",
+        "06_state/project-state.md"
+      ],
+      "forbidden_reads_not_present": [
+        "short-drama/references/roundtable-figures.md",
+        "05_scripts/episodes/ep012.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

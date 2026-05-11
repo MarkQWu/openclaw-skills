@@ -1,0 +1,67 @@
+{
+  "fixture_id": "remake_start_routes_to_ingest_guidance",
+  "title": "/仿写 开始 without material stays in remake ingest guidance",
+  "problem_refs": [
+    "command_layer",
+    "entry_pollution"
+  ],
+  "category": "command_route",
+  "initial_project_state": {
+    "files_present": [],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "/仿写 开始"
+  },
+  "expected_route": {
+    "normalized_intent": "ingest_reference_source",
+    "node_id": "command.start",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "manifest.yaml",
+      "00_source/source-index.json",
+      "05_scripts/episodes/ep001.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "project",
+      "blocker_code": "REFERENCE_SOURCE_MISSING",
+      "affected_scope": [
+        "remake_ingest"
+      ],
+      "user_visible_reason": "缺少参考剧本、文件路径或可读材料，不能创建复刻项目。",
+      "recommended_next_node": "source.ingest",
+      "available_actions": [
+        "上传参考剧本",
+        "粘贴参考剧本文本",
+        "提供参考剧本文件路径"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "command.start"
+    ],
+    "checker_call_log": [
+      "command_layer_route"
+    ],
+    "consumed_report_ids": []
+  },
+  "assertions": {
+    "required_blockers": [
+      "REFERENCE_SOURCE_MISSING"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [],
+      "forbidden_reads_not_present": [
+        "short-drama/SKILL.md",
+        "short-drama/references/opening-rules.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "fixture_id": "remake_write_episode_alias_uses_preflight",
+  "title": "/仿写 写集 N aliases to script_draft.preflight",
+  "problem_refs": [
+    "command_layer",
+    "P10"
+  ],
+  "category": "command_route_script_preflight",
+  "initial_project_state": {
+    "files_present": [
+      "manifest.yaml",
+      "03_plan/project-bible.md",
+      "06_state/project-state.md"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "/仿写 写集 12",
+    "target_episode_no": 12
+  },
+  "expected_route": {
+    "normalized_intent": "draft_episode_script",
+    "node_id": "script_draft.preflight",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "blocked",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "05_scripts/episodes/ep012.md"
+    ],
+    "blocking_summary": {
+      "blocking_level": "episode",
+      "blocker_code": "EXECUTION_CARD_MISSING",
+      "affected_scope": [
+        "episode_012_script"
+      ],
+      "user_visible_reason": "缺少第 12 集写作执行卡，不能直接生成正文。",
+      "recommended_next_node": "execution_card.prepare",
+      "available_actions": [
+        "补齐本集写作执行卡",
+        "返回分集大纲节点",
+        "暂缓正文生成"
+      ]
+    }
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "script_draft.preflight"
+    ],
+    "checker_call_log": [
+      "command_alias_to_preflight"
+    ],
+    "consumed_report_ids": [],
+    "forbidden_full_node_calls": [
+      "resume.restore",
+      "source.validate",
+      "reference_map.validate",
+      "fact_gate.validate"
+    ]
+  },
+  "assertions": {
+    "required_blockers": [
+      "EXECUTION_CARD_MISSING"
+    ],
+    "read_trace_assertion": {
+      "actual_reads": [
+        "manifest.yaml",
+        "03_plan/project-bible.md",
+        "06_state/project-state.md"
+      ],
+      "forbidden_reads_not_present": [
+        "short-drama/SKILL.md",
+        "short-drama/references/opening-rules.md",
+        "05_scripts/episodes/ep012.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}

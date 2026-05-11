@@ -1,0 +1,64 @@
+{
+  "fixture_id": "remake_continue_recommends_next_step_only",
+  "title": "/仿写 继续 recommends next action but does not generate",
+  "problem_refs": [
+    "command_layer",
+    "continue_boundary"
+  ],
+  "category": "command_route",
+  "initial_project_state": {
+    "files_present": [
+      "manifest.yaml",
+      "01_skeleton/reference-skeleton.md",
+      "06_state/project-state.md"
+    ],
+    "dirty_flags": []
+  },
+  "user_input": {
+    "text": "/仿写 继续 /tmp/remake-project"
+  },
+  "expected_route": {
+    "normalized_intent": "recommend_next_remake_action",
+    "node_id": "command.continue",
+    "bounded_context": "short-drama-remake"
+  },
+  "expected_result": {
+    "status": "passed",
+    "body_generated": false,
+    "created_artifacts": [],
+    "forbidden_created_artifacts": [
+      "02_concepts/concepts-10.md",
+      "04_outlines/episodes/ep001.execution-card.md",
+      "05_scripts/episodes/ep001.md"
+    ],
+    "recommended_next_node": "concept.generate",
+    "downstream_unlocked": false
+  },
+  "node_invocation_trace": {
+    "called_nodes": [
+      "command.continue"
+    ],
+    "checker_call_log": [
+      "command_layer_route",
+      "continue_recommend_only"
+    ],
+    "consumed_report_ids": []
+  },
+  "assertions": {
+    "read_trace_assertion": {
+      "actual_reads": [
+        "manifest.yaml",
+        "01_skeleton/reference-skeleton.md",
+        "06_state/project-state.md"
+      ],
+      "required_reads": [
+        "manifest.yaml",
+        "06_state/project-state.md"
+      ],
+      "forbidden_reads_not_present": [
+        "05_scripts/episodes/ep001.md"
+      ],
+      "enforce_default_forbidden_script_reads": true
+    }
+  }
+}
