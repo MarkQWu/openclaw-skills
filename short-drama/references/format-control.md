@@ -1,3 +1,11 @@
+---
+layer: foundation
+control: hard_gate
+authority_id: short-drama.format-control
+canonical_path: references/format-control.md
+read_when: every command before output generation
+---
+
 # 格式控制（所有命令强制前置）
 
 ## 格式锚定步骤（每个命令执行前自动执行）

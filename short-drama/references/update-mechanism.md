@@ -1,3 +1,11 @@
+---
+layer: foundation
+control: hard_gate
+authority_id: short-drama.update-mechanism
+canonical_path: references/update-mechanism.md
+read_when: every skill activation update check and explicit /更新 command
+---
+
 # 版本更新机制（Update Mechanism）
 
 > **重要：** `/更新` 是仓库级更新。它必须从 `drama-workshop-skills` 仓库拉取最新版，并重新安装仓库内全部 sibling skills（当前至少包含 `short-drama` 与 `short-drama-remake`）。不得再只覆盖 `short-drama/` 单目录。

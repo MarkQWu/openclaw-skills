@@ -1,3 +1,11 @@
+---
+layer: modes
+control: hard_gate
+authority_id: short-drama.comic-rules
+canonical_path: references/comic-rules.md
+read_when: medium is comic
+---
+
 # Comic 漫剧规则（medium=comic）
 
 本文件适用于 `medium=comic`——动态漫画 / AI 漫剧 / 原生漫剧统称。仿真人 AI 剧规则见 `ai-live-rules.md`，跨介质通用规则仍在 `quality-rules.md`。

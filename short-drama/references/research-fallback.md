@@ -1,3 +1,11 @@
+---
+layer: foundation
+control: hard_gate
+authority_id: short-drama.research-fallback
+canonical_path: references/research-fallback.md
+read_when: /考据 auto when WebSearch, WebFetch, PDF, or source access fails
+---
+
 # Research Fallback Guide
 
 > `/考据 auto` 模式下，WebFetch 失败时的降级流程。修订 3 的细化文档。

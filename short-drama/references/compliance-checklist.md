@@ -1,3 +1,11 @@
+---
+layer: foundation
+control: hard_gate
+authority_id: short-drama.compliance-checklist
+canonical_path: references/compliance-checklist.md
+read_when: /自检, /导出, and any command that evaluates publishability or platform risk
+---
+
 <!-- © 2026 gobuildit. All rights reserved. This file is proprietary methodology content. Redistribution or commercial use without permission is prohibited. -->
 
 # 内容合规自检清单

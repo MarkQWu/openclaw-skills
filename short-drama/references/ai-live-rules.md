@@ -1,3 +1,11 @@
+---
+layer: modes
+control: hard_gate
+authority_id: short-drama.ai-live-rules
+canonical_path: references/ai-live-rules.md
+read_when: medium is ai_live or medium is missing
+---
+
 # AI Live 规则（仿真人 AI 剧 · medium=ai_live）
 
 本文件适用于 `medium=ai_live`（默认值）——即现有仿真人 AI 承制路径。漫剧规则见 `comic-rules.md`，跨介质通用规则仍在 `quality-rules.md`。

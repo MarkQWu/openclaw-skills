@@ -1,3 +1,11 @@
+---
+layer: foundation
+control: hard_gate
+authority_id: short-drama.research-guide
+canonical_path: references/research-guide.md
+read_when: /考据 and any thick-topic script generation that relies on domain facts
+---
+
 # 考据 Research Guide
 
 > short-drama skill 的考据机制说明文档。`/考据` 命令的方法论、检索策略、信源准入规则、反模式清单。

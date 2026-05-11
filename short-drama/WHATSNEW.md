@@ -1,3 +1,11 @@
+**v1.31.10**（2026-05-11）
+
+为首批 hard-gate references 增加维护者 metadata：`layer`、`control`、`authority_id`、`canonical_path`、`read_when`。覆盖格式、项目状态、合规、考据、更新机制、承制介质和海外硬规则，便于后续把阻断门槛与软评分拆开。不改变用户命令行为，不迁移 runtime。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.9**（2026-05-11）
 
 新增 `references/reference-layers.md`，作为维护者使用的规则分层索引，先把现有 references 归到 foundation / structure / craft / modes / templates，后续用于 hard-gate metadata 和 quality rubric 重构。不改变用户命令行为，不迁移 runtime。

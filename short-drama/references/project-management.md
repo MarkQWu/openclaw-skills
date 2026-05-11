@@ -1,3 +1,11 @@
+---
+layer: foundation
+control: hard_gate
+authority_id: short-drama.project-management
+canonical_path: references/project-management.md
+read_when: /开始, /新建, /分集, /自检, and any command that reads or writes project state
+---
+
 # 项目管理（Project Management）
 
 本文件定义 short-drama skill v1.13.0 起的**活跃项目指针架构**。所有 `/开始` / `/新建` / `/分集` / `/自检` 等命令均依赖此规范。

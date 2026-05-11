@@ -84,6 +84,23 @@
 |---|---|---|
 | `condense-source.py` | Utility script stored under `references/` | Needs a later ownership decision: move to `scripts/`, declare as allowed reference utility, or retire |
 
+## Hard-Gate Metadata Coverage
+
+These references now carry explicit metadata fields:
+`layer`, `control`, `authority_id`, `canonical_path`, and `read_when`.
+
+| Reference | Control | Read when |
+|---|---|---|
+| `format-control.md` | `hard_gate` | Every command before output generation |
+| `project-management.md` | `hard_gate` | `/开始`, `/新建`, `/分集`, `/自检`, and any command that reads or writes project state |
+| `compliance-checklist.md` | `hard_gate` | `/自检`, `/导出`, and publishability/platform risk checks |
+| `research-guide.md` | `hard_gate` | `/考据` and thick-topic script generation that relies on domain facts |
+| `research-fallback.md` | `hard_gate` | `/考据 auto` when WebSearch, WebFetch, PDF, or source access fails |
+| `update-mechanism.md` | `hard_gate` | Every skill activation update check and explicit `/更新` command |
+| `ai-live-rules.md` | `hard_gate` | `medium=ai_live` or missing medium |
+| `comic-rules.md` | `hard_gate` | `medium=comic` |
+| `overseas/hard-rules.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, and `/自检` |
+
 ## Next Metadata Pass
 
 The next Phase 4 pass should add per-document metadata to hard-gate candidates:

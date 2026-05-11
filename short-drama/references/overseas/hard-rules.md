@@ -1,3 +1,11 @@
+---
+layer: modes
+control: hard_gate
+authority_id: short-drama.overseas-hard-rules
+canonical_path: references/overseas/hard-rules.md
+read_when: mode is overseas before /开始, /分集, and /自检
+---
+
 # Hard Rules — Non-Negotiable Genre Constraints
 
 > Violation of ANY rule = episode fails, must rewrite.
