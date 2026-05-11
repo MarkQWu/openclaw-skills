@@ -8,6 +8,14 @@
 - Do not route remake work through `short-drama`.
 - In managed projects, script drafting is guarded by `script_draft.preflight`; downstream script generation must not rely on memory or ad hoc file search.
 
+## Quick Start
+
+1. Send `/仿写` with a script file path, attached file, pasted script, or screen-recorded prompt workflow description.
+2. The skill first judges source scope and extracts a reusable story-function skeleton. It does not rewrite immediately.
+3. Continue through the guided chain: skeleton table -> 10 skin-swap concepts -> selected concept plan -> episode outlines -> shooting-ready script.
+
+After every substantial output, the skill should show what was completed, what files or artifacts now matter, why the next stage follows, and 2-4 copy-paste next commands.
+
 ## Managed Project Gate
 
 Before writing an episode script, the project must have readable current artifacts:

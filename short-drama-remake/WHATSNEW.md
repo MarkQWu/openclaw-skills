@@ -1,3 +1,13 @@
+**v0.3.1**（2026-05-11）
+
+UX Patch：补齐 `/仿写` 普通用户引导，不改 gate/schema/checker。
+
+- 新增首轮 `/仿写` 引导契约：说明当前是参考剧本拆解复刻、需要上传/粘贴/提供剧本路径、会先判断材料范围和拆骨架。
+- 新增阶段完成摘要要求：输出当前阶段、已完成内容、关键文件/产物、当前限制和为什么推荐下一步。
+- 新增导入后文件地图模板，解释 `manifest.yaml`、`source-index.json`、`episode-map.md`、`01_skeleton/`、`02_concepts/` 等文件的用户用途。
+- 新增用户可读 blocking summary 模板：卡在哪里、影响什么、为什么不能继续、复制哪句话继续。
+- 修正 `short-drama/使用说明.md` 的 `/仿写` 示例，避免已安装用户被误导去重装。
+
 **v0.3.0**（2026-05-10）
 
 Postflight Reliability：增强 managed remake 项目的写后 gate，防止候选剧本未闭环就误解锁下一集。

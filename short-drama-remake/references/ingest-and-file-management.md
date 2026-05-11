@@ -33,6 +33,35 @@ project/
 
 For formal ingest, write into a new empty project directory. Use `--force` only for throwaway tests; do not reuse a non-empty output directory for a real project because old episode or bundle files may remain and be misread later.
 
+## Post-Ingest User File Map
+
+After ingesting a script file, give the user a plain-language file map. Keep it short and actionable:
+
+```text
+导入完成。
+
+项目目录：PROJECT_DIR
+材料范围：完整 / 仅前 N 集 / 片段 / 范围未知
+当前判断：能否做完整骨架；哪些内容必须标 [待确认]
+
+生成了这些关键文件：
+- manifest.yaml：本次导入的总说明，记录材料范围、集数、风险提示。
+- 00_source/source-index.json：导航索引，帮我知道哪些集、哪些模块可读；不是剧情事实本身。
+- 00_source/episode-map.md：集数和文件位置对照表；其中 [待确认] 不能直接当事实。
+- 00_source/bundles/eps_001-010.md：前 10 集合并包，通常是第一轮深读入口。
+- 00_source/episodes/ep_XXX.md：单集原始证据，后续核对某一集时读取。
+- 01_skeleton/reference-skeleton.md：后续会生成的可复刻骨架表。
+- 01_skeleton/reference-expression-guide.md：后续会生成的表达规避和可迁移节奏说明。
+- 02_concepts/：后续换皮方向。
+- 03_plan/：后续选定方向的项目策划。
+- 04_outlines/：后续分集集纲和 execution card。
+- 05_scripts/：后续正式剧本候选稿。
+
+推荐下一步：先拆可复刻骨架，因为后续换皮方向、世界观、角色和集纲都依赖骨架表。
+```
+
+The file map is a user navigation layer. It must not override source scope gates, post-ingest checks, or progressive reading.
+
 ## Ingest Modes
 
 - `complete`: source coverage appears complete: detected episodes match the declared range, start at 1, have no gaps, and no partial marker is present. It is not an analysis-ready flag. Full-series skeleton claims are allowed only after post-ingest checks and progressive reading.

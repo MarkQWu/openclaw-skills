@@ -6,7 +6,7 @@ description: Analyze reference short-drama scripts or screen-recorded prompt wor
 # Short Drama Remake
 
 > License: SKILL.md, agents metadata, scripts, and bundled code are MIT; references are gobuildit methodology documentation with all rights reserved except use as part of this skill distribution.
-> Version: 0.3.0
+> Version: 0.3.1
 
 ## Core Rule
 
@@ -15,6 +15,26 @@ Treat "1:1 remake" as **story-function replication**, not copying protected expr
 Match the user's current working language by default. If the user writes in Chinese, respond in Chinese; if the user writes in English, respond in English. Keep screenplay headings, dialogue, prompts, and audits in that same working language unless the user explicitly asks for another language. English skill instructions are internal control text; do not let them leak into screenplay language, character dialogue, headings, or user-facing prompts.
 
 If the source text, screenshot, or video frame is unclear, mark the uncertain part as `[待确认]` instead of inventing it.
+
+## User Guidance Surface
+
+When the user invokes `/仿写` without enough material, respond as a guided product flow, not as an internal protocol:
+
+```text
+当前模式：参考剧本拆解复刻（short-drama-remake）
+请上传、拖入、粘贴参考剧本，或提供剧本文件路径。支持 .docx / .pdf / .txt / .md；也可以描述录屏里的提示词工作流。
+我会先判断材料范围，再拆骨架；不会直接照搬原剧表达，也不会进入原创短剧 /开始 项目。
+```
+
+After each substantial stage, include a short user-visible handoff before `下一步可执行指令`:
+
+- `当前阶段`: ingest / 骨架拆解 / 换皮方向 / 项目策划 / 集纲 / 正文 / 审稿
+- `已完成`: what was analyzed or created
+- `生成内容`: key files or named artifacts, with plain-language purpose
+- `当前限制`: missing source, partial scope, open risk, or gate status when relevant
+- `为什么下一步这样走`: one sentence explaining the stage dependency
+
+For managed projects, after ingesting a file, show a file map using the template in [references/ingest-and-file-management.md](references/ingest-and-file-management.md#post-ingest-user-file-map). The file map is navigation only; do not treat `source-index.json` or `episode-map.md` `[待确认]` fields as facts.
 
 ## Stage Contract
 
@@ -52,7 +72,16 @@ Before drafting a script in a managed project, run or mentally apply `script_dra
 5. Reject forbidden reads: `short-drama/SKILL.md`, `short-drama/references/*.md`, raw source bundles, `research-notes.md`, `_legacy_review/**`, `09_experiments/**`, candidates, drafts, and tmp files.
 6. If blocked, return one user-visible blocking summary and set `body_generated=false`. Do not create an episode script.
 
-The blocking summary must include: blocking reason, affected scope, whether it blocks only the target episode or the whole project, recommended next step, and available user actions. Do not expose the full internal registry, gate, trace, or transaction fields unless the user explicitly asks for debug detail.
+The blocking summary must include: blocking reason, affected scope, whether it blocks only the target episode or the whole project, recommended next step, and available user actions. Render it for the user as:
+
+```text
+卡在：...
+影响：...
+为什么不能继续：...
+复制这句继续：`...`
+```
+
+Do not expose the full internal registry, gate, trace, or transaction fields unless the user explicitly asks for debug detail.
 
 After drafting, run `script_draft.postflight` before unlocking the next episode. A script is not complete until quality passes, user review accepts it, canon is committed, state is updated, risk/sync checks pass, read trace is clean, and the next episode gate is unlocked. `quality_gate_status=passed` alone is not enough; continuation must use top-level `postflight_report.report_status == passed`.
 
@@ -160,6 +189,7 @@ Rules:
 - Replace placeholders with known project names, concept numbers, episode numbers, or file names when available.
 - If the next stage has one clearly best path, label it `推荐下一步`.
 - Do not write only "可以继续生成..." or "建议深化..." without a complete instruction.
+- Before the command list, add one sentence explaining why this is the correct next stage.
 - If `manifest.yaml.gates.allow_full_series_concepts` is false or the artifact is labeled `样本骨架`, the next-step prompts must either ask for the missing full source or explicitly say `基于已提供集数`. Do not offer full-series concepts, full project plans, or full-series claims from partial material.
 
 - After **reference skeleton / 骨架表**:
