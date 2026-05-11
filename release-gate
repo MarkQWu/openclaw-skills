@@ -20,15 +20,19 @@ from typing import Any
 
 
 CHECK_DESCRIPTIONS = {
+    "FRONTMATTER_PARSE": "SKILL.md frontmatter is parseable and declares the expected skill metadata.",
     "VERSION_DRIFT": "Runtime VERSION differs from the package VERSION.",
     "WHATSNEW_MISMATCH": "WHATSNEW.md first version does not match VERSION.",
+    "HELP_SOURCE_MATCH": "SKILL.md command definitions and the /帮助 source command list disagree.",
     "DUPLICATE_AUTHORITY_DOCS": "Root docs duplicate references/ docs without an allowed wrapper declaration.",
     "DUPLICATE_AUTHORITY_SCRIPTS": "Root scripts duplicate scripts/ files without an allowed wrapper declaration.",
     "UPDATE_REPO_NAME_DRIFT": "Forbidden legacy repository name appears in update surfaces.",
+    "UPDATE_POLICY_REPO_NAME": "Update policy source and update checker do not consistently target the allowed repository.",
     "UPDATE_CHECK_SPLIT": "Root update-check and bin/update-check both exist or differ.",
     "RUNTIME_POLICY_FALSE": "Runtime root is not hash-equivalent, declared symlink, or excluded by manifest.",
     "BYTECODE_IN_PACKAGE": "Python bytecode or __pycache__ exists inside the package root.",
     "SIBLING_MISSING": "Required sibling skill is missing beside the package or a runtime root.",
+    "SKILL_DISCOVERY": "Distribution package roots are not discoverable as skills.",
 }
 
 
@@ -97,6 +101,180 @@ def first_whatsnew_version(root: Path, source: str) -> str | None:
         return None
     match = re.search(r"\*\*v?([0-9]+(?:\.[0-9]+)+)\*\*", read_text(path))
     return match.group(1) if match else None
+
+
+def split_source(source: str) -> tuple[str, str | None]:
+    if "#" not in source:
+        return source, None
+    path, anchor = source.split("#", 1)
+    return path, anchor or None
+
+
+def markdown_section(text: str, heading: str) -> str | None:
+    lines = text.splitlines()
+    start = None
+    pattern = re.compile(r"^##\s+" + re.escape(heading) + r"\s*$")
+    for idx, line in enumerate(lines):
+        if pattern.match(line):
+            start = idx + 1
+            break
+    if start is None:
+        return None
+    end = len(lines)
+    for idx in range(start, len(lines)):
+        if lines[idx].startswith("## "):
+            end = idx
+            break
+    return "\n".join(lines[start:end])
+
+
+def first_fenced_block(text: str) -> str | None:
+    match = re.search(r"```[^\n]*\n(.*?)\n```", text, flags=re.S)
+    return match.group(1) if match else None
+
+
+def parse_simple_frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
+    errors: list[str] = []
+    if not path.exists():
+        return {}, [f"missing {path}"]
+    text = read_text(path)
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}, ["frontmatter must start with ---"]
+    try:
+        end = next(idx for idx in range(1, len(lines)) if lines[idx].strip() == "---")
+    except StopIteration:
+        return {}, ["frontmatter closing --- not found"]
+
+    data: dict[str, str] = {}
+    for line_no, line in enumerate(lines[1:end], start=2):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if ":" not in stripped:
+            errors.append(f"line {line_no}: expected key: value")
+            continue
+        key, raw_value = stripped.split(":", 1)
+        key = key.strip()
+        value = raw_value.strip()
+        if not re.match(r"^[A-Za-z_][A-Za-z0-9_-]*$", key):
+            errors.append(f"line {line_no}: invalid key {key!r}")
+            continue
+        if value.startswith('"'):
+            if len(value) < 2 or not value.endswith('"'):
+                errors.append(f"line {line_no}: unterminated double-quoted scalar")
+                continue
+            inner = value[1:-1]
+            if '"' in inner.replace('\\"', ""):
+                errors.append(f"line {line_no}: unescaped double quote inside double-quoted scalar")
+                continue
+            value = inner.replace('\\"', '"')
+        elif value.startswith("'"):
+            if len(value) < 2 or not value.endswith("'"):
+                errors.append(f"line {line_no}: unterminated single-quoted scalar")
+                continue
+            value = value[1:-1].replace("''", "'")
+        data[key] = value
+    return data, errors
+
+
+def check_frontmatter(package_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    skill_path = package_root / manifest.get("authority_sources", {}).get("skill_entrypoint", "SKILL.md")
+    data, errors = parse_simple_frontmatter(skill_path)
+    evidence: list[dict[str, Any]] = []
+    if errors:
+        evidence.append({"path": str(skill_path), "errors": errors})
+    expected_name = manifest["skill"]
+    if data.get("name") != expected_name:
+        evidence.append({"path": str(skill_path), "field": "name", "expected": expected_name, "actual": data.get("name")})
+    description = data.get("description", "")
+    if not description:
+        evidence.append({"path": str(skill_path), "field": "description", "error": "missing or empty"})
+    elif len(description) > 1024:
+        evidence.append({"path": str(skill_path), "field": "description", "error": "over 1024 chars", "length": len(description)})
+    return evidence
+
+
+def skill_commands(skill_text: str) -> set[str]:
+    commands: set[str] = set()
+    for line in skill_text.splitlines():
+        match = re.match(r"^###\s+(/[^\s\[{]+)", line)
+        if match:
+            commands.add(match.group(1))
+    return commands
+
+
+def help_commands(help_block: str) -> set[str]:
+    commands: set[str] = set()
+    for line in help_block.splitlines():
+        match = re.match(r"^(/[^\s]+)", line.strip())
+        if match:
+            commands.add(match.group(1))
+    return commands
+
+
+def check_help_source_match(package_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    help_source = manifest.get("help_source", "")
+    help_path_text, anchor = split_source(help_source)
+    skill_path = package_root / manifest.get("authority_sources", {}).get("skill_entrypoint", "SKILL.md")
+    help_path = package_root / help_path_text
+    evidence: list[dict[str, Any]] = []
+    if not skill_path.exists():
+        return [{"path": str(skill_path), "error": "missing SKILL.md"}]
+    if not help_path.exists():
+        return [{"path": str(help_path), "error": "missing help source"}]
+    section = markdown_section(read_text(help_path), f"/{anchor}" if anchor and not anchor.startswith("/") else (anchor or ""))
+    if section is None:
+        return [{"path": str(help_path), "anchor": anchor, "error": "help section not found"}]
+    block = first_fenced_block(section)
+    if block is None:
+        return [{"path": str(help_path), "anchor": anchor, "error": "help fenced code block not found"}]
+    defined = skill_commands(read_text(skill_path))
+    listed = help_commands(block)
+    missing = sorted(defined - listed)
+    extra = sorted(listed - defined)
+    if missing or extra:
+        evidence.append(
+            {
+                "skill": str(skill_path),
+                "help_source": str(help_path),
+                "missing_from_help": missing,
+                "extra_in_help": extra,
+            }
+        )
+    return evidence
+
+
+def check_update_policy_repo_name(package_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    policy = manifest["repo_name_policy"]
+    allowed = policy["allowed"]
+    forbidden = policy.get("forbidden", [])
+    update_source = package_root / manifest.get("update_mechanism_source", "references/update-mechanism.md")
+    checker = package_root / manifest.get("authority_sources", {}).get("update_checker", "bin/update-check")
+    evidence: list[dict[str, Any]] = []
+    for path in (update_source, checker):
+        if not path.exists():
+            evidence.append({"path": str(path), "error": "missing"})
+            continue
+        text = read_text(path)
+        if allowed not in text:
+            evidence.append({"path": str(path), "allowed_repo": allowed, "error": "allowed repo name missing"})
+        hits = [name for name in forbidden if name in text]
+        if hits:
+            evidence.append({"path": str(path), "forbidden": hits, "error": "forbidden repo name present"})
+    return evidence
+
+
+def check_skill_discovery(repo_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    evidence: list[dict[str, Any]] = []
+    for package in manifest.get("distribution_repo", {}).get("package_roots", []):
+        root = repo_root / package
+        skill_path = root / "SKILL.md"
+        if not root.exists():
+            evidence.append({"package": package, "path": str(root), "error": "package root missing"})
+        elif not skill_path.exists():
+            evidence.append({"package": package, "path": str(skill_path), "error": "SKILL.md missing"})
+    return evidence
 
 
 def sha256(path: Path) -> str:
@@ -396,6 +574,22 @@ def main() -> int:
     package_files = list_files(package_root, excluded)
 
     findings: list[dict[str, Any]] = []
+
+    frontmatter_evidence = check_frontmatter(package_root, manifest)
+    if frontmatter_evidence:
+        findings.append(finding("FRONTMATTER_PARSE", frontmatter_evidence, manifest))
+
+    help_evidence = check_help_source_match(package_root, manifest)
+    if help_evidence:
+        findings.append(finding("HELP_SOURCE_MATCH", help_evidence, manifest))
+
+    update_policy_evidence = check_update_policy_repo_name(package_root, manifest)
+    if update_policy_evidence:
+        findings.append(finding("UPDATE_POLICY_REPO_NAME", update_policy_evidence, manifest))
+
+    skill_discovery_evidence = check_skill_discovery(repo_root, manifest)
+    if skill_discovery_evidence:
+        findings.append(finding("SKILL_DISCOVERY", skill_discovery_evidence, manifest))
 
     bytecode_hits = package_bytecode(package_root)
     if bytecode_hits:

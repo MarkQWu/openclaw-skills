@@ -58,7 +58,18 @@ class ReleaseGateTests(unittest.TestCase):
         (runtime_root / "VERSION").write_text("0.0.1\n", encoding="utf-8")
         (runtime_root / "WHATSNEW.md").write_text("**v0.0.1**\n", encoding="utf-8")
         (runtime_parent / "short-drama-remake").mkdir()
-        (tmp_path / "short-drama-remake").mkdir()
+        distribution_package = tmp_path / "short-drama"
+        distribution_package.mkdir()
+        (distribution_package / "SKILL.md").write_text(
+            "---\nname: short-drama\ndescription: fixture\n---\n",
+            encoding="utf-8",
+        )
+        sibling_package = tmp_path / "short-drama-remake"
+        sibling_package.mkdir()
+        (sibling_package / "SKILL.md").write_text(
+            "---\nname: short-drama-remake\ndescription: fixture\n---\n",
+            encoding="utf-8",
+        )
 
         manifest = self.load_real_manifest()
         manifest["package_root"] = str(REPO_ROOT / "short-drama")
@@ -111,10 +122,14 @@ class ReleaseGateTests(unittest.TestCase):
 
     def test_package_surface_scope_checks_pass_current_package(self) -> None:
         for check_id in (
+            "FRONTMATTER_PARSE",
+            "HELP_SOURCE_MATCH",
             "DUPLICATE_AUTHORITY_DOCS",
             "DUPLICATE_AUTHORITY_SCRIPTS",
+            "UPDATE_POLICY_REPO_NAME",
             "UPDATE_CHECK_SPLIT",
             "UPDATE_REPO_NAME_DRIFT",
+            "SKILL_DISCOVERY",
         ):
             with self.subTest(check_id=check_id):
                 result, report = run_gate_json("--dry-run", "--check", check_id)
@@ -122,6 +137,33 @@ class ReleaseGateTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(report["status"], "pass")
                 self.assertEqual(self.check_ids(report), set())
+
+    def test_invalid_frontmatter_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-frontmatter-") as tmp:
+            tmp_path = Path(tmp)
+            package = tmp_path / "short-drama"
+            package.mkdir()
+            (package / "SKILL.md").write_text(
+                '---\nname: short-drama\ndescription: "bad "quote" scalar"\n---\n',
+                encoding="utf-8",
+            )
+            manifest = self.load_real_manifest()
+            manifest["package_root"] = str(package)
+            manifest["distribution_repo"]["package_roots"] = ["short-drama"]
+            manifest["runtime_roots"] = []
+            manifest["sibling_skills"] = []
+            manifest_path = write_manifest(tmp_path / "release-manifest.json", manifest)
+
+            result, report = run_gate_json(
+                "--dry-run",
+                "--manifest",
+                str(manifest_path),
+                "--check",
+                "FRONTMATTER_PARSE",
+            )
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(self.check_ids(report), {"FRONTMATTER_PARSE"})
 
     def test_excluded_policy_manifest_passes_runtime_policy_check(self) -> None:
         with tempfile.TemporaryDirectory(prefix="short-drama-gate-excluded-") as tmp:

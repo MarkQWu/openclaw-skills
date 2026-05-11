@@ -1,3 +1,11 @@
+**v1.31.14**（2026-05-11）
+
+补强 release readiness gate：新增 frontmatter、帮助清单、更新仓库名策略和 skill discovery 自动检查，并修复 `SKILL.md` frontmatter 引号格式，使 `description` 可被闸门解析。不迁移 runtime。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.13**（2026-05-11）
 
 补齐 v1.31.12 的独立审查修复：`/分集` 与 `/自检` 显式加载 `creative-intent-ledger.md`，让原始冲动记录的 read contract 与命令加载清单一致；release-gate 单测改用临时 runtime fixture，不再依赖本机 HOME 下的 runtime 副本状态。不迁移 runtime。
