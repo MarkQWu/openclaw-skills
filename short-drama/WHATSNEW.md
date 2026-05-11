@@ -1,3 +1,11 @@
+**v1.31.15**（2026-05-11）
+
+继续补强 release readiness gate：新增安装器契约检查，自动确认 `install.sh` / `install.ps1` 指向 `drama-workshop-skills`、使用 `.skill-trash` 安全备份、迁移旧 `skills/.trash`、按 `SKILL.md` discovery 安装仓库内 skills，并避免破坏性删除命令。不迁移 runtime。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.14**（2026-05-11）
 
 补强 release readiness gate：新增 frontmatter、帮助清单、更新仓库名策略和 skill discovery 自动检查，并修复 `SKILL.md` frontmatter 引号格式，使 `description` 可被闸门解析。不迁移 runtime。

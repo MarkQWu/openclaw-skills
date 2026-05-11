@@ -29,6 +29,7 @@ CHECK_DESCRIPTIONS = {
     "UPDATE_REPO_NAME_DRIFT": "Forbidden legacy repository name appears in update surfaces.",
     "UPDATE_POLICY_REPO_NAME": "Update policy source and update checker do not consistently target the allowed repository.",
     "UPDATE_CHECK_SPLIT": "Root update-check and bin/update-check both exist or differ.",
+    "INSTALLER_CONTRACT": "Distribution installers do not satisfy the repository install contract.",
     "RUNTIME_POLICY_FALSE": "Runtime root is not hash-equivalent, declared symlink, or excluded by manifest.",
     "BYTECODE_IN_PACKAGE": "Python bytecode or __pycache__ exists inside the package root.",
     "SIBLING_MISSING": "Required sibling skill is missing beside the package or a runtime root.",
@@ -274,6 +275,51 @@ def check_skill_discovery(repo_root: Path, manifest: dict[str, Any]) -> list[dic
             evidence.append({"package": package, "path": str(root), "error": "package root missing"})
         elif not skill_path.exists():
             evidence.append({"package": package, "path": str(skill_path), "error": "SKILL.md missing"})
+    return evidence
+
+
+def check_installer_contract(repo_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    policy = manifest["repo_name_policy"]
+    allowed = policy["allowed"]
+    forbidden = policy.get("forbidden", [])
+    installers = manifest.get("distribution_repo", {}).get("installers", [])
+    evidence: list[dict[str, Any]] = []
+    for installer in installers:
+        path = repo_root / installer
+        if not path.exists():
+            evidence.append({"path": str(path), "error": "installer missing"})
+            continue
+        text = read_text(path)
+        errors: list[str] = []
+        if allowed not in text:
+            errors.append(f"allowed repo name {allowed!r} missing")
+        for name in forbidden:
+            if name in text:
+                errors.append(f"forbidden repo name {name!r} present")
+        if ".skill-trash" not in text:
+            errors.append("safe backup root .skill-trash missing")
+        if ".trash" not in text:
+            errors.append("embedded skills/.trash migration missing")
+        if "SKILL.md" not in text:
+            errors.append("SKILL.md discovery install logic missing")
+        if "short-drama/VERSION" not in text and "short-drama\\VERSION" not in text:
+            errors.append("short-drama VERSION display source missing")
+        if "rm -rf" in text or "Remove-Item" in text:
+            errors.append("destructive removal command present")
+        if installer.endswith(".sh"):
+            if 'for d in "$CACHE"/*/' not in text:
+                errors.append("shell installer does not iterate cache package directories")
+            for target in ("$HOME/.claude", "$HOME/.openclaw", "$HOME/.workbuddy"):
+                if target not in text:
+                    errors.append(f"shell target {target} missing")
+        elif installer.endswith(".ps1"):
+            if "Get-ChildItem" not in text or "$cache" not in text:
+                errors.append("PowerShell installer does not iterate cache package directories")
+            for target in (".claude", ".openclaw", ".workbuddy"):
+                if target not in text:
+                    errors.append(f"PowerShell target {target} missing")
+        if errors:
+            evidence.append({"path": str(path), "errors": errors})
     return evidence
 
 
@@ -590,6 +636,10 @@ def main() -> int:
     skill_discovery_evidence = check_skill_discovery(repo_root, manifest)
     if skill_discovery_evidence:
         findings.append(finding("SKILL_DISCOVERY", skill_discovery_evidence, manifest))
+
+    installer_contract_evidence = check_installer_contract(repo_root, manifest)
+    if installer_contract_evidence:
+        findings.append(finding("INSTALLER_CONTRACT", installer_contract_evidence, manifest))
 
     bytecode_hits = package_bytecode(package_root)
     if bytecode_hits:

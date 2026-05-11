@@ -123,6 +123,7 @@
       "UPDATE_REPO_NAME_DRIFT",
       "UPDATE_POLICY_REPO_NAME",
       "UPDATE_CHECK_SPLIT",
+      "INSTALLER_CONTRACT",
       "RUNTIME_POLICY_FALSE",
       "BYTECODE_IN_PACKAGE",
       "SIBLING_MISSING",
@@ -162,6 +163,10 @@
       "authority": "distribution_repo.package_roots"
     },
     {
+      "name": "installer_contract",
+      "authority": "distribution_repo.installers + runtime_policy"
+    },
+    {
       "name": "duplicate_authority_check",
       "authority": "allowed_wrappers"
     },
@@ -196,6 +201,7 @@
     "UPDATE_REPO_NAME_DRIFT": "release maintainer",
     "UPDATE_POLICY_REPO_NAME": "release maintainer",
     "UPDATE_CHECK_SPLIT": "release maintainer",
+    "INSTALLER_CONTRACT": "installer maintainer",
     "RUNTIME_POLICY_FALSE": "installer maintainer",
     "BYTECODE_IN_PACKAGE": "release maintainer",
     "SIBLING_MISSING": "installer maintainer",

@@ -73,6 +73,7 @@ class ReleaseGateTests(unittest.TestCase):
 
         manifest = self.load_real_manifest()
         manifest["package_root"] = str(REPO_ROOT / "short-drama")
+        manifest["distribution_repo"]["installers"] = []
         manifest["runtime_roots"] = [
             {
                 "name": "fixture-runtime",
@@ -128,6 +129,7 @@ class ReleaseGateTests(unittest.TestCase):
             "DUPLICATE_AUTHORITY_SCRIPTS",
             "UPDATE_POLICY_REPO_NAME",
             "UPDATE_CHECK_SPLIT",
+            "INSTALLER_CONTRACT",
             "UPDATE_REPO_NAME_DRIFT",
             "SKILL_DISCOVERY",
         ):
@@ -164,6 +166,35 @@ class ReleaseGateTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(self.check_ids(report), {"FRONTMATTER_PARSE"})
+
+    def test_missing_installer_contract_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-installer-") as tmp:
+            tmp_path = Path(tmp)
+            package = tmp_path / "short-drama"
+            package.mkdir()
+            (package / "SKILL.md").write_text(
+                "---\nname: short-drama\ndescription: fixture\n---\n",
+                encoding="utf-8",
+            )
+            (tmp_path / "install.sh").write_text("#!/usr/bin/env bash\necho bad\n", encoding="utf-8")
+            manifest = self.load_real_manifest()
+            manifest["package_root"] = str(package)
+            manifest["distribution_repo"]["package_roots"] = ["short-drama"]
+            manifest["distribution_repo"]["installers"] = ["install.sh"]
+            manifest["runtime_roots"] = []
+            manifest["sibling_skills"] = []
+            manifest_path = write_manifest(tmp_path / "release-manifest.json", manifest)
+
+            result, report = run_gate_json(
+                "--dry-run",
+                "--manifest",
+                str(manifest_path),
+                "--check",
+                "INSTALLER_CONTRACT",
+            )
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(self.check_ids(report), {"INSTALLER_CONTRACT"})
 
     def test_excluded_policy_manifest_passes_runtime_policy_check(self) -> None:
         with tempfile.TemporaryDirectory(prefix="short-drama-gate-excluded-") as tmp:
