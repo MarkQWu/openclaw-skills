@@ -1,3 +1,11 @@
+**v1.31.11**（2026-05-11）
+
+重构 `references/quality-rubric.md` 顶部总纲，明确 `/自检` 先判定 hard gates，再做商业生命力评分，最后执行 anti-greenlight 机制。触发阻断门槛时总分只保留诊断意义，不能洗白阻断结论；craft 层规则默认仍是软评分，只有 OOC、违规、不可拍、媒介不匹配或事实矛盾时升级阻断。不迁移 runtime。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.10**（2026-05-11）
 
 为首批 hard-gate references 增加维护者 metadata：`layer`、`control`、`authority_id`、`canonical_path`、`read_when`。覆盖格式、项目状态、合规、考据、更新机制、承制介质和海外硬规则，便于后续把阻断门槛与软评分拆开。不改变用户命令行为，不迁移 runtime。

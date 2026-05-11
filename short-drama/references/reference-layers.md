@@ -49,7 +49,7 @@
 | Reference | Primary role |
 |---|---|
 | `dramatic-truth.md` | Dialogue truth, anti-trailer-speak, and polish audit |
-| `quality-rubric.md` | Scoring rubric and quality dimensions |
+| `quality-rubric.md` | `control=soft_rubric + commercial_vitality_rubric + anti_greenlight`; hard-gate overlay only for OOC, compliance, unfilmable output, medium mismatch, or factual contradiction |
 | `quality-rules.md` | Quality constraints and recurring failure patterns |
 | `realism-checklist.md` | Plausibility, causality, and grounded behavior checks |
 | `roundtable-figures.md` | Character voice and roundtable reference figures |
