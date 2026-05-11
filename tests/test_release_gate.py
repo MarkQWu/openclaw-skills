@@ -16,7 +16,6 @@ GATE = REPO_ROOT / "release-gate"
 MANIFEST = REPO_ROOT / "release-manifest.json"
 
 EXPECTED_CURRENT_BLOCKERS = {
-    "BYTECODE_IN_PACKAGE",
     "DUPLICATE_AUTHORITY_DOCS",
     "DUPLICATE_AUTHORITY_SCRIPTS",
     "UPDATE_CHECK_SPLIT",
@@ -56,7 +55,7 @@ class ReleaseGateTests(unittest.TestCase):
     def check_ids(self, report: dict) -> set[str]:
         return set(report["summary"]["checks_failed"])
 
-    def test_real_manifest_full_dry_run_fails_current_seven_blockers(self) -> None:
+    def test_real_manifest_full_dry_run_fails_current_six_blockers(self) -> None:
         result, report = run_gate_json("--dry-run")
 
         self.assertEqual(result.returncode, 2, result.stderr)
