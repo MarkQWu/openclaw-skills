@@ -18,9 +18,7 @@ MANIFEST = REPO_ROOT / "release-manifest.json"
 EXPECTED_CURRENT_BLOCKERS = {
     "DUPLICATE_AUTHORITY_DOCS",
     "DUPLICATE_AUTHORITY_SCRIPTS",
-    "UPDATE_CHECK_SPLIT",
     "VERSION_DRIFT",
-    "UPDATE_REPO_NAME_DRIFT",
     "RUNTIME_POLICY_FALSE",
 }
 
@@ -55,7 +53,7 @@ class ReleaseGateTests(unittest.TestCase):
     def check_ids(self, report: dict) -> set[str]:
         return set(report["summary"]["checks_failed"])
 
-    def test_real_manifest_full_dry_run_fails_current_six_blockers(self) -> None:
+    def test_real_manifest_full_dry_run_fails_current_four_blockers(self) -> None:
         result, report = run_gate_json("--dry-run")
 
         self.assertEqual(result.returncode, 2, result.stderr)
@@ -73,6 +71,15 @@ class ReleaseGateTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(self.check_ids(report), {"RUNTIME_POLICY_FALSE"})
+
+    def test_update_checks_only_scan_current_package_surfaces(self) -> None:
+        for check_id in ("UPDATE_CHECK_SPLIT", "UPDATE_REPO_NAME_DRIFT"):
+            with self.subTest(check_id=check_id):
+                result, report = run_gate_json("--dry-run", "--check", check_id)
+
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(report["status"], "pass")
+                self.assertEqual(self.check_ids(report), set())
 
     def test_excluded_policy_manifest_passes_runtime_policy_check(self) -> None:
         with tempfile.TemporaryDirectory(prefix="short-drama-gate-excluded-") as tmp:

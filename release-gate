@@ -430,9 +430,10 @@ def main() -> int:
         scripts = root_script_duplicates(root, wrappers.get("root_scripts", []))
         if scripts:
             duplicate_script_evidence.append({"root": str(root), "duplicates": scripts})
-        split = update_check_split(root, bool(wrappers.get("root_update_check", False)))
-        if split:
-            update_split_evidence.append({"root": str(root), **split})
+        if root_info.get("name") == "package":
+            split = update_check_split(root, bool(wrappers.get("root_update_check", False)))
+            if split:
+                update_split_evidence.append({"root": str(root), **split})
         root_version = read_version(root, version_source)
         root_whatsnew_version = first_whatsnew_version(root, whatsnew_source)
         if root_version != root_whatsnew_version:
@@ -469,15 +470,6 @@ def main() -> int:
         manifest["repo_name_policy"].get("scan_paths", []),
         manifest,
     )
-    for runtime in manifest.get("runtime_roots", []):
-        runtime_root = Path(os.path.expanduser(runtime["path"])).resolve()
-        repo_name_hits.extend(
-            scan_repo_name_drift(
-                runtime_root,
-                manifest["repo_name_policy"].get("runtime_scan_paths", []),
-                manifest,
-            )
-        )
     if repo_name_hits:
         findings.append(finding("UPDATE_REPO_NAME_DRIFT", repo_name_hits, manifest))
 

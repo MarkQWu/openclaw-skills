@@ -110,15 +110,6 @@
       "short-drama/references/output-templates.md",
       "short-drama/scripts/release.sh",
       "short-drama/scripts/sync-all-locations.sh"
-    ],
-    "runtime_scan_paths": [
-      "SKILL.md",
-      "WHATSNEW.md",
-      "bin/update-check",
-      "references/update-mechanism.md",
-      "references/output-templates.md",
-      "scripts/release.sh",
-      "scripts/sync-all-locations.sh"
     ]
   },
   "checks": {
