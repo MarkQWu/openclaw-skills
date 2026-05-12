@@ -164,7 +164,19 @@
     },
     {
       "name": "installer_contract",
-      "authority": "distribution_repo.installers + runtime_policy"
+      "authority": "distribution_repo.installers + runtime_roots + runtime_policy"
+    },
+    {
+      "name": "installer_local_smoke",
+      "authority": "install.sh + distribution_repo.package_roots + runtime_roots",
+      "mode": "explicit --check only",
+      "writes_allowed": "temporary HOME only"
+    },
+    {
+      "name": "external_install_smoke",
+      "authority": "GitHub raw install.sh + distribution_repo.package_roots + runtime_roots",
+      "mode": "explicit --check only",
+      "writes_allowed": "temporary HOME only"
     },
     {
       "name": "duplicate_authority_check",
@@ -202,6 +214,8 @@
     "UPDATE_POLICY_REPO_NAME": "release maintainer",
     "UPDATE_CHECK_SPLIT": "release maintainer",
     "INSTALLER_CONTRACT": "installer maintainer",
+    "INSTALLER_LOCAL_SMOKE": "installer maintainer",
+    "EXTERNAL_INSTALL_SMOKE": "installer maintainer",
     "RUNTIME_POLICY_FALSE": "installer maintainer",
     "BYTECODE_IN_PACKAGE": "release maintainer",
     "SIBLING_MISSING": "installer maintainer",

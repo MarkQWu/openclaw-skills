@@ -13,7 +13,10 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
+import tempfile
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -29,12 +32,16 @@ CHECK_DESCRIPTIONS = {
     "UPDATE_REPO_NAME_DRIFT": "Forbidden legacy repository name appears in update surfaces.",
     "UPDATE_POLICY_REPO_NAME": "Update policy source and update checker do not consistently target the allowed repository.",
     "UPDATE_CHECK_SPLIT": "Root update-check and bin/update-check both exist or differ.",
-    "INSTALLER_CONTRACT": "Distribution installers do not satisfy the repository install contract.",
+    "INSTALLER_CONTRACT": "Distribution installers do not satisfy the repository install contract or manifest runtime target coverage.",
+    "INSTALLER_LOCAL_SMOKE": "Local installer smoke in a temporary HOME does not produce discoverable skills or safe trash migration.",
+    "EXTERNAL_INSTALL_SMOKE": "GitHub raw installer smoke in a temporary HOME does not produce discoverable skills or safe trash migration.",
     "RUNTIME_POLICY_FALSE": "Runtime root is not hash-equivalent, declared symlink, or excluded by manifest.",
     "BYTECODE_IN_PACKAGE": "Python bytecode or __pycache__ exists inside the package root.",
     "SIBLING_MISSING": "Required sibling skill is missing beside the package or a runtime root.",
     "SKILL_DISCOVERY": "Distribution package roots are not discoverable as skills.",
 }
+
+EXPLICIT_CHECKS = {"INSTALLER_LOCAL_SMOKE", "EXTERNAL_INSTALL_SMOKE"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -278,12 +285,50 @@ def check_skill_discovery(repo_root: Path, manifest: dict[str, Any]) -> list[dic
     return evidence
 
 
+def installer_target_roots(manifest: dict[str, Any]) -> tuple[list[str], list[dict[str, str]]]:
+    roots: set[str] = set()
+    unresolved: list[dict[str, str]] = []
+    for runtime in manifest.get("runtime_roots", []):
+        if not runtime.get("required", True):
+            continue
+        policy = runtime.get("policy", manifest.get("runtime_policy", {}).get("default", "generated_copy"))
+        if policy in {"excluded", "intentionally_excluded", "intentionally excluded by manifest"}:
+            continue
+        if policy in {"symlink", "declared_symlink", "declared symlink"}:
+            continue
+
+        raw = str(runtime.get("path", "")).replace("\\", "/")
+        match = re.match(r"^(?:~|\$HOME|%USERPROFILE%)/(.+?)/skills/[^/]+/?$", raw)
+        if match:
+            roots.add(match.group(1))
+            continue
+        parts = PurePosixPath(raw).parts
+        if "skills" in parts:
+            idx = parts.index("skills")
+            if idx > 0 and parts[idx - 1].startswith("."):
+                roots.add(parts[idx - 1])
+                continue
+        unresolved.append(
+            {
+                "runtime": str(runtime.get("name", "unknown")),
+                "path": raw,
+                "error": "cannot derive installer target root from runtime path",
+            }
+        )
+    return sorted(roots), unresolved
+
+
 def check_installer_contract(repo_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
     policy = manifest["repo_name_policy"]
     allowed = policy["allowed"]
     forbidden = policy.get("forbidden", [])
     installers = manifest.get("distribution_repo", {}).get("installers", [])
+    if not installers:
+        return []
+    target_roots, target_errors = installer_target_roots(manifest)
     evidence: list[dict[str, Any]] = []
+    if target_errors:
+        evidence.append({"path": "release-manifest.json#runtime_roots", "errors": target_errors})
     for installer in installers:
         path = repo_root / installer
         if not path.exists():
@@ -309,18 +354,181 @@ def check_installer_contract(repo_root: Path, manifest: dict[str, Any]) -> list[
         if installer.endswith(".sh"):
             if 'for d in "$CACHE"/*/' not in text:
                 errors.append("shell installer does not iterate cache package directories")
-            for target in ("$HOME/.claude", "$HOME/.openclaw", "$HOME/.workbuddy"):
-                if target not in text:
-                    errors.append(f"shell target {target} missing")
+            for target in target_roots:
+                marker = f"$HOME/{target}"
+                if marker not in text:
+                    errors.append(f"shell target {marker} missing")
         elif installer.endswith(".ps1"):
             if "Get-ChildItem" not in text or "$cache" not in text:
                 errors.append("PowerShell installer does not iterate cache package directories")
-            for target in (".claude", ".openclaw", ".workbuddy"):
+            for target in target_roots:
                 if target not in text:
                     errors.append(f"PowerShell target {target} missing")
         if errors:
             evidence.append({"path": str(path), "errors": errors})
     return evidence
+
+
+def package_roots(manifest: dict[str, Any]) -> list[str]:
+    return list(manifest.get("distribution_repo", {}).get("package_roots", []))
+
+
+def install_smoke_home(manifest: dict[str, Any], home: Path) -> tuple[list[str], list[dict[str, str]]]:
+    roots, errors = installer_target_roots(manifest)
+    for root in roots:
+        owner = home / root
+        skills = owner / "skills"
+        skills.mkdir(parents=True, exist_ok=True)
+        trash = skills / ".trash" / "legacy"
+        trash.mkdir(parents=True, exist_ok=True)
+        (trash / "SKILL.md").write_text(
+            "---\nname: legacy-short-drama\ndescription: old trash fixture\n---\n",
+            encoding="utf-8",
+        )
+        for package in package_roots(manifest):
+            package_dir = skills / package
+            package_dir.mkdir(parents=True, exist_ok=True)
+            (package_dir / "SKILL.md").write_text(
+                f"---\nname: {package}\ndescription: old fixture\n---\n",
+                encoding="utf-8",
+            )
+    return roots, errors
+
+
+def validate_install_smoke(manifest: dict[str, Any], home: Path, roots: list[str]) -> list[dict[str, Any]]:
+    evidence: list[dict[str, Any]] = []
+    packages = package_roots(manifest)
+    primary = manifest["package_root"].rstrip("/").split("/")[-1]
+    for root in roots:
+        owner = home / root
+        skills = owner / "skills"
+        safe_root = owner / ".skill-trash"
+        if (skills / ".trash").exists():
+            evidence.append({"target": str(skills), "error": "embedded skills/.trash was not migrated"})
+        if not safe_root.exists():
+            evidence.append({"target": str(owner), "error": ".skill-trash was not created"})
+        elif not any(path.name.startswith("from-skills-trash-") for path in safe_root.iterdir()):
+            evidence.append({"target": str(safe_root), "error": "legacy skills/.trash migration backup missing"})
+        for package in packages:
+            package_dir = skills / package
+            skill_path = package_dir / "SKILL.md"
+            if not skill_path.exists():
+                evidence.append({"target": str(package_dir), "error": "SKILL.md missing after install"})
+            backup_prefix = f"reinstall-{package}-"
+            if safe_root.exists() and not any(path.name.startswith(backup_prefix) for path in safe_root.iterdir()):
+                evidence.append({"target": str(safe_root), "package": package, "error": "existing skill backup missing"})
+        version_path = skills / primary / "VERSION"
+        if not version_path.exists():
+            evidence.append({"target": str(version_path), "error": "VERSION missing after install"})
+    return evidence
+
+
+def run_install_smoke(
+    repo_root: Path,
+    manifest: dict[str, Any],
+    installer_path: Path,
+    *,
+    seed_local_cache: bool,
+    timeout_seconds: int = 120,
+) -> list[dict[str, Any]]:
+    with tempfile.TemporaryDirectory(prefix="short-drama-install-smoke-") as tmp:
+        home = Path(tmp) / "home"
+        home.mkdir()
+        roots, root_errors = install_smoke_home(manifest, home)
+        if root_errors:
+            return [{"path": "release-manifest.json#runtime_roots", "errors": root_errors}]
+
+        cache = home / ".claude" / ".skill-repos" / manifest["canonical_repo"]["repo_name"]
+        if seed_local_cache:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            clone = subprocess.run(
+                ["git", "clone", "--quiet", str(repo_root), str(cache)],
+                cwd=repo_root,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            if clone.returncode != 0:
+                return [
+                    {
+                        "path": str(cache),
+                        "error": "local cache seed failed",
+                        "stderr": clone.stderr[-1000:],
+                    }
+                ]
+
+        env = os.environ.copy()
+        env.update(
+            {
+                "HOME": str(home),
+                "GIT_TERMINAL_PROMPT": "0",
+            }
+        )
+        result = subprocess.run(
+            ["bash", str(installer_path)],
+            cwd=repo_root,
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=timeout_seconds,
+            check=False,
+        )
+        evidence = []
+        if result.returncode != 0:
+            evidence.append(
+                {
+                    "path": str(installer_path),
+                    "returncode": result.returncode,
+                    "stdout_tail": result.stdout[-1000:],
+                    "stderr_tail": result.stderr[-1000:],
+                    "error": "installer exited non-zero",
+                }
+            )
+        evidence.extend(validate_install_smoke(manifest, home, roots))
+        return evidence
+
+
+def github_raw_url(manifest: dict[str, Any], installer: str) -> str:
+    remote = manifest["canonical_repo"]["remote"]
+    branch = manifest["canonical_repo"].get("branch", "main")
+    match = re.match(r"https://github\.com/([^/]+)/(.+?)(?:\.git)?$", remote)
+    if not match:
+        raise ValueError(f"Cannot derive GitHub raw URL from remote: {remote}")
+    owner, repo = match.groups()
+    return f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{installer}"
+
+
+def download_external_installer(manifest: dict[str, Any], dest: Path) -> tuple[Path | None, dict[str, Any] | None]:
+    installer = "install.sh"
+    try:
+        url = github_raw_url(manifest, installer)
+    except ValueError as exc:
+        return None, {"path": manifest["canonical_repo"].get("remote"), "error": str(exc)}
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            content = response.read()
+    except Exception as exc:  # noqa: BLE001 - surfaced as gate evidence.
+        return None, {"path": url, "error": f"download failed: {exc}"}
+    path = dest / installer
+    path.write_bytes(content)
+    path.chmod(0o755)
+    return path, None
+
+
+def check_installer_local_smoke(repo_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    installer = repo_root / "install.sh"
+    if not installer.exists():
+        return [{"path": str(installer), "error": "install.sh missing"}]
+    return run_install_smoke(repo_root, manifest, installer, seed_local_cache=True)
+
+
+def check_external_install_smoke(repo_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    with tempfile.TemporaryDirectory(prefix="short-drama-external-installer-") as tmp:
+        installer, error = download_external_installer(manifest, Path(tmp))
+        if error:
+            return [error]
+        assert installer is not None
+        return run_install_smoke(repo_root, manifest, installer, seed_local_cache=False)
 
 
 def sha256(path: Path) -> str:
@@ -640,6 +848,16 @@ def main() -> int:
     installer_contract_evidence = check_installer_contract(repo_root, manifest)
     if installer_contract_evidence:
         findings.append(finding("INSTALLER_CONTRACT", installer_contract_evidence, manifest))
+
+    if only_checks and "INSTALLER_LOCAL_SMOKE" in only_checks:
+        local_smoke_evidence = check_installer_local_smoke(repo_root, manifest)
+        if local_smoke_evidence:
+            findings.append(finding("INSTALLER_LOCAL_SMOKE", local_smoke_evidence, manifest))
+
+    if only_checks and "EXTERNAL_INSTALL_SMOKE" in only_checks:
+        external_smoke_evidence = check_external_install_smoke(repo_root, manifest)
+        if external_smoke_evidence:
+            findings.append(finding("EXTERNAL_INSTALL_SMOKE", external_smoke_evidence, manifest))
 
     bytecode_hits = package_bytecode(package_root)
     if bytecode_hits:

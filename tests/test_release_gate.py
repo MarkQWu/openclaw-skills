@@ -196,6 +196,70 @@ class ReleaseGateTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(self.check_ids(report), {"INSTALLER_CONTRACT"})
 
+    def test_installer_contract_targets_follow_manifest_runtime_roots(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-installer-targets-") as tmp:
+            tmp_path = Path(tmp)
+            package = tmp_path / "short-drama"
+            package.mkdir()
+            (package / "SKILL.md").write_text(
+                "---\nname: short-drama\ndescription: fixture\n---\n",
+                encoding="utf-8",
+            )
+            (tmp_path / "install.sh").write_text(
+                "#!/usr/bin/env bash\n"
+                "REPO_GITHUB='https://github.com/MarkQWu/drama-workshop-skills.git'\n"
+                "CACHE=\"$HOME/.alpha/.skill-repos/drama-workshop-skills\"\n"
+                "# .skill-trash .trash SKILL.md short-drama/VERSION\n"
+                "for d in \"$CACHE\"/*/; do echo \"$HOME/.alpha\"; done\n",
+                encoding="utf-8",
+            )
+            (tmp_path / "install.ps1").write_text(
+                "$repoGitHub = 'https://github.com/MarkQWu/drama-workshop-skills.git'\n"
+                "$cache = '.alpha'\n"
+                "# .skill-trash .trash SKILL.md short-drama\\VERSION\n"
+                'Get-ChildItem "$cache" -Directory | ForEach-Object { ".alpha" }\n',
+                encoding="utf-8",
+            )
+            manifest = self.load_real_manifest()
+            manifest["package_root"] = str(package)
+            manifest["distribution_repo"]["package_roots"] = ["short-drama"]
+            manifest["distribution_repo"]["installers"] = ["install.sh", "install.ps1"]
+            manifest["runtime_roots"] = [
+                {
+                    "name": "alpha",
+                    "path": "~/.alpha/skills/short-drama",
+                    "policy": "generated_copy",
+                    "required": True,
+                },
+                {
+                    "name": "beta",
+                    "path": "~/.beta/skills/short-drama",
+                    "policy": "generated_copy",
+                    "required": True,
+                },
+            ]
+            manifest["sibling_skills"] = []
+            manifest_path = write_manifest(tmp_path / "release-manifest.json", manifest)
+
+            result, report = run_gate_json(
+                "--dry-run",
+                "--manifest",
+                str(manifest_path),
+                "--check",
+                "INSTALLER_CONTRACT",
+            )
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(self.check_ids(report), {"INSTALLER_CONTRACT"})
+        self.assertIn(".beta", json.dumps(report, ensure_ascii=False))
+
+    def test_installer_local_smoke_passes_in_temp_home(self) -> None:
+        result, report = run_gate_json("--dry-run", "--check", "INSTALLER_LOCAL_SMOKE")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["status"], "pass")
+        self.assertEqual(self.check_ids(report), set())
+
     def test_excluded_policy_manifest_passes_runtime_policy_check(self) -> None:
         with tempfile.TemporaryDirectory(prefix="short-drama-gate-excluded-") as tmp:
             tmp_path = Path(tmp)

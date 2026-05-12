@@ -4,7 +4,7 @@
 
 用 AI 写能拍的微短剧，也能拆解参考短剧做换皮复刻——从选题到分镜，一条命令链走完。
 
-支持所有能加载 Skill 的 AI agent（Claude Code / OpenClaw / WorkBuddy 等）。
+支持所有能加载 Skill 的 AI agent（Claude Code / Codex / OpenClaw / WorkBuddy 等）。
 
 ## 它能做什么
 
@@ -25,7 +25,7 @@
 
 ## 安装
 
-前置条件：已安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)、[OpenClaw](https://github.com/nicekate/OpenClaw) 或 [WorkBuddy](https://workbuddy.app) 任意一个，并已安装 [Git](https://git-scm.com/downloads)。如果 GitHub 下载失败，请打开全局代理后重试。
+前置条件：已安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)、Codex、[OpenClaw](https://github.com/nicekate/OpenClaw) 或 [WorkBuddy](https://workbuddy.app) 任意一个，并已安装 [Git](https://git-scm.com/downloads)。如果 GitHub 下载失败，请打开全局代理后重试。
 
 **Mac / Linux**（打开终端，粘贴）：
 
@@ -41,7 +41,7 @@ irm https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main/install
 
 安装完成后**关闭当前会话，重新打开**，输入 `/开始` 看到引导就说明装好了。
 
-安装脚本会自动把 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash`、`~/.claude/skills/.trash` 这类旧备份迁移到同级 `.skill-trash/`，避免 WorkBuddy 递归扫描旧版 `SKILL.md`。
+安装脚本会自动把 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash`、`~/.codex/skills/.trash`、`~/.claude/skills/.trash` 这类旧备份迁移到同级 `.skill-trash/`，避免 WorkBuddy 递归扫描旧版 `SKILL.md`。
 
 > WorkBuddy 用户注意：同一个工作空间项目可能缓存旧 skill。重装后如果仍显示旧版本，请从工作空间移除/关闭当前项目，再重新打开该项目；这不会删除 `~/short-drama-projects/` 下的剧本项目。
 
@@ -250,7 +250,7 @@ cp -r drama-workshop-skills/short-drama ~/.claude/skills/short-drama
 cp -r drama-workshop-skills/short-drama-remake ~/.claude/skills/short-drama-remake
 ```
 
-**OpenClaw / WorkBuddy 用户：**
+**Codex / OpenClaw / WorkBuddy 用户：**
 
 ```bash
 if [ -d drama-workshop-skills/.git ]; then
@@ -259,18 +259,22 @@ else
   git clone https://github.com/MarkQWu/drama-workshop-skills.git
 fi
 stamp=$(date +%Y%m%d-%H%M%S)
-mkdir -p ~/.openclaw/skills ~/.workbuddy/skills ~/.openclaw/.skill-trash/manual-$stamp ~/.workbuddy/.skill-trash/manual-$stamp
+mkdir -p ~/.codex/skills ~/.openclaw/skills ~/.workbuddy/skills ~/.codex/.skill-trash/manual-$stamp ~/.openclaw/.skill-trash/manual-$stamp ~/.workbuddy/.skill-trash/manual-$stamp
+[ -d ~/.codex/skills/short-drama ] && mv ~/.codex/skills/short-drama ~/.codex/.skill-trash/manual-$stamp/
 [ -d ~/.openclaw/skills/short-drama ] && mv ~/.openclaw/skills/short-drama ~/.openclaw/.skill-trash/manual-$stamp/
 [ -d ~/.workbuddy/skills/short-drama ] && mv ~/.workbuddy/skills/short-drama ~/.workbuddy/.skill-trash/manual-$stamp/
+[ -d ~/.codex/skills/short-drama-remake ] && mv ~/.codex/skills/short-drama-remake ~/.codex/.skill-trash/manual-$stamp/
 [ -d ~/.openclaw/skills/short-drama-remake ] && mv ~/.openclaw/skills/short-drama-remake ~/.openclaw/.skill-trash/manual-$stamp/
 [ -d ~/.workbuddy/skills/short-drama-remake ] && mv ~/.workbuddy/skills/short-drama-remake ~/.workbuddy/.skill-trash/manual-$stamp/
+cp -r drama-workshop-skills/short-drama ~/.codex/skills/short-drama    # Codex
 cp -r drama-workshop-skills/short-drama ~/.openclaw/skills/short-drama   # OpenClaw
 cp -r drama-workshop-skills/short-drama ~/.workbuddy/skills/short-drama  # WorkBuddy
+cp -r drama-workshop-skills/short-drama-remake ~/.codex/skills/short-drama-remake    # Codex
 cp -r drama-workshop-skills/short-drama-remake ~/.openclaw/skills/short-drama-remake   # OpenClaw
 cp -r drama-workshop-skills/short-drama-remake ~/.workbuddy/skills/short-drama-remake  # WorkBuddy
 ```
 
-手动安装前，如果 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash` 或 `~/.claude/skills/.trash` 存在，请先把它们移动到同级 `.skill-trash/`，不要留在 `skills/` 目录内。
+手动安装前，如果 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash`、`~/.codex/skills/.trash` 或 `~/.claude/skills/.trash` 存在，请先把它们移动到同级 `.skill-trash/`，不要留在 `skills/` 目录内。
 
 ## License
 

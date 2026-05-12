@@ -116,8 +116,8 @@ if [ -d "$HOME/.claude" ]; then
   targets+=("$CLAUDE_SKILLS_DIR")
 fi
 
-# OpenClaw / WorkBuddy
-for ocdir in "$HOME/.openclaw" "$HOME/.workbuddy"; do
+# Codex / OpenClaw / WorkBuddy
+for ocdir in "$HOME/.codex" "$HOME/.openclaw" "$HOME/.workbuddy"; do
   if [ -d "$ocdir" ]; then
     oc_skills="$ocdir/skills"
     mkdir -p "$oc_skills"
@@ -186,7 +186,7 @@ if [ "$installed" -gt 0 ]; then
   echo ""
   echo "版本：$version"
   echo ""
-  echo "关闭当前 Claude Code / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
+  echo "关闭当前 Claude Code / Codex / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
   echo "WorkBuddy 用户：需要从工作空间移除/关闭当前项目再重新打开，单独新建对话可能仍沿用旧 skill 缓存。"
   echo "这不会删除 ~/short-drama-projects/ 下的剧本项目。"
 else

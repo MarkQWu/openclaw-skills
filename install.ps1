@@ -110,8 +110,8 @@ if (Test-Path $claudeDir) {
     $targets += Join-Path $claudeDir "skills"
 }
 
-# OpenClaw / WorkBuddy
-foreach ($name in @(".openclaw", ".workbuddy")) {
+# Codex / OpenClaw / WorkBuddy
+foreach ($name in @(".codex", ".openclaw", ".workbuddy")) {
     $dir = Join-Path $env:USERPROFILE $name
     if (Test-Path $dir) {
         $targets += Join-Path $dir "skills"
@@ -168,7 +168,7 @@ if ($installed -gt 0) {
     Write-Host ""
     Write-Host "版本：$version" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "关闭当前 Claude Code / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
+    Write-Host "关闭当前 Claude Code / Codex / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
     Write-Host "WorkBuddy 用户：需要从工作空间移除/关闭当前项目再重新打开，单独新建对话可能仍沿用旧 skill 缓存。"
     Write-Host "这不会删除 ~/short-drama-projects/ 下的剧本项目。"
 } else {
