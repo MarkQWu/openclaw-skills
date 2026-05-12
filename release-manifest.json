@@ -139,7 +139,11 @@
       "1": "usage or manifest error",
       "2": "blocking findings present"
     },
-    "writes_allowed": false
+    "writes_allowed": {
+      "default_checks": false,
+      "explicit_smoke_checks": "temporary HOME only",
+      "real_runtime_roots": false
+    }
   },
   "smoke_tests": [
     {
