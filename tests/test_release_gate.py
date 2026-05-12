@@ -44,12 +44,70 @@ def write_manifest(path: Path, manifest: dict) -> Path:
     return path
 
 
+def run_cmd(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(args, cwd=cwd, text=True, capture_output=True, check=False)
+
+
 class ReleaseGateTests(unittest.TestCase):
     def load_real_manifest(self) -> dict:
         return json.loads(MANIFEST.read_text(encoding="utf-8"))
 
     def check_ids(self, report: dict) -> set[str]:
         return set(report["summary"]["checks_failed"])
+
+    def write_local_smoke_repo(self, tmp_path: Path) -> Path:
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        (repo / "install.sh").write_text((REPO_ROOT / "install.sh").read_text(encoding="utf-8"), encoding="utf-8")
+        for package in ("short-drama", "short-drama-remake"):
+            package_root = repo / package
+            package_root.mkdir()
+            (package_root / "SKILL.md").write_text(
+                f"---\nname: {package}\ndescription: fixture\n---\n",
+                encoding="utf-8",
+            )
+            (package_root / "VERSION").write_text("9.9.9\n", encoding="utf-8")
+        manifest = self.load_real_manifest()
+        manifest["canonical_repo"]["path"] = str(repo)
+        manifest["canonical_repo"]["remote"] = "https://github.com/MarkQWu/drama-workshop-skills.git"
+        manifest["canonical_repo"]["repo_name"] = "drama-workshop-skills"
+        manifest["package_root"] = "short-drama"
+        manifest["distribution_repo"]["package_roots"] = ["short-drama", "short-drama-remake"]
+        manifest["distribution_repo"]["installers"] = ["install.sh"]
+        manifest["runtime_roots"] = [
+            {
+                "name": "claude",
+                "path": "~/.claude/skills/short-drama",
+                "policy": "generated_copy",
+                "required": True,
+            },
+            {
+                "name": "codex",
+                "path": "~/.codex/skills/short-drama",
+                "policy": "generated_copy",
+                "required": True,
+            },
+        ]
+        manifest["sibling_skills"] = []
+        write_manifest(repo / "release-manifest.json", manifest)
+
+        self.assertEqual(run_cmd(["git", "init"], repo).returncode, 0)
+        self.assertEqual(run_cmd(["git", "add", "."], repo).returncode, 0)
+        commit = run_cmd(
+            [
+                "git",
+                "-c",
+                "user.email=fixture@example.invalid",
+                "-c",
+                "user.name=Fixture",
+                "commit",
+                "-m",
+                "fixture",
+            ],
+            repo,
+        )
+        self.assertEqual(commit.returncode, 0, commit.stderr)
+        return repo
 
     def write_runtime_drift_fixture_manifest(self, tmp_path: Path) -> Path:
         runtime_parent = tmp_path / "runtime"
@@ -254,11 +312,35 @@ class ReleaseGateTests(unittest.TestCase):
         self.assertIn(".beta", json.dumps(report, ensure_ascii=False))
 
     def test_installer_local_smoke_passes_in_temp_home(self) -> None:
-        result, report = run_gate_json("--dry-run", "--check", "INSTALLER_LOCAL_SMOKE")
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-local-smoke-") as tmp:
+            repo = self.write_local_smoke_repo(Path(tmp))
+            result, report = run_gate_json(
+                "--dry-run",
+                "--manifest",
+                str(repo / "release-manifest.json"),
+                "--check",
+                "INSTALLER_LOCAL_SMOKE",
+            )
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(report["status"], "pass")
         self.assertEqual(self.check_ids(report), set())
+
+    def test_installer_local_smoke_requires_clean_worktree(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="short-drama-gate-local-smoke-dirty-") as tmp:
+            repo = self.write_local_smoke_repo(Path(tmp))
+            (repo / "UNCOMMITTED.md").write_text("dirty\n", encoding="utf-8")
+            result, report = run_gate_json(
+                "--dry-run",
+                "--manifest",
+                str(repo / "release-manifest.json"),
+                "--check",
+                "INSTALLER_LOCAL_SMOKE",
+            )
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(self.check_ids(report), {"INSTALLER_LOCAL_SMOKE"})
+        self.assertIn("commit or clean worktree", json.dumps(report, ensure_ascii=False))
 
     def test_excluded_policy_manifest_passes_runtime_policy_check(self) -> None:
         with tempfile.TemporaryDirectory(prefix="short-drama-gate-excluded-") as tmp:
