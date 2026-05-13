@@ -85,6 +85,7 @@ nodes:
         - reference_mapping_report_validity
         - remake_risk_gate
         - artifact_registry_readability
+        - three_layer_control_boundary
         - planned_read_manifest_build
         - forbidden_read_wrapper
     output_contract:
@@ -98,6 +99,7 @@ nodes:
       - no_forbidden_read
       - body_generated_false_when_blocked
       - p10_consumes_reports_not_full_nodes
+      - preflight_does_not_block_on_flesh_only
 
   - node_id: script_draft.postflight
     normalized_intent: close_episode_script
@@ -110,3 +112,6 @@ nodes:
       - node_id: next_episode.resume
         route_allowed_when: postflight_report.report_status == passed
         unlock_written_by: registry_continuation_gate
+    regression_assertions:
+      - postflight_names_memorable_moment_before_quality_pass
+      - flesh_weakness_without_foundation_or_skeleton_failure_requests_revision_not_unlock

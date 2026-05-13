@@ -17,6 +17,12 @@
 
 After every substantial output, the skill should show what was completed, what files or artifacts now matter, why the next stage follows, and 2-4 copy-paste next commands.
 
+The workflow uses a three-layer control model:
+
+- Foundation: source scope, canon, compliance, character core, project state, and similarity boundaries are hard gates.
+- Skeleton: episode function, viewer emotion, payoff/setup, and hook function are locked, while concrete implementation stays open.
+- Flesh: dialogue wording, micro-action, sensory detail, sentence rhythm, and memorable texture stay maximally free unless they break Foundation or Skeleton rules.
+
 ## Command Layer
 
 The `/仿写` command layer is a lightweight entry map, not a second workflow engine.
@@ -66,6 +72,8 @@ Before writing an episode script, the project must have readable current artifac
 - accepted canon
 
 `script_draft.preflight` consumes those artifacts and reports. It must not rerun full `resume.restore`, `fact_gate.validate`, `source.validate`, or `reference_map.validate` inside the script-drafting node.
+
+Preflight blocks only Foundation/Skeleton failures. Flesh-layer concerns can warn or request revision in postflight, but they must not silently become hard gates before body generation.
 
 ## Blocking Summary
 

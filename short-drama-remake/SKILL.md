@@ -16,6 +16,8 @@ Match the user's current working language by default. If the user writes in Chin
 
 If the source text, screenshot, or video frame is unclear, mark the uncertain part as `[待确认]` instead of inventing it.
 
+Use [references/three-layer-control.md](references/three-layer-control.md) as the control boundary for all remake stages: Foundation rules are hard gates, Skeleton rules lock story function while freeing implementation, and Flesh rules protect creative texture. Do not use foundation-level strictness to police dialogue wording, micro-actions, sensory detail, or sentence rhythm unless they violate canon, compliance, source truth, or remake distance.
+
 ## User Guidance Surface
 
 When the user invokes `/仿写` without enough material, respond as a guided product flow, not as an internal protocol:
@@ -88,6 +90,7 @@ For managed remake projects, use the Phase 4 contract files instead of relying o
 - `references/schema/node-route-table.yaml` defines route boundaries and the fixed `script_draft.preflight` order.
 - `references/schema/reports.yaml` defines SIR/RMR/FGR/preflight/postflight report fields. Reports use `report_status`; only the registry owns `gate_status`.
 - `references/checker/deterministic-checker.md` defines deterministic checker scope and the LLM review boundary.
+- `references/three-layer-control.md` defines which constraints can block generation and which belong to creative review.
 - `references/fixtures/` contains regression fixture contracts and initial samples.
 
 Before drafting a script in a managed project, run or mentally apply `script_draft.preflight`. This gate is the only script-generation entry; do not skip from project plan or episode outline directly to an episode body.
@@ -97,7 +100,8 @@ Before drafting a script in a managed project, run or mentally apply `script_dra
 3. Consume the latest `fact_gate_report`, `source_integrity_report`, and `reference_mapping_report`. Do not rejudge P9/P12 inside script drafting.
 4. Verify `reference-expression-guide.md`, `factor-scorecard.yaml`, `remake-risk-audit.md`, `project-state.md`, and accepted canon are registered and readable.
 5. Reject forbidden reads: `short-drama/SKILL.md`, `short-drama/references/*.md`, raw source bundles, `research-notes.md`, `_legacy_review/**`, `09_experiments/**`, candidates, drafts, and tmp files.
-6. If blocked, return one user-visible blocking summary and set `body_generated=false`. Do not create an episode script.
+6. Apply the three-layer boundary: preflight blocks only Foundation/Skeleton failures. Flesh concerns such as weak dialogue texture, bland sensory detail, or generic sentence rhythm may be warnings for postflight, but must not by themselves block body generation.
+7. If blocked, return one user-visible blocking summary and set `body_generated=false`. Do not create an episode script.
 
 The blocking summary must include: blocking reason, affected scope, whether it blocks only the target episode or the whole project, recommended next step, and available user actions. Render it for the user as:
 
@@ -111,6 +115,8 @@ The blocking summary must include: blocking reason, affected scope, whether it b
 Do not expose the full internal registry, gate, trace, or transaction fields unless the user explicitly asks for debug detail.
 
 After drafting, run `script_draft.postflight` before unlocking the next episode. A script is not complete until quality passes, user review accepts it, canon is committed, state is updated, risk/sync checks pass, read trace is clean, and the next episode gate is unlocked. `quality_gate_status=passed` alone is not enough; continuation must use top-level `postflight_report.report_status == passed`.
+
+Postflight must include a Flesh-layer memorability check: name the one concrete moment, line, action, or image a viewer can remember. If the answer is only "the process passed" or "the hook exists", mark the episode as process-clean but creatively weak and request revision before treating it as quality-passed.
 
 Command-layer aliases do not weaken this rule. `/仿写 写集 N`, `/仿写 继续写第 N 集`, and any natural-language continuation request must still pass through the same preflight/postflight protocol.
 
@@ -169,7 +175,7 @@ For each selected concept, perform a second-layer replacement pass before outlin
    - For managed projects, create both `01_skeleton/reference-skeleton.md` and `01_skeleton/reference-expression-guide.md`; use `01_skeleton/factor-scorecard.yaml` for evidence-based transferable factors.
 
 3. **Make a reusable skeleton table**
-   - Per episode: function, protagonist pressure, antagonist action, viewer emotion,爽点/憋屈点, hook, what to preserve, what to replace.
+   - Per episode: use the `three-layer-control.md#Skeleton Table Contract` fields: `locked_episode_function`, `locked_viewer_emotion`, `locked_hook_function`, `locked_payoff_or_setup`, `must_replace_surface`, `free_implementation_zone`, and `distance_test`.
 
 4. **换皮不换骨**
    - Generate multiple concept skins that keep the skeleton but change genre, world, identities, power tokens, scenes, and dialogue logic.
@@ -181,13 +187,14 @@ For each selected concept, perform a second-layer replacement pass before outlin
    - Produce project plan, logline, audience, world rules, character bios, relationship map, protagonist oppression source, comeback resource, key props, and first 10 episodes.
    - Explain the replacement logic for the core resource, power system, public proof scene, antagonist profit model, and long-term emotional hook.
    - Include a雷同风险自检 that lists which surface elements must still be changed before scripting.
+   - Include a `复刻权限表`: Foundation locked items, Skeleton locked functions, and Flesh free zones. This table prevents later drafts from treating optional texture choices as hard constraints.
 
 6. **Write detailed episode outlines**
    - For each episode, use 起、承、转、合.
    - Include exact episode function and ending hook.
    - Make each episode script-ready: visible opening conflict, pressure action, reversal action, concrete prop/evidence, and a shootable ending image.
    - Avoid outlines that only restate the project plan. Each episode needs new incident detail.
-   - For managed projects, convert the target episode outline into `04_outlines/episodes/epXXX.execution-card.md` before script drafting. The execution card is the direct control surface for script generation.
+   - For managed projects, convert the target episode outline into `04_outlines/episodes/epXXX.execution-card.md` before script drafting. The execution card is the direct control surface for script generation and must separate `locked_story_job`, `locked_entry_pressure`, `locked_turning_point`, `locked_exit_hook`, `free_scene_options`, `free_dialogue_options`, and `surface_replacement_notes`.
 
 7. **Draft shooting-ready script**
    - In managed projects, script drafting starts only after `script_draft.preflight` passes. Missing execution card, stale source/reference reports, open blocking risks, unverified direct facts, or forbidden reads block the draft.
@@ -206,6 +213,8 @@ For each selected concept, perform a second-layer replacement pass before outlin
    - Judge dialogue by character fit, scene pressure, plot function, and short-drama rhythm.
    - Check stage leakage: if a script draft starts doing concept planning or if a concept list starts writing full scenes, return it to the requested stage.
    - Check remake distance: preserve the emotional/functional skeleton while increasing the distance of specific incidents from the reference.
+   - Apply the three-layer boundary: fix Foundation/Skeleton violations decisively, but treat Flesh-layer choices as craft suggestions unless they copy protected expression, break character core, violate compliance, or erase the locked story job.
+   - Always answer: "What is the one concrete moment a viewer remembers from this episode?" If no concrete moment can be named, ask for revision instead of declaring creative quality passed.
    - In managed projects, use postflight status as the only next-episode unlock signal. Do not unlock continuation from a partial quality pass or from a draft that has not been accepted into canon and state.
    - If a candidate script exists but postflight is missing, incomplete, not user-accepted, or not committed to canon/state, block continuation and return a user-visible postflight blocking summary instead of writing the next episode.
 

@@ -61,6 +61,8 @@ POSTFLIGHT_REGISTRY_OWNED_FIELDS = {
     "last_transaction_id",
 }
 
+CONTROL_LAYERS = {"foundation", "skeleton", "flesh"}
+
 
 class CheckFailure(Exception):
     pass
@@ -397,6 +399,12 @@ def assert_postflight_contract(fixture: dict[str, Any]) -> None:
             raise CheckFailure(f"{fixture['fixture_id']}: postflight passed requires risk_recheck.status=passed")
         if sync_check.get("status") != "passed":
             raise CheckFailure(f"{fixture['fixture_id']}: postflight passed requires sync_check.status=passed")
+        memorable_moment = report.get("memorable_moment_check", {})
+        if memorable_moment.get("status") != "passed":
+            raise CheckFailure(f"{fixture['fixture_id']}: postflight passed requires memorable_moment_check.status=passed")
+        moment = str(memorable_moment.get("moment", "")).strip()
+        if not moment:
+            raise CheckFailure(f"{fixture['fixture_id']}: postflight passed requires a concrete memorable moment")
     else:
         if result.get("downstream_unlocked") is not False:
             raise CheckFailure(f"{fixture['fixture_id']}: non-passed postflight must set downstream_unlocked=false")
@@ -423,6 +431,41 @@ def assert_postflight_contract(fixture: dict[str, Any]) -> None:
         raise CheckFailure(f"{fixture['fixture_id']}: postflight required artifacts missing: {sorted(missing_artifacts)}")
 
 
+def assert_three_layer_control_contract(fixture: dict[str, Any]) -> None:
+    assertions = fixture.get("assertions", {}).get("three_layer_control_assertion", {})
+    if not assertions:
+        return
+
+    result = fixture.get("expected_result", {})
+    boundary = result.get("three_layer_control_boundary")
+    if not isinstance(boundary, dict):
+        raise CheckFailure(f"{fixture['fixture_id']}: three_layer_control_boundary is required")
+
+    blocking_layers = set(boundary.get("blocking_layers", []))
+    warning_layers = set(boundary.get("warning_layers", []))
+    unknown_layers = (blocking_layers | warning_layers).difference(CONTROL_LAYERS)
+    if unknown_layers:
+        raise CheckFailure(f"{fixture['fixture_id']}: unknown control layers: {sorted(unknown_layers)}")
+
+    if assertions.get("preflight_blocks_only_foundation_or_skeleton") is True:
+        invalid_blockers = blocking_layers.difference({"foundation", "skeleton"})
+        if invalid_blockers:
+            raise CheckFailure(
+                f"{fixture['fixture_id']}: preflight cannot hard-block on layers: {sorted(invalid_blockers)}"
+            )
+
+    required_free_zones = set(assertions.get("required_free_zones", []))
+    free_zones = set(boundary.get("free_zones", []))
+    missing_free_zones = required_free_zones.difference(free_zones)
+    if missing_free_zones:
+        raise CheckFailure(f"{fixture['fixture_id']}: missing free zones: {sorted(missing_free_zones)}")
+
+    if assertions.get("requires_memorable_moment_question") is True:
+        questions = set(boundary.get("postflight_questions", []))
+        if "memorable_moment" not in questions:
+            raise CheckFailure(f"{fixture['fixture_id']}: postflight questions must include memorable_moment")
+
+
 def check_fixture(path: Path) -> list[str]:
     fixture = load_json_compatible_yaml(path)
     assert_required_fields(fixture, path)
@@ -439,6 +482,7 @@ def check_fixture(path: Path) -> list[str]:
     assert_fast_confirmed_invalidation(fixture)
     assert_phase5_specific_contracts(fixture)
     assert_postflight_contract(fixture)
+    assert_three_layer_control_contract(fixture)
     return [f"ok fixture {fixture['fixture_id']}"]
 
 
@@ -485,6 +529,7 @@ def run_self_test() -> list[str]:
     assert_transaction_contract(synthetic)
     assert_fast_confirmed_invalidation(synthetic)
     assert_phase5_specific_contracts(synthetic)
+    assert_three_layer_control_contract(synthetic)
     return ["ok self-test"]
 
 

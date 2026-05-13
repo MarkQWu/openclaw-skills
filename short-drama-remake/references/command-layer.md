@@ -42,6 +42,8 @@ These commands are optional aids for uncertain moments. They are not required ga
 
 Preferred public labels for docs are `方向评审`, `方案评审`, and `剧本诊断`. If the user inputs `方向会`, `方案会`, or `诊断会 N`, treat them as aliases.
 
+Advisory meetings may discuss Flesh-layer quality, but they must not convert style preferences into Foundation or Skeleton gates. When an advisory meeting recommends a craft change, label it as `建议` unless it fixes source truth, canon, compliance, remake distance, or locked story function.
+
 ## Status Command Contract
 
 `/仿写 状态 [项目目录]` is read-only.
