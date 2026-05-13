@@ -728,6 +728,66 @@ def compare_runtime(
     return status
 
 
+def runtime_package_specs(
+    repo_root: Path,
+    package_root: Path,
+    manifest: dict[str, Any],
+    excluded: list[str],
+    primary_package_files: dict[str, str],
+) -> list[dict[str, Any]]:
+    specs: list[dict[str, Any]] = []
+    package_roots = manifest.get("distribution_repo", {}).get("package_roots", [])
+    if not package_roots:
+        package_roots = [manifest["package_root"]]
+
+    for runtime in manifest.get("runtime_roots", []):
+        policy = runtime.get("policy")
+        if policy in {
+            "excluded",
+            "intentionally_excluded",
+            "intentionally excluded by manifest",
+            "symlink",
+            "declared_symlink",
+            "declared symlink",
+        }:
+            runtime_package_roots = [manifest["package_root"]]
+        else:
+            runtime_package_roots = package_roots
+
+        for package in runtime_package_roots:
+            source_root = expand(str(package), repo_root)
+            if source_root == package_root:
+                source_files = primary_package_files
+            else:
+                source_files = list_files(source_root, excluded)
+
+            package_name = source_root.name
+            runtime_path = Path(os.path.expanduser(runtime["path"]))
+            if not runtime_path.is_absolute():
+                runtime_path = runtime_path.resolve()
+            if policy not in {
+                "excluded",
+                "intentionally_excluded",
+                "intentionally excluded by manifest",
+                "symlink",
+                "declared_symlink",
+                "declared symlink",
+            } and runtime_path.name != package_name:
+                runtime_path = runtime_path.parent / package_name
+            runtime_spec = dict(runtime)
+            runtime_spec["name"] = f"{runtime.get('name', 'runtime')}:{package_name}"
+            runtime_spec["path"] = str(runtime_path)
+            specs.append(
+                {
+                    "package": package_name,
+                    "package_root": source_root,
+                    "package_files": source_files,
+                    "runtime": runtime_spec,
+                }
+            )
+    return specs
+
+
 def finding(
     check_id: str,
     evidence: Any,
@@ -973,16 +1033,20 @@ def main() -> int:
     if repo_name_hits:
         findings.append(finding("UPDATE_REPO_NAME_DRIFT", repo_name_hits, manifest))
 
-    for runtime in manifest.get("runtime_roots", []):
-        status = compare_runtime(package_root, runtime, excluded, package_files)
+    for spec in runtime_package_specs(repo_root, package_root, manifest, excluded, package_files):
+        status = compare_runtime(
+            spec["package_root"],
+            spec["runtime"],
+            excluded,
+            spec["package_files"],
+        )
+        status["package"] = spec["package"]
         runtime_statuses.append(status)
         allowed_states = set(manifest.get("runtime_policy", {}).get("allowed_states", ["hash-equivalent"]))
         if status["state"] not in allowed_states:
             runtime_policy_evidence.append(status)
 
-        if status["state"] == "intentionally excluded by manifest":
-            continue
-
+    for runtime in manifest.get("runtime_roots", []):
         runtime_root = Path(os.path.expanduser(runtime["path"])).resolve()
         for sibling in manifest.get("sibling_skills", []):
             if not sibling.get("runtime_required", False):
