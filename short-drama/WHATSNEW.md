@@ -1,3 +1,11 @@
+**v1.31.16**（2026-05-13）
+
+修复 `/更新` 的用户路径：普通用户仍只需要在 agent 里输入 `/更新`，或接受自动更新提示；更新过程不再向用户暴露底层安装细节。安装底层改为工具无关的统一版本源，Claude / Codex / OpenClaw / WorkBuddy 共用同一份本地 skill，避免多 agent 复制目录导致版本漂移。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.15**（2026-05-11）
 
 继续补强 release readiness gate：新增安装器契约检查，自动确认 `install.sh` / `install.ps1` 指向 `drama-workshop-skills`、使用 `.skill-trash` 安全备份、迁移旧 `skills/.trash`、按 `SKILL.md` discovery 安装仓库内 skills，并避免破坏性删除命令。不迁移 runtime。

@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 
 $repoGitHub = "https://github.com/MarkQWu/drama-workshop-skills.git"
 $repoMirror = "https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
-$cache = Join-Path $env:USERPROFILE ".claude\.skill-repos\drama-workshop-skills"
+$cache = Join-Path $env:USERPROFILE ".gobuildit\skill-repos\drama-workshop-skills"
 $scriptDir = if ($PSCommandPath) { Split-Path -Parent $PSCommandPath } else { "" }
 
 Write-Host "=== gobuildit Skills 安装器 ===" -ForegroundColor Cyan
@@ -33,6 +33,27 @@ function Move-EmbeddedTrash($skillsDir) {
         Write-Host "  已迁移旧备份: $trashDir → $dest" -ForegroundColor Yellow
     } catch {
         Write-Host "  警告：无法迁移 $trashDir，请手动移出 skills 目录，避免旧 skill 被扫描。" -ForegroundColor Yellow
+    }
+}
+
+function Get-LinkTarget($path) {
+    $item = Get-Item $path -Force -ErrorAction SilentlyContinue
+    if (-not $item -or -not $item.LinkType) { return "" }
+    if ($item.Target -is [array]) { return ($item.Target | Select-Object -First 1) }
+    return [string]$item.Target
+}
+
+function New-SkillLink($target, $source) {
+    try {
+        New-Item -ItemType Junction -Path $target -Target $source -ErrorAction Stop | Out-Null
+        return
+    } catch {
+        try {
+            New-Item -ItemType SymbolicLink -Path $target -Target $source -ErrorAction Stop | Out-Null
+            return
+        } catch {
+            throw "无法完成安装。请以管理员身份运行终端，或开启 Windows 开发者模式后重试。"
+        }
     }
 }
 
@@ -84,10 +105,10 @@ function Try-Pull($dir) {
 }
 
 # Clone 或更新仓库到唯一 canonical 目录。
-# 本地从完整 repo 运行时直接引用当前 checkout；irm | iex 时使用 ~/.claude/.skill-repos 下的唯一缓存 repo。
+# 本地从完整 repo 运行时直接引用当前 checkout；irm | iex 时使用 ~/.gobuildit/skill-repos 下的唯一缓存 repo。
 if ($scriptDir -and (Test-Path (Join-Path $scriptDir "short-drama\SKILL.md")) -and (Test-Path (Join-Path $scriptDir ".git"))) {
     $cache = $scriptDir
-    Write-Host "使用本地仓库作为唯一版本源：$cache" -ForegroundColor Gray
+    Write-Host "使用本地仓库安装。" -ForegroundColor Gray
 } else {
     $cacheParent = Split-Path $cache -Parent
     if (-not (Test-Path $cacheParent)) { New-Item -ItemType Directory -Path $cacheParent -Force | Out-Null }
@@ -97,7 +118,7 @@ if ($scriptDir -and (Test-Path (Join-Path $scriptDir "short-drama\SKILL.md")) -a
     } else {
         if (Test-Path $cache) {
             Move-Item -Path $cache -Destination "$cache.backup-$(Get-Timestamp)" -Force -ErrorAction SilentlyContinue
-            if (Test-Path $cache) { throw "无法备份旧缓存目录，请关闭占用它的程序后重试：$cache" }
+            if (Test-Path $cache) { throw "无法准备安装目录，请关闭正在占用它的程序后重试。" }
         }
         $ok = Try-Clone $cache
     }
@@ -137,10 +158,16 @@ foreach ($skillsDir in $targets) {
     Move-EmbeddedTrash $skillsDir
     Get-ChildItem "$cache" -Directory | Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } | ForEach-Object {
         $target = Join-Path $skillsDir $_.Name
-        $existing = Get-Item $target -Force -ErrorAction SilentlyContinue
-        if ($existing -and $existing.LinkType -and ($existing.Target -eq $_.FullName)) {
+        $existingTarget = Get-LinkTarget $target
+        if ($existingTarget -and ((Resolve-Path $existingTarget -ErrorAction SilentlyContinue).Path -eq $_.FullName)) {
             $installed++
             return
+        }
+        if ($existingTarget -and -not (Test-Path $existingTarget)) {
+            $safeRoot = Join-Path (Split-Path $skillsDir -Parent) ".skill-trash"
+            if (-not (Test-Path $safeRoot)) { New-Item -ItemType Directory -Path $safeRoot -Force | Out-Null }
+            $backup = Join-Path $safeRoot ("broken-link-" + $_.Name + "-" + (Get-Timestamp))
+            Move-Item -Path $target -Destination $backup -Force -ErrorAction SilentlyContinue
         }
         if (Test-Path $target) {
             $safeRoot = Join-Path (Split-Path $skillsDir -Parent) ".skill-trash"
@@ -152,8 +179,8 @@ foreach ($skillsDir in $targets) {
                 return
             }
         }
-        New-Item -ItemType Junction -Path $target -Target $_.FullName | Out-Null
-        Write-Host "  已引用: $($_.Name) → $($_.FullName)"
+        New-SkillLink $target $_.FullName
+        Write-Host "  已安装: $($_.Name)"
         $installed++
     }
 }
@@ -183,12 +210,8 @@ if (-not $version) { $version = "unknown" }
 Write-Host ""
 if ($installed -gt 0) {
     Write-Host "安装成功！" -ForegroundColor Green
-    foreach ($t in $targets) {
-        Write-Host "  → $t"
-    }
     Write-Host ""
     Write-Host "版本：$version" -ForegroundColor Gray
-    Write-Host "唯一版本源：$cache" -ForegroundColor Gray
     Write-Host ""
     Write-Host "关闭当前 Claude Code / Codex / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
     Write-Host "WorkBuddy 用户：需要从工作空间移除/关闭当前项目再重新打开，单独新建对话可能仍沿用旧 skill 缓存。"

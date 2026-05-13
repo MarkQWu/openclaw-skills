@@ -449,7 +449,7 @@ def run_install_smoke(
         if root_errors:
             return [{"path": "release-manifest.json#runtime_roots", "errors": root_errors}]
 
-        cache = home / ".claude" / ".skill-repos" / manifest["canonical_repo"]["repo_name"]
+        cache = home / ".gobuildit" / "skill-repos" / manifest["canonical_repo"]["repo_name"]
         if seed_local_cache:
             cache.parent.mkdir(parents=True, exist_ok=True)
             clone = subprocess.run(

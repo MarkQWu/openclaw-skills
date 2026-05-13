@@ -1,6 +1,6 @@
 # 爆款剧本工坊 | Drama Workshop
 
-**当前版本：v1.31.15**（2026-05-11）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/drama-workshop-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
+**当前版本：v1.31.16**（2026-05-13）· 版本历史见 [GitHub Releases](https://github.com/MarkQWu/drama-workshop-skills/releases) · 小白看 [使用说明](short-drama/使用说明.md)
 
 用 AI 写能拍的微短剧，也能拆解参考短剧做换皮复刻——从选题到分镜，一条命令链走完。
 
@@ -41,7 +41,7 @@ irm https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main/install
 
 安装完成后**关闭当前会话，重新打开**，输入 `/开始` 看到引导就说明装好了。
 
-安装脚本会只保留一个本地版本源：`curl | bash` 安装时是 `~/.claude/.skill-repos/drama-workshop-skills`，从本地仓库运行 `bash install.sh` 时是当前 checkout。Claude / Codex / OpenClaw / WorkBuddy 的 `skills/<name>` 只放 symlink 指向这个版本源，不再复制多份目录。
+安装脚本会自动让 Claude / Codex / OpenClaw / WorkBuddy 共用同一份本地 Skill，普通使用和 `/更新` 不需要处理目录路径。
 
 安装脚本会自动把 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash`、`~/.codex/skills/.trash`、`~/.claude/skills/.trash` 这类旧备份迁移到同级 `.skill-trash/`，避免 WorkBuddy 递归扫描旧版 `SKILL.md`。
 

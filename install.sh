@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO_GITHUB="https://github.com/MarkQWu/drama-workshop-skills.git"
 REPO_MIRROR="https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
-CACHE="$HOME/.claude/.skill-repos/drama-workshop-skills"
+CACHE="$HOME/.gobuildit/skill-repos/drama-workshop-skills"
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
 OPENCLAW_SKILLS_DIR="$HOME/.openclaw/skills"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P || pwd)"
@@ -93,10 +93,10 @@ try_pull() {
 }
 
 # Clone 或更新仓库到唯一 canonical 目录。
-# 本地从完整 repo 运行时直接引用当前 checkout；curl | bash 时使用 ~/.claude/.skill-repos 下的唯一缓存 repo。
+# 本地从完整 repo 运行时直接引用当前 checkout；curl | bash 时使用 ~/.gobuildit/skill-repos 下的唯一缓存 repo。
 if [ -f "$SCRIPT_DIR/short-drama/SKILL.md" ] && [ -d "$SCRIPT_DIR/.git" ]; then
   CACHE="$SCRIPT_DIR"
-  echo "使用本地仓库作为唯一版本源：$CACHE"
+  echo "使用本地仓库安装。"
 else
   mkdir -p "$(dirname "$CACHE")"
   if [ -d "$CACHE/.git" ]; then
@@ -205,12 +205,8 @@ fi
 echo ""
 if [ "$installed" -gt 0 ]; then
   echo "安装成功！"
-  for t in "${targets[@]}"; do
-    echo "  → $t"
-  done
   echo ""
   echo "版本：$version"
-  echo "唯一版本源：$CACHE"
   echo ""
   echo "关闭当前 Claude Code / Codex / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
   echo "WorkBuddy 用户：需要从工作空间移除/关闭当前项目再重新打开，单独新建对话可能仍沿用旧 skill 缓存。"
