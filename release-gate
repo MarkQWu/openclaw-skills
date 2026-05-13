@@ -350,11 +350,15 @@ def check_installer_contract(repo_root: Path, manifest: dict[str, Any]) -> list[
             errors.append("SKILL.md discovery install logic missing")
         if "short-drama/VERSION" not in text and "short-drama\\VERSION" not in text:
             errors.append("short-drama VERSION display source missing")
+        if "cp -r" in text or "Copy-Item -Recurse" in text:
+            errors.append("installer must link to canonical repo instead of copying skill directories")
         if "rm -rf" in text or "Remove-Item" in text:
             errors.append("destructive removal command present")
         if installer.endswith(".sh"):
             if 'for d in "$CACHE"/*/' not in text:
                 errors.append("shell installer does not iterate cache package directories")
+            if "ln -s" not in text:
+                errors.append("shell installer does not symlink skills to the canonical repo")
             for target in target_roots:
                 marker = f"$HOME/{target}"
                 if marker not in text:
@@ -362,6 +366,8 @@ def check_installer_contract(repo_root: Path, manifest: dict[str, Any]) -> list[
         elif installer.endswith(".ps1"):
             if "Get-ChildItem" not in text or "$cache" not in text:
                 errors.append("PowerShell installer does not iterate cache package directories")
+            if "Junction" not in text and "SymbolicLink" not in text:
+                errors.append("PowerShell installer does not link skills to the canonical repo")
             for target in target_roots:
                 if target not in text:
                     errors.append(f"PowerShell target {target} missing")
@@ -415,6 +421,10 @@ def validate_install_smoke(manifest: dict[str, Any], home: Path, roots: list[str
             skill_path = package_dir / "SKILL.md"
             if not skill_path.exists():
                 evidence.append({"target": str(package_dir), "error": "SKILL.md missing after install"})
+            if not package_dir.is_symlink():
+                evidence.append({"target": str(package_dir), "error": "skill target is not a symlink to the canonical repo"})
+            elif not (package_dir.resolve() / "SKILL.md").exists():
+                evidence.append({"target": str(package_dir), "error": "symlink target does not contain SKILL.md"})
             backup_prefix = f"reinstall-{package}-"
             if safe_root.exists() and not any(path.name.startswith(backup_prefix) for path in safe_root.iterdir()):
                 evidence.append({"target": str(safe_root), "package": package, "error": "existing skill backup missing"})
@@ -725,7 +735,69 @@ def compare_runtime(
             else "not-hash-equivalent",
         }
     )
+    if policy == "canonical_symlink" and status["state"] == "hash-equivalent" and not raw_runtime_root.is_symlink():
+        status["state"] = "not-canonical-symlink"
     return status
+
+
+def runtime_package_specs(
+    repo_root: Path,
+    package_root: Path,
+    manifest: dict[str, Any],
+    excluded: list[str],
+    primary_package_files: dict[str, str],
+) -> list[dict[str, Any]]:
+    specs: list[dict[str, Any]] = []
+    package_roots = manifest.get("distribution_repo", {}).get("package_roots", [])
+    if not package_roots:
+        package_roots = [manifest["package_root"]]
+
+    for runtime in manifest.get("runtime_roots", []):
+        policy = runtime.get("policy")
+        if policy in {
+            "excluded",
+            "intentionally_excluded",
+            "intentionally excluded by manifest",
+            "symlink",
+            "declared_symlink",
+            "declared symlink",
+        }:
+            runtime_package_roots = [manifest["package_root"]]
+        else:
+            runtime_package_roots = package_roots
+
+        for package in runtime_package_roots:
+            source_root = expand(str(package), repo_root)
+            if source_root == package_root:
+                source_files = primary_package_files
+            else:
+                source_files = list_files(source_root, excluded)
+
+            package_name = source_root.name
+            runtime_path = Path(os.path.expanduser(runtime["path"]))
+            if not runtime_path.is_absolute():
+                runtime_path = runtime_path.resolve()
+            if policy not in {
+                "excluded",
+                "intentionally_excluded",
+                "intentionally excluded by manifest",
+                "symlink",
+                "declared_symlink",
+                "declared symlink",
+            } and runtime_path.name != package_name:
+                runtime_path = runtime_path.parent / package_name
+            runtime_spec = dict(runtime)
+            runtime_spec["name"] = f"{runtime.get('name', 'runtime')}:{package_name}"
+            runtime_spec["path"] = str(runtime_path)
+            specs.append(
+                {
+                    "package": package_name,
+                    "package_root": source_root,
+                    "package_files": source_files,
+                    "runtime": runtime_spec,
+                }
+            )
+    return specs
 
 
 def finding(
@@ -973,16 +1045,20 @@ def main() -> int:
     if repo_name_hits:
         findings.append(finding("UPDATE_REPO_NAME_DRIFT", repo_name_hits, manifest))
 
-    for runtime in manifest.get("runtime_roots", []):
-        status = compare_runtime(package_root, runtime, excluded, package_files)
+    for spec in runtime_package_specs(repo_root, package_root, manifest, excluded, package_files):
+        status = compare_runtime(
+            spec["package_root"],
+            spec["runtime"],
+            excluded,
+            spec["package_files"],
+        )
+        status["package"] = spec["package"]
         runtime_statuses.append(status)
         allowed_states = set(manifest.get("runtime_policy", {}).get("allowed_states", ["hash-equivalent"]))
         if status["state"] not in allowed_states:
             runtime_policy_evidence.append(status)
 
-        if status["state"] == "intentionally excluded by manifest":
-            continue
-
+    for runtime in manifest.get("runtime_roots", []):
         runtime_root = Path(os.path.expanduser(runtime["path"])).resolve()
         for sibling in manifest.get("sibling_skills", []):
             if not sibling.get("runtime_required", False):

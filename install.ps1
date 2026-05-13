@@ -4,6 +4,7 @@ $ErrorActionPreference = "Stop"
 $repoGitHub = "https://github.com/MarkQWu/drama-workshop-skills.git"
 $repoMirror = "https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
 $cache = Join-Path $env:USERPROFILE ".claude\.skill-repos\drama-workshop-skills"
+$scriptDir = if ($PSCommandPath) { Split-Path -Parent $PSCommandPath } else { "" }
 
 Write-Host "=== gobuildit Skills 安装器 ===" -ForegroundColor Cyan
 Write-Host ""
@@ -82,23 +83,29 @@ function Try-Pull($dir) {
     return (Try-Clone $dir)
 }
 
-# Clone 或更新仓库到缓存目录
-$cacheParent = Split-Path $cache -Parent
-if (-not (Test-Path $cacheParent)) { New-Item -ItemType Directory -Path $cacheParent -Force | Out-Null }
-
-if (Test-Path (Join-Path $cache ".git")) {
-    $ok = Try-Pull $cache
+# Clone 或更新仓库到唯一 canonical 目录。
+# 本地从完整 repo 运行时直接引用当前 checkout；irm | iex 时使用 ~/.claude/.skill-repos 下的唯一缓存 repo。
+if ($scriptDir -and (Test-Path (Join-Path $scriptDir "short-drama\SKILL.md")) -and (Test-Path (Join-Path $scriptDir ".git"))) {
+    $cache = $scriptDir
+    Write-Host "使用本地仓库作为唯一版本源：$cache" -ForegroundColor Gray
 } else {
-    if (Test-Path $cache) {
-        Move-Item -Path $cache -Destination "$cache.backup-$(Get-Timestamp)" -Force -ErrorAction SilentlyContinue
-        if (Test-Path $cache) { throw "无法备份旧缓存目录，请关闭占用它的程序后重试：$cache" }
+    $cacheParent = Split-Path $cache -Parent
+    if (-not (Test-Path $cacheParent)) { New-Item -ItemType Directory -Path $cacheParent -Force | Out-Null }
+
+    if (Test-Path (Join-Path $cache ".git")) {
+        $ok = Try-Pull $cache
+    } else {
+        if (Test-Path $cache) {
+            Move-Item -Path $cache -Destination "$cache.backup-$(Get-Timestamp)" -Force -ErrorAction SilentlyContinue
+            if (Test-Path $cache) { throw "无法备份旧缓存目录，请关闭占用它的程序后重试：$cache" }
+        }
+        $ok = Try-Clone $cache
     }
-    $ok = Try-Clone $cache
-}
-if (-not $ok) {
-    Write-Host ""
-    Write-Host "错误：下载失败。请确认已安装 Git，并打开全局代理后重新运行安装命令。" -ForegroundColor Red
-    throw "安装失败"
+    if (-not $ok) {
+        Write-Host ""
+        Write-Host "错误：下载失败。请确认已安装 Git，并打开全局代理后重新运行安装命令。" -ForegroundColor Red
+        throw "安装失败"
+    }
 }
 
 # 检测平台并收集目标目录
@@ -123,13 +130,18 @@ if ($targets.Count -eq 0) {
     $targets += Join-Path $env:USERPROFILE ".claude\skills"
 }
 
-# 安装 skill 到所有检测到的平台
+# 安装 skill 到所有检测到的平台：skills\<name> 只保留 junction，内容只存在于 $cache。
 $installed = 0
 foreach ($skillsDir in $targets) {
     if (-not (Test-Path $skillsDir)) { New-Item -ItemType Directory -Path $skillsDir -Force | Out-Null }
     Move-EmbeddedTrash $skillsDir
     Get-ChildItem "$cache" -Directory | Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } | ForEach-Object {
         $target = Join-Path $skillsDir $_.Name
+        $existing = Get-Item $target -Force -ErrorAction SilentlyContinue
+        if ($existing -and $existing.LinkType -and ($existing.Target -eq $_.FullName)) {
+            $installed++
+            return
+        }
         if (Test-Path $target) {
             $safeRoot = Join-Path (Split-Path $skillsDir -Parent) ".skill-trash"
             if (-not (Test-Path $safeRoot)) { New-Item -ItemType Directory -Path $safeRoot -Force | Out-Null }
@@ -140,9 +152,18 @@ foreach ($skillsDir in $targets) {
                 return
             }
         }
-        Copy-Item -Recurse -Force $_.FullName "$target"
-        Write-Host "  已安装: $($_.Name)"
+        New-Item -ItemType Junction -Path $target -Target $_.FullName | Out-Null
+        Write-Host "  已引用: $($_.Name) → $($_.FullName)"
         $installed++
+    }
+}
+
+foreach ($packageDir in Get-ChildItem "$cache" -Directory -ErrorAction SilentlyContinue) {
+    $binDir = Join-Path $packageDir.FullName "bin"
+    if (Test-Path $binDir) {
+        Get-ChildItem $binDir -File -ErrorAction SilentlyContinue | ForEach-Object {
+            $_.Attributes = $_.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+        }
     }
 }
 
@@ -167,6 +188,7 @@ if ($installed -gt 0) {
     }
     Write-Host ""
     Write-Host "版本：$version" -ForegroundColor Gray
+    Write-Host "唯一版本源：$cache" -ForegroundColor Gray
     Write-Host ""
     Write-Host "关闭当前 Claude Code / Codex / OpenClaw 会话，重新打开后输入 /开始 即可使用。"
     Write-Host "WorkBuddy 用户：需要从工作空间移除/关闭当前项目再重新打开，单独新建对话可能仍沿用旧 skill 缓存。"

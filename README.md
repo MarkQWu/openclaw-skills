@@ -41,6 +41,8 @@ irm https://raw.githubusercontent.com/MarkQWu/drama-workshop-skills/main/install
 
 安装完成后**关闭当前会话，重新打开**，输入 `/开始` 看到引导就说明装好了。
 
+安装脚本会只保留一个本地版本源：`curl | bash` 安装时是 `~/.claude/.skill-repos/drama-workshop-skills`，从本地仓库运行 `bash install.sh` 时是当前 checkout。Claude / Codex / OpenClaw / WorkBuddy 的 `skills/<name>` 只放 symlink 指向这个版本源，不再复制多份目录。
+
 安装脚本会自动把 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash`、`~/.codex/skills/.trash`、`~/.claude/skills/.trash` 这类旧备份迁移到同级 `.skill-trash/`，避免 WorkBuddy 递归扫描旧版 `SKILL.md`。
 
 > WorkBuddy 用户注意：同一个工作空间项目可能缓存旧 skill。重装后如果仍显示旧版本，请从工作空间移除/关闭当前项目，再重新打开该项目；这不会删除 `~/short-drama-projects/` 下的剧本项目。
@@ -246,8 +248,8 @@ stamp=$(date +%Y%m%d-%H%M%S)
 mkdir -p ~/.claude/skills ~/.claude/.skill-trash/manual-$stamp
 [ -d ~/.claude/skills/short-drama ] && mv ~/.claude/skills/short-drama ~/.claude/.skill-trash/manual-$stamp/
 [ -d ~/.claude/skills/short-drama-remake ] && mv ~/.claude/skills/short-drama-remake ~/.claude/.skill-trash/manual-$stamp/
-cp -r drama-workshop-skills/short-drama ~/.claude/skills/short-drama
-cp -r drama-workshop-skills/short-drama-remake ~/.claude/skills/short-drama-remake
+ln -s "$(pwd)/drama-workshop-skills/short-drama" ~/.claude/skills/short-drama
+ln -s "$(pwd)/drama-workshop-skills/short-drama-remake" ~/.claude/skills/short-drama-remake
 ```
 
 **Codex / OpenClaw / WorkBuddy 用户：**
@@ -266,12 +268,12 @@ mkdir -p ~/.codex/skills ~/.openclaw/skills ~/.workbuddy/skills ~/.codex/.skill-
 [ -d ~/.codex/skills/short-drama-remake ] && mv ~/.codex/skills/short-drama-remake ~/.codex/.skill-trash/manual-$stamp/
 [ -d ~/.openclaw/skills/short-drama-remake ] && mv ~/.openclaw/skills/short-drama-remake ~/.openclaw/.skill-trash/manual-$stamp/
 [ -d ~/.workbuddy/skills/short-drama-remake ] && mv ~/.workbuddy/skills/short-drama-remake ~/.workbuddy/.skill-trash/manual-$stamp/
-cp -r drama-workshop-skills/short-drama ~/.codex/skills/short-drama    # Codex
-cp -r drama-workshop-skills/short-drama ~/.openclaw/skills/short-drama   # OpenClaw
-cp -r drama-workshop-skills/short-drama ~/.workbuddy/skills/short-drama  # WorkBuddy
-cp -r drama-workshop-skills/short-drama-remake ~/.codex/skills/short-drama-remake    # Codex
-cp -r drama-workshop-skills/short-drama-remake ~/.openclaw/skills/short-drama-remake   # OpenClaw
-cp -r drama-workshop-skills/short-drama-remake ~/.workbuddy/skills/short-drama-remake  # WorkBuddy
+ln -s "$(pwd)/drama-workshop-skills/short-drama" ~/.codex/skills/short-drama    # Codex
+ln -s "$(pwd)/drama-workshop-skills/short-drama" ~/.openclaw/skills/short-drama   # OpenClaw
+ln -s "$(pwd)/drama-workshop-skills/short-drama" ~/.workbuddy/skills/short-drama  # WorkBuddy
+ln -s "$(pwd)/drama-workshop-skills/short-drama-remake" ~/.codex/skills/short-drama-remake    # Codex
+ln -s "$(pwd)/drama-workshop-skills/short-drama-remake" ~/.openclaw/skills/short-drama-remake   # OpenClaw
+ln -s "$(pwd)/drama-workshop-skills/short-drama-remake" ~/.workbuddy/skills/short-drama-remake  # WorkBuddy
 ```
 
 手动安装前，如果 `~/.workbuddy/skills/.trash`、`~/.openclaw/skills/.trash`、`~/.codex/skills/.trash` 或 `~/.claude/skills/.trash` 存在，请先把它们移动到同级 `.skill-trash/`，不要留在 `skills/` 目录内。
