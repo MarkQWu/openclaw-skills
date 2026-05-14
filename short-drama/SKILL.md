@@ -785,6 +785,11 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **功能：** 切换为出海模式（任意阶段可调用）——格式切换为好莱坞行业标准（INT./EXT.、WIDE SHOT/CLOSE-UP），语言默认英文，题材映射/文化适配见 `genre-guide.md` 出海部分（Billionaire / Werewolf/Alpha / Flash Marriage / Secret Baby 等已验证爆款元素）。
 
+**模式边界规则：该共用的共用，该分化的分化。**
+- **共用层**：项目管理、state 读写、承制介质（ai_live/comic）、角色一致性、跨集台词去重、基础可拍性、导出与版本更新机制继续共用。
+- **分化层**：语言、对白格式、场景模板、题材映射、首集设计、付费墙逻辑、平台 runtime、文化禁区、合规/风险判断必须按 `mode` 分流。
+- **冲突优先级**：当通用规则与 mode 专属规则冲突时，`mode=overseas` 必须以 `references/overseas/` 为准；不得把国内首集合同、国内爽点判定、国内身份体系或国内合规口径机械套进海外项目。
+
 **切换后强制加载 `references/overseas/` 全部 4 文件**：
 - `hard-rules.md` — 13 条非协商硬规则（男主不可杀平民/禁化学合意/禁中式 humiliation→power 弧 等）
 - `dialogue-craft.md` — L1 McKee/Mamet 通用 12 原则 + L2/L3 英文 voice 分层
