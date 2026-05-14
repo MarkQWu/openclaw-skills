@@ -29,4 +29,3 @@ Every overseas adaptation report should separate:
 - Family secrets and identity mechanics.
 - Paywall pressure.
 - Romance, danger, and agency grammar.
-

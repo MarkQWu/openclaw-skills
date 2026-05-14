@@ -21,4 +21,3 @@ Block only when the issue is Foundation or Skeleton level:
 - A declared target-market hard rule is violated.
 
 Do not block solely for weak dialogue texture, bland sensory detail, or style preferences. Those belong in review/postflight.
-

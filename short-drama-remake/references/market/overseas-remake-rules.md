@@ -23,4 +23,3 @@ This file is a structure placeholder. Do not treat it as a complete overseas cra
 - Consent and relationship grammar.
 - Violence and power-system boundaries.
 - Language and screenplay format expectations.
-
