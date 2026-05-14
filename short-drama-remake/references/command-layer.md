@@ -26,7 +26,7 @@ Do not scan original `~/short-drama-projects/` for remake state. Managed remake 
 | `/仿写 骨架` | `extract_reference_skeleton` | Existing skeleton stage | Requires source material or ingested source files; respect source scope. |
 | `/仿写 换皮` | `generate_skin_swap_concepts` | Existing concept stage | Requires skeleton; partial sources only unlock sample concepts. |
 | `/仿写 出海` | `create_overseas_market_adaptation` | Target-market adaptation stage | Requires skeleton plus selected concept or concept text; writes/refreshes `market-adaptation-report.md`, not a script body. |
-| `/仿写 定案` | `deepen_selected_concept` | Existing project planning stage | Requires skeleton and selected concept. |
+| `/仿写 定案` | `deepen_selected_concept` | Existing project planning stage | Requires skeleton and selected concept; if target market is overseas or differs from source market, consume accepted `market_adaptation_report` first. |
 | `/仿写 集纲` | `create_episode_outlines` | Existing outline stage | Requires project plan and source/skeleton context. |
 | `/仿写 写集 N` | `draft_episode_script` | `script_draft.preflight` then draft if passed | Mandatory preflight. If blocked, `body_generated=false` and no episode script file. |
 | `/仿写 审稿 N` | `audit_episode_script` | Review/postflight-adjacent audit | Advisory unless explicitly closing canonical postflight; never unlock next episode by itself. |

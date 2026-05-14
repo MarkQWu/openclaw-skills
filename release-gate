@@ -39,6 +39,7 @@ CHECK_DESCRIPTIONS = {
     "RUNTIME_POLICY_FALSE": "Runtime root is not hash-equivalent, declared symlink, or excluded by manifest.",
     "BYTECODE_IN_PACKAGE": "Python bytecode or __pycache__ exists inside the package root.",
     "SIBLING_MISSING": "Required sibling skill is missing beside the package or a runtime root.",
+    "SIBLING_VERSION_DRIFT": "Sibling skill VERSION/WHATSNEW/SKILL.md inline version metadata disagree.",
     "SKILL_DISCOVERY": "Distribution package roots are not discoverable as skills.",
 }
 
@@ -283,6 +284,46 @@ def check_skill_discovery(repo_root: Path, manifest: dict[str, Any]) -> list[dic
             evidence.append({"package": package, "path": str(root), "error": "package root missing"})
         elif not skill_path.exists():
             evidence.append({"package": package, "path": str(skill_path), "error": "SKILL.md missing"})
+    return evidence
+
+
+def inline_skill_version(root: Path) -> str | None:
+    skill_path = root / "SKILL.md"
+    if not skill_path.exists():
+        return None
+    match = re.search(r"^>\s*Version:\s*v?([0-9]+(?:\.[0-9]+)+)\s*$", read_text(skill_path), flags=re.M)
+    return match.group(1) if match else None
+
+
+def check_sibling_version_drift(repo_root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    evidence: list[dict[str, Any]] = []
+    for package in manifest.get("distribution_repo", {}).get("package_roots", []):
+        root = repo_root / package
+        if not root.exists():
+            continue
+        version = read_version(root, "VERSION")
+        whatsnew = first_whatsnew_version(root, "WHATSNEW.md")
+        inline = inline_skill_version(root)
+        if version != whatsnew:
+            evidence.append(
+                {
+                    "package": package,
+                    "root": str(root),
+                    "version": version,
+                    "whatsnew_first_version": whatsnew,
+                    "error": "VERSION and WHATSNEW first version differ",
+                }
+            )
+        if inline is not None and version != inline:
+            evidence.append(
+                {
+                    "package": package,
+                    "root": str(root),
+                    "version": version,
+                    "skill_inline_version": inline,
+                    "error": "SKILL.md inline Version differs from VERSION",
+                }
+            )
     return evidence
 
 
@@ -954,6 +995,10 @@ def main() -> int:
     skill_discovery_evidence = check_skill_discovery(repo_root, manifest)
     if skill_discovery_evidence:
         findings.append(finding("SKILL_DISCOVERY", skill_discovery_evidence, manifest))
+
+    sibling_version_drift_evidence = check_sibling_version_drift(repo_root, manifest)
+    if sibling_version_drift_evidence:
+        findings.append(finding("SIBLING_VERSION_DRIFT", sibling_version_drift_evidence, manifest))
 
     installer_contract_evidence = check_installer_contract(repo_root, manifest)
     if installer_contract_evidence:

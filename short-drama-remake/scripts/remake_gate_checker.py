@@ -63,6 +63,11 @@ POSTFLIGHT_REGISTRY_OWNED_FIELDS = {
 
 CONTROL_LAYERS = {"foundation", "skeleton", "flesh"}
 
+MARKET_ADAPTATION_REQUIRED_NODES = {
+    "project_plan.prepare",
+    "script_draft.preflight",
+}
+
 
 class CheckFailure(Exception):
     pass
@@ -466,6 +471,68 @@ def assert_three_layer_control_contract(fixture: dict[str, Any]) -> None:
             raise CheckFailure(f"{fixture['fixture_id']}: postflight questions must include memorable_moment")
 
 
+def assert_market_adaptation_contract(fixture: dict[str, Any]) -> None:
+    assertions = fixture.get("assertions", {}).get("market_adaptation_assertion", {})
+    if not assertions:
+        return
+
+    route = fixture.get("expected_route", {})
+    result = fixture.get("expected_result", {})
+    trace = fixture.get("node_invocation_trace", {})
+    route_node = route.get("node_id")
+    target_market = assertions.get("target_market")
+    source_market = assertions.get("source_market")
+    requires_market_adaptation = assertions.get("requires_market_adaptation")
+    if requires_market_adaptation is None:
+        requires_market_adaptation = target_market == "overseas" or (
+            bool(source_market) and bool(target_market) and source_market != target_market
+        )
+
+    if assertions.get("overseas_command_report_only") is True:
+        if route_node != "market_adapt.validate":
+            raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 must route to market_adapt.validate")
+        if result.get("body_generated") is not False:
+            raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 must not generate script body")
+        forbidden_created = set(result.get("forbidden_created_artifacts", []))
+        created = set(result.get("created_artifacts", []))
+        leaked = created.intersection(forbidden_created)
+        if leaked:
+            raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 created forbidden artifacts: {sorted(leaked)}")
+
+    if assertions.get("forbid_short_drama_overseas_reads") is True:
+        read_assertion = fixture.get("assertions", {}).get("read_trace_assertion", {})
+        actual_reads = set(read_assertion.get("actual_reads", []))
+        leaked_reads = sorted(path for path in actual_reads if path.startswith("short-drama/references/overseas/"))
+        if leaked_reads:
+            raise CheckFailure(f"{fixture['fixture_id']}: remake market adaptation read short-drama overseas refs: {leaked_reads}")
+
+    if not requires_market_adaptation or route_node not in MARKET_ADAPTATION_REQUIRED_NODES:
+        return
+
+    report_status = assertions.get("market_adaptation_report_status", "missing")
+    if report_status in {"missing", "stale", "blocked"}:
+        if result.get("status") != "blocked":
+            raise CheckFailure(f"{fixture['fixture_id']}: missing/stale market adaptation report must block {route_node}")
+        summary = result.get("blocking_summary", {})
+        if summary.get("blocker_code") != "MARKET_ADAPTATION_MISSING_OR_STALE":
+            raise CheckFailure(f"{fixture['fixture_id']}: expected blocker_code MARKET_ADAPTATION_MISSING_OR_STALE")
+        if result.get("body_generated") is not False:
+            raise CheckFailure(f"{fixture['fixture_id']}: market adaptation block must set body_generated=false")
+        created = set(result.get("created_artifacts", []))
+        forbidden_created = set(result.get("forbidden_created_artifacts", []))
+        leaked = created.intersection(forbidden_created)
+        if leaked:
+            raise CheckFailure(f"{fixture['fixture_id']}: market adaptation block created forbidden artifacts: {sorted(leaked)}")
+        if summary.get("recommended_next_node") != "market_adapt.validate":
+            raise CheckFailure(f"{fixture['fixture_id']}: market adaptation block must recommend market_adapt.validate")
+    elif report_status == "passed":
+        consumed = set(trace.get("consumed_report_ids", []))
+        if "market_adaptation_report" not in consumed:
+            raise CheckFailure(f"{fixture['fixture_id']}: passed market adaptation report must be consumed by {route_node}")
+    else:
+        raise CheckFailure(f"{fixture['fixture_id']}: unknown market_adaptation_report_status {report_status!r}")
+
+
 def check_fixture(path: Path) -> list[str]:
     fixture = load_json_compatible_yaml(path)
     assert_required_fields(fixture, path)
@@ -483,6 +550,7 @@ def check_fixture(path: Path) -> list[str]:
     assert_phase5_specific_contracts(fixture)
     assert_postflight_contract(fixture)
     assert_three_layer_control_contract(fixture)
+    assert_market_adaptation_contract(fixture)
     return [f"ok fixture {fixture['fixture_id']}"]
 
 

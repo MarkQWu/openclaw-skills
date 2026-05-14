@@ -6,7 +6,7 @@ description: Analyze reference short-drama scripts or screen-recorded prompt wor
 # Short Drama Remake
 
 > License: SKILL.md, agents metadata, scripts, and bundled code are MIT; references are gobuildit methodology documentation with all rights reserved except use as part of this skill distribution.
-> Version: 0.4.0
+> Version: 0.4.1
 
 ## Core Rule
 
@@ -74,7 +74,7 @@ Required upstream artifacts:
 
 - **Concept generation** requires a reusable skeleton table or equivalent拆解.
 - **Overseas adaptation** requires the skeleton plus a selected concept number or concept text. It produces a market adaptation report, not a script body.
-- **Project planning** requires the skeleton plus a selected concept number or concept text.
+- **Project planning** requires the skeleton plus a selected concept number or concept text. If `target_market` is overseas or differs from `source_market`, it also requires an accepted `market_adaptation_report`; otherwise run `/仿写 出海` first and do not create `project-bible.md`.
 - **Episode outlining** requires the skeleton plus the selected project plan.
 - **Script drafting** requires the project plan plus the target episode outline and episode number.
 
