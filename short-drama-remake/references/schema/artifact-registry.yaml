@@ -7,6 +7,8 @@ purpose: >
 project:
   project_id: string
   project_mode: remake
+  source_market: [domestic, overseas, unknown]
+  target_market: [domestic, overseas, unknown]
   project_root: path
   created_at: ISO-8601
   updated_at: ISO-8601
@@ -56,6 +58,7 @@ artifact_types:
   - reference_expression_guide
   - factor_scorecard
   - reference_map
+  - market_adaptation_report
   - concept_list
   - project_bible
   - characters

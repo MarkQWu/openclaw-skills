@@ -35,6 +35,7 @@ The `/仿写` command layer is a lightweight entry map, not a second workflow en
 | `/仿写 帮助` | Show remake command help and recovery examples. |
 | `/仿写 骨架` | Extract the reusable reference skeleton. |
 | `/仿写 换皮` | Generate skin-swap concepts from the skeleton. |
+| `/仿写 出海` | Build the overseas target-market adaptation layer before planning or scripting. |
 | `/仿写 定案` | Deepen a selected concept into the project plan. |
 | `/仿写 集纲` | Generate detailed episode outlines. |
 | `/仿写 写集 N` | Draft episode N through `script_draft.preflight`; blocked preflight creates no script body. |
@@ -62,6 +63,7 @@ New chat recovery:
 Before writing an episode script, the project must have readable current artifacts:
 
 - accepted execution card for the target episode
+- market adaptation report when the target market is overseas or differs from the source market
 - `fact_gate_report`
 - `source_integrity_report`
 - `reference_mapping_report`

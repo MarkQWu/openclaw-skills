@@ -1,3 +1,14 @@
+**v0.4.1**（2026-05-14）
+
+Overseas Adaptation Structure：先补 `/仿写 出海` 的结构，不填满具体海外方法论。
+
+- 新增 `/仿写 出海` 命令路由，用于为选定换皮方向生成海外目标市场迁移层，不直接写正文。
+- 新增 `market_adaptation_report` artifact / report / route contract；目标市场为 overseas 或 source/target market 不一致时，正文 preflight 必须消费该报告。
+- 新增 `references/market/` 占位规则文件，后续再补具体海外平台、文化禁区和迁移规则。
+- 明确 remake 不直接读取 `short-drama/references/overseas/*`，避免原创出海规则污染复刻节点。
+
+---
+
 **v0.4.0**（2026-05-11）
 
 Command Layer：新增轻量 `/仿写` 子命令层，不改 gate/schema/checker。

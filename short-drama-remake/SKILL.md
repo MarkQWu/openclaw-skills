@@ -52,6 +52,7 @@ Core subcommands:
 - `/仿写 帮助`: show remake command help, file structure, and recovery examples.
 - `/仿写 骨架`: run the reference skeleton stage.
 - `/仿写 换皮`: run the skin-swap concept stage.
+- `/仿写 出海`: create or refresh the target-market adaptation layer for overseas remakes.
 - `/仿写 定案`: deepen the selected concept into a project plan.
 - `/仿写 集纲`: create detailed episode outlines.
 - `/仿写 写集 N`: route to the existing managed script drafting path; `script_draft.preflight` remains mandatory.
@@ -72,6 +73,7 @@ Keep each stage dependent on the previous artifact. If the user asks for a downs
 Required upstream artifacts:
 
 - **Concept generation** requires a reusable skeleton table or equivalent拆解.
+- **Overseas adaptation** requires the skeleton plus a selected concept number or concept text. It produces a market adaptation report, not a script body.
 - **Project planning** requires the skeleton plus a selected concept number or concept text.
 - **Episode outlining** requires the skeleton plus the selected project plan.
 - **Script drafting** requires the project plan plus the target episode outline and episode number.
@@ -91,6 +93,7 @@ For managed remake projects, use the Phase 4 contract files instead of relying o
 - `references/schema/reports.yaml` defines SIR/RMR/FGR/preflight/postflight report fields. Reports use `report_status`; only the registry owns `gate_status`.
 - `references/checker/deterministic-checker.md` defines deterministic checker scope and the LLM review boundary.
 - `references/three-layer-control.md` defines which constraints can block generation and which belong to creative review.
+- `references/market/` defines target-market adaptation contracts. Use these files for `/仿写 出海`; do not import `short-drama/references/overseas/*` into remake nodes.
 - `references/fixtures/` contains regression fixture contracts and initial samples.
 
 Before drafting a script in a managed project, run or mentally apply `script_draft.preflight`. This gate is the only script-generation entry; do not skip from project plan or episode outline directly to an episode body.
@@ -98,10 +101,11 @@ Before drafting a script in a managed project, run or mentally apply `script_dra
 1. Restore project state through `resume.restore` only when entering from a new/uncertain context. P10 consumes a valid `resume_packet`; it must not rerun full restore.
 2. Verify the target episode has an accepted current `execution_card` with `decision_id` and committed transaction.
 3. Consume the latest `fact_gate_report`, `source_integrity_report`, and `reference_mapping_report`. Do not rejudge P9/P12 inside script drafting.
-4. Verify `reference-expression-guide.md`, `factor-scorecard.yaml`, `remake-risk-audit.md`, `project-state.md`, and accepted canon are registered and readable.
-5. Reject forbidden reads: `short-drama/SKILL.md`, `short-drama/references/*.md`, raw source bundles, `research-notes.md`, `_legacy_review/**`, `09_experiments/**`, candidates, drafts, and tmp files.
-6. Apply the three-layer boundary: preflight blocks only Foundation/Skeleton failures. Flesh concerns such as weak dialogue texture, bland sensory detail, or generic sentence rhythm may be warnings for postflight, but must not by themselves block body generation.
-7. If blocked, return one user-visible blocking summary and set `body_generated=false`. Do not create an episode script.
+4. If the project target market is overseas or differs from the source market, consume the latest `market_adaptation_report`. Do not draft overseas remake scripts without the target-market adaptation layer.
+5. Verify `reference-expression-guide.md`, `factor-scorecard.yaml`, `remake-risk-audit.md`, `project-state.md`, and accepted canon are registered and readable.
+6. Reject forbidden reads: `short-drama/SKILL.md`, `short-drama/references/*.md`, raw source bundles, `research-notes.md`, `_legacy_review/**`, `09_experiments/**`, candidates, drafts, and tmp files.
+7. Apply the three-layer boundary: preflight blocks only Foundation/Skeleton failures. Flesh concerns such as weak dialogue texture, bland sensory detail, or generic sentence rhythm may be warnings for postflight, but must not by themselves block body generation.
+8. If blocked, return one user-visible blocking summary and set `body_generated=false`. Do not create an episode script.
 
 The blocking summary must include: blocking reason, affected scope, whether it blocks only the target episode or the whole project, recommended next step, and available user actions. Render it for the user as:
 

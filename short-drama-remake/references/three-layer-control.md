@@ -16,6 +16,7 @@ Foundation rules protect legality, source truth, continuity, and project state. 
 ### Lock
 
 - Source scope: `complete`, `partial`, `incomplete`, or `unknown`; partial sources never unlock full-series claims.
+- Source market and target market: domestic, overseas, or unknown. Cross-market remakes require an accepted market adaptation report before planning or scripting.
 - Copyright and similarity boundaries: no copied expression, names, dialogue, scene specifics, protected surface event sequences, or direct reference mechanics.
 - Canon and state: accepted artifacts, current pointers, transaction records, project state, and user-confirmed canon.
 - Character core: identity, motivation, relationship logic, core power position, ability/resource boundary, and accepted voice constraints.
@@ -38,6 +39,7 @@ Foundation rules protect legality, source truth, continuity, and project state. 
 - `01_skeleton/reference-skeleton.md`
 - `01_skeleton/reference-expression-guide.md`
 - `01_skeleton/factor-scorecard.yaml`
+- `02_concepts/market-adaptation-report.md` when target market is overseas or differs from source market
 - `03_plan/project-bible.md` or equivalent accepted project plan
 - `04_outlines/episodes/epXXX.execution-card.md`
 - `06_state/project-state.md`
@@ -59,6 +61,7 @@ Principle: **lock the node, free the method**.
 - Reveal and misdirection timing: when the reference creates false safety, delayed recognition, proof, reversal, or payoff.
 - Payoff/foreshadowing obligations: which promise is planted or collected.
 - Remake distance: which reference surface elements must be replaced before scripting.
+- Target-market function mapping: which story functions transfer, and which market-specific mechanisms must change.
 
 ### Free
 
@@ -139,4 +142,3 @@ Flesh rules protect memorability, character texture, and surprise. This layer sh
 - Preflight may warn on Flesh concerns, but must not block solely for style, taste, sentence rhythm, or lack of polish.
 - Postflight may mark `needs_revision` when Flesh is weak, but the reason must cite a concrete scene, line, or missing memorable moment.
 - `quality_gate_status=passed` means process quality passed. It does not by itself mean the episode has creative force.
-

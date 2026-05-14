@@ -44,6 +44,18 @@ nodes:
     produces_machine_report: fact_gate_report
     report_status_field: report_status
 
+  - node_id: market_adapt.validate
+    normalized_intent: validate_target_market_adaptation
+    bounded_context: short-drama-remake
+    consumes_canonical_artifacts:
+      - reference_skeleton
+      - concept_list
+    produces_machine_report: market_adaptation_report
+    report_status_field: report_status
+    target_market_required_when:
+      - target_market == overseas
+      - target_market != source_market
+
   - node_id: script_draft.preflight
     user_intents: ["写第 X 集", "继续写", "接着写第 X 集"]
     normalized_intent: draft_episode_script
@@ -53,6 +65,7 @@ nodes:
       - source_integrity_report
       - reference_mapping_report
       - fact_gate_report
+      - market_adaptation_report when target_market == overseas or target_market != source_market
     consumes_canonical_artifacts:
       - execution_card
       - reference_expression_guide
@@ -83,6 +96,7 @@ nodes:
         - fact_gate_report_for_execution_card_claims
         - source_integrity_report_validity
         - reference_mapping_report_validity
+        - market_adaptation_report_validity
         - remake_risk_gate
         - artifact_registry_readability
         - three_layer_control_boundary
