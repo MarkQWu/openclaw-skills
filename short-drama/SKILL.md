@@ -406,9 +406,11 @@ graph LR
 
 **支持格式：** `/分集 1` | `/分集 5-8` | `/分集 next`
 
-**Ep1 设计卡强制流程（v1.20.0 新增 · N=1 专用 · N≥2 跳过本段）：**
+**Ep1 设计卡强制流程（v1.20.0 新增 · N=1 且 mode=domestic 专用 · N≥2 或 mode=overseas 跳过本段）：**
 
-第 1 集是首集留存的决战场。`/分集 1` 不直接写正文，按以下三步走，**无 fast-track**——首集质量决定全集留存，省不得。
+执行 `/分集 1` 前先读取 `.drama-state.json#mode`。若 `mode="overseas"`，跳过本段国内 Ep1 设计卡强制流程，改按 `references/overseas/hard-rules.md` Rule 10 + `references/overseas/anti-patterns.md` 的海外首集规则执行：首集必须 active conflict / mid-conflict 直入，不能套用国内冷开场合同、有效爽点判定、事件钩首集硬约束或首集传播句提取。
+
+第 1 集是首集留存的决战场。国内模式下，`/分集 1` 不直接写正文，按以下三步走，**无 fast-track**——首集质量决定全集留存，省不得。
 
 **Step 0：生成 Ep1 设计卡**
 - 产出文件：`episodes/ep001-design-card.md`（10 字段必填，缺任一即重生设计卡）：
