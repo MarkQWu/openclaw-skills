@@ -67,6 +67,17 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 执行任何命令前先按 `references/format-control.md` 的**格式锚定步骤**读 `.drama-state.json#mode/language` 锚定输出模板。该文件含三段规则：**格式封闭原则**（对白引号/破折号禁用/emoji 禁用等硬约束，违反扣分或阻断 /导出）、**新格式规范**（场景头顺序/音乐标注/OS/VO 粗体/考据附录边界等，违反 → 自检以【建议】标签提示，不扣分）、国内/出海双模式分化细则。
 
+## 三层控制模型（原创创作强制前置）
+
+执行 `/策划`、`/角色开发`、`/考据`、`/分集目录`、`/分集`、`/自检`、`/圆桌诊断`、`/角色一致性`、`/导出`、`/分镜`，或任何需要判断“是否阻断继续生成/导出/交付”的步骤前，先按需读取 `references/three-layer-control.md`。
+
+原创短剧采用 `地基层 100% / 骨架层 75% / 血肉层 35%` 的控制强度：
+- **地基层**：项目状态、世界观、人设核心、合规、事实、媒介、mode、格式、连续性、导出门控，100% 执行，命中即阻断。
+- **骨架层**：受众、题材承诺、主线、首集、分集职责、付费卡点、爽点、尾钩，锁功能不锁表皮。
+- **血肉层**：台词、动作、场面、节奏颗粒、文风和记忆点，用于评分、诊断和重写建议；只有破坏地基层或骨架层时才升级为阻断。
+
+阻断或建议输出时必须标注 `[地基层阻断]` / `[骨架层修复]` / `[血肉层建议]`。不得把血肉层审美偏好伪装成 hard gate。
+
 ---
 
 ## 命令定义
@@ -149,7 +160,7 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **入口软提示（命令开始时执行）：** 检查 `.drama-state.json#clashes`——若为空，在生成方案前输出一句：「💡 还没开过选题会。建议先跑 `/选题会` 验证赛道（3 位专家碰撞，5 分钟）。直接继续请回复"继续"。」用户回复"继续"或任意命令则正常推进；`clashes` 非空则跳过此提示。
 
-**加载参考：** opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, creative-intent-ledger.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**
+**加载参考：** three-layer-control.md（按骨架层 75% 锁 story promise / main conflict / payoff / hook，释放具体实现）, opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, creative-intent-ledger.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**
 
 **anchor 推荐步骤（v1.23.0，全 13 题材触发）：** **生成内容前**按 `references/anchor-trigger.md#策划-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。
 
@@ -314,7 +325,7 @@ graph LR
 
 **重跑语义：** 若 `characters.md` 已存在（老项目或本次重跑），**默认全量覆盖** 15 字段——按新模板重新生成。若老版本有**新模板未覆盖的独有字段**（如更丰富的视觉细节描写、额外背景段落），可在新模板对应字段下追加保留，只替换重合字段，不删除老独有内容。"口头禅/语言特征"单字段必须被 voice 样本集完整替代，**不得**与 voice 样本集并存造成冲突。
 
-**加载参考：** villain-design.md
+**加载参考：** three-layer-control.md（人物核心与关系逻辑归地基层，角色功能归骨架层，voice 样本和口吻归血肉层）, villain-design.md
 
 **生成内容：**
 
@@ -346,7 +357,7 @@ graph LR
 
 **支持格式：** `/考据 auto` | `/考据 import {路径}` | `/考据 view` | `/考据 lock`
 
-**加载参考：** research-guide.md（方法论必读，含双通道 query / 权威源加权 / 反模式 / 完整流程）, setting-bible-template.md, research-fallback.md, short-dynasties.md, genre-guide.md
+**加载参考：** three-layer-control.md（事实可追溯和 bible scope 属地基层，命中编造事实即阻断）, research-guide.md（方法论必读，含双通道 query / 权威源加权 / 反模式 / 完整流程）, setting-bible-template.md, research-fallback.md, short-dynasties.md, genre-guide.md
 
 **输出格式：** 见 `references/output-templates.md#考据`
 
@@ -362,7 +373,7 @@ graph LR
 
 **前置条件：** 已完成 /角色开发
 
-**加载参考：** paywall-design.md, rhythm-curve.md
+**加载参考：** three-layer-control.md（分集职责、阶段节奏、关键集和付费点归骨架层，集标题表达归血肉层）, paywall-design.md, rhythm-curve.md
 
 **生成内容：** 为每一集生成条目：`第{N}集：{集标题}：{核心冲突/爽点一句话描述} {标记}`
 
@@ -392,7 +403,7 @@ graph LR
 
 **前置条件：** 已完成 /分集目录
 
-**加载参考：** opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, creative-intent-ledger.md（用于防止分集背离原始前提、核心关系和不可牺牲点）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）, **工艺通用补充**（按需读，覆盖中英文）：`vertical-drama-craft.md`（信息密度+段落颗粒+钩子节奏）/ `dramatic-truth.md`（对白真实性 4 症状）/ `script-element-extraction.md`（5 类元素分层 pipeline）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
+**加载参考：** three-layer-control.md（锁本集 story job / entry pressure / turning point / exit hook，释放具体台词、动作和场面质感）, opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, creative-intent-ledger.md（用于防止分集背离原始前提、核心关系和不可牺牲点）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）, **工艺通用补充**（按需读，覆盖中英文）：`vertical-drama-craft.md`（信息密度+段落颗粒+钩子节奏）/ `dramatic-truth.md`（对白真实性 4 症状）/ `script-element-extraction.md`（5 类元素分层 pipeline）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
 
 **anchor inline + `--fix anchor-rhythm` 子命令：** 如 `creative-plan.md` 有 `anchor` 字段，按 `references/anchor-trigger.md#分集-anchor-inline` 把 anchor prompt 模板 inline 到分集生成 prompt；无 `anchor` 字段则跳过。节奏污染时 `/分集 N --fix anchor-rhythm` 重写（详见 `references/anchor-trigger.md#fix-anchor-rhythm-子命令`）。
 
@@ -403,6 +414,8 @@ graph LR
 **画面可拍性实时节制（生成时分层提醒，v1.15.6 新增）：** 写 △ 段落时问自己：**摄影机能拍到这句吗？** **OS/VO 层允许诗意比喻**（anchor 红利承载位，想象力想往哪飞就往哪飞），**△ 场景叙事层必须可拍**（物件 / 动作 / 环境 / 表情）。分层边界见 `references/quality-rules.md#反抽象-画面可拍性规则-轻约束`。双层防线：生成层此约束（抽象原则，不列触发词）+ 自检层事后扣分（见 `/自检` 维度 6 及 A/B/C 类判定）。
 
 **专业细节引用规则（bible 存在时强制）：** 详见 `references/quality-rules.md#考据可追溯性自检流程`。核心原则：所有专业术语/官名/制度/数字/药物剂量/法条必须映射到 bible，否则改模糊或标 `[虚构]`。
+
+**三层生成边界：** 生成时硬控地基层和骨架层，不把血肉层的具体台词、微动作、比喻数量、句式节奏写成固定模板。若血肉选择无法完成本集 `locked_episode_job`，先修骨架执行；若只是风格强弱，留给 `/自检` 或 `/圆桌诊断` 做建议。
 
 **支持格式：** `/分集 1` | `/分集 5-8` | `/分集 next`
 
@@ -476,7 +489,7 @@ graph LR
 
 **前置条件：** 目标集数已完成
 
-**加载参考：** quality-rules.md（自检维度细则 + 跨介质通用规则）, creative-intent-ledger.md（把背离原始冲动列为 soft risk；只有同时触发 OOC、事实矛盾、合规、不可拍或媒介不匹配时升级 hard gate）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）, `dramatic-truth.md`（对白真实性 4 症状清单：Trailer-Speak / Metaphor Overdose / As-You-Know-Bob / Urgency Mismatch；对每条角色长台词 ≥10 词逐句校验）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
+**加载参考：** three-layer-control.md（区分地基层阻断、骨架层修复和血肉层建议；craft 低分不得单独 BLOCKED）, quality-rules.md（自检维度细则 + 跨介质通用规则）, creative-intent-ledger.md（把背离原始冲动列为 soft risk；只有同时触发 OOC、事实矛盾、合规、不可拍或媒介不匹配时升级 hard gate）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）, `dramatic-truth.md`（对白真实性 4 症状清单：Trailer-Speak / Metaphor Overdose / As-You-Know-Bob / Urgency Mismatch；对每条角色长台词 ≥10 词逐句校验）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
 
 **支持格式：** `/自检 5` | `/自检 1-10` | `/自检 all` | `/自检 5 --fix`
 
@@ -614,6 +627,8 @@ graph LR
 
 **支持格式：** `/角色一致性` | `/角色一致性 1-20` | `/角色一致性 女主`
 
+**三层判断：** 读取 `three-layer-control.md`。年龄、身份、动机、关系状态矛盾归 `[地基层阻断]`；称呼关系、弧线和阶段状态漂移归 `[骨架层修复]`；口吻不鲜明、互动质感弱归 `[血肉层建议]`。
+
 **Step 1：硬事实层（脚本扫描，确定性）**
 
 执行：
@@ -664,6 +679,8 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 - `/导出 {N}` → **单集导出**：仅导出第 N 集剧本正文 .docx，不含人物小传/梗概（见下方「单集导出」段）
 
 **前置条件：** 至少完成部分集数
+
+**三层门控：** 读取 `three-layer-control.md`。`/导出` 只因地基层 hard gate、格式/文件/docx 合法性失败，或已自检且不合格的集数阻断；血肉层低分或质感弱不单独阻断导出，只能作为导出前建议。
 
 **入口确认提示（`/导出` 无集数参数时，执行任何门控之前输出）：**
 ```
@@ -850,7 +867,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **独立可用：** 不需要走完剧本全流程，可直接传入任意文本。
 
-**加载参考：** storyboard-guide.md, storyboard-rules.md（密度/流程/自检规则）
+**加载参考：** three-layer-control.md（角色卡、正文边界、prompt 格式和媒介可执行性归地基层；镜头承接 story job 归骨架层；景别节奏和画面颗粒归血肉层）, storyboard-guide.md, storyboard-rules.md（密度/流程/自检规则）
 
 **输入灵活性：**
 - `/分镜 3` → 读取 `episodes/ep003.md`
