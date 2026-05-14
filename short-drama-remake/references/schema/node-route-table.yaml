@@ -129,7 +129,7 @@ nodes:
     normalized_intent: close_episode_script
     bounded_context: short-drama-remake
     consumes_machine_reports: [preflight_report, similarity_risk_report]
-    consumes_canonical_artifacts: [episode_script:candidate, execution_card]
+    consumes_canonical_artifacts: ["episode_script:candidate", execution_card]
     produces_machine_report: postflight_report
     report_status_field: report_status
     downstream_unlocks:

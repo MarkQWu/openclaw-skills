@@ -104,6 +104,15 @@ def assert_schema_yaml_syntax(path: Path) -> None:
             previous_same_indent[indent] = (line_no, content)
             continue
 
+        flow_list_match = re.search(r":\s*\[(.*)\]\s*$", content)
+        if flow_list_match:
+            for item in flow_list_match.group(1).split(","):
+                value = item.strip()
+                if ":" in value and not (value.startswith('"') or value.startswith("'")):
+                    raise CheckFailure(
+                        f"{path}:{line_no}: flow list item with ':' must be quoted for strict YAML parsing"
+                    )
+
         previous = previous_same_indent.get(indent)
         if previous and previous[1].startswith("- "):
             raise CheckFailure(
