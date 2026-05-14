@@ -41,6 +41,7 @@ CHECK_DESCRIPTIONS = {
     "SIBLING_MISSING": "Required sibling skill is missing beside the package or a runtime root.",
     "SIBLING_VERSION_DRIFT": "Sibling skill VERSION/WHATSNEW/SKILL.md inline version metadata disagree.",
     "SKILL_DISCOVERY": "Distribution package roots are not discoverable as skills.",
+    "REMAKE_CONTRACTS": "short-drama-remake deterministic checker, fixtures, and schema contracts fail.",
 }
 
 EXPLICIT_CHECKS = {"INSTALLER_LOCAL_SMOKE", "EXTERNAL_INSTALL_SMOKE"}
@@ -325,6 +326,39 @@ def check_sibling_version_drift(repo_root: Path, manifest: dict[str, Any]) -> li
                 }
             )
     return evidence
+
+
+def check_remake_contracts(repo_root: Path) -> list[dict[str, Any]]:
+    remake_root = repo_root / "short-drama-remake"
+    checker = remake_root / "scripts" / "remake_gate_checker.py"
+    fixtures_root = remake_root / "references" / "fixtures"
+    schema_root = remake_root / "references" / "schema"
+    if not checker.exists():
+        return []
+
+    command = [sys.executable, str(checker), "--self-test"]
+    for schema_path in sorted(schema_root.glob("*.yaml")):
+        command.extend(["--schema", str(schema_path)])
+    for fixture_path in sorted(fixtures_root.glob("*/fixture.yaml")):
+        command.extend(["--fixture", str(fixture_path)])
+
+    result = subprocess.run(
+        command,
+        cwd=remake_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode == 0:
+        return []
+    return [
+        {
+            "checker": rel(checker, repo_root),
+            "returncode": result.returncode,
+            "stdout_tail": result.stdout[-2000:],
+            "stderr_tail": result.stderr[-2000:],
+        }
+    ]
 
 
 def installer_target_roots(manifest: dict[str, Any]) -> tuple[list[str], list[dict[str, str]]]:
@@ -999,6 +1033,10 @@ def main() -> int:
     sibling_version_drift_evidence = check_sibling_version_drift(repo_root, manifest)
     if sibling_version_drift_evidence:
         findings.append(finding("SIBLING_VERSION_DRIFT", sibling_version_drift_evidence, manifest))
+
+    remake_contract_evidence = check_remake_contracts(repo_root)
+    if remake_contract_evidence:
+        findings.append(finding("REMAKE_CONTRACTS", remake_contract_evidence, manifest))
 
     installer_contract_evidence = check_installer_contract(repo_root, manifest)
     if installer_contract_evidence:

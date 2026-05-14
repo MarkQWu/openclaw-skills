@@ -103,8 +103,8 @@ artifact_requirements:
       - status_or_power_system
       - source_mechanisms_to_replace
       - paywall_pressure
-      decision_id: required
-      last_transaction_id: committed_in_transaction_ledger
+    decision_id: required
+    last_transaction_id: committed_in_transaction_ledger
   machine_report:
     requires:
       artifact_status: accepted

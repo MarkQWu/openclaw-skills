@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -71,6 +72,50 @@ MARKET_ADAPTATION_REQUIRED_NODES = {
 
 class CheckFailure(Exception):
     pass
+
+
+def assert_schema_yaml_syntax(path: Path) -> None:
+    """Lightweight YAML subset lint for repo schema contracts."""
+
+    previous_same_indent: dict[int, tuple[int, str]] = {}
+    block_scalar_parent_indent: int | None = None
+    for line_no, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if "\t" in raw_line:
+            raise CheckFailure(f"{path}:{line_no}: tabs are not allowed in schema YAML")
+        stripped = raw_line.strip()
+        if not stripped or stripped.startswith("#") or stripped == "---":
+            continue
+
+        indent = len(raw_line) - len(raw_line.lstrip(" "))
+        if indent % 2 != 0:
+            raise CheckFailure(f"{path}:{line_no}: indentation must use multiples of two spaces")
+
+        content = raw_line[indent:]
+        if block_scalar_parent_indent is not None:
+            if indent > block_scalar_parent_indent:
+                continue
+            block_scalar_parent_indent = None
+
+        for previous_indent in list(previous_same_indent):
+            if previous_indent > indent:
+                del previous_same_indent[previous_indent]
+
+        if content.startswith("- "):
+            previous_same_indent[indent] = (line_no, content)
+            continue
+
+        previous = previous_same_indent.get(indent)
+        if previous and previous[1].startswith("- "):
+            raise CheckFailure(
+                f"{path}:{line_no}: mapping item follows list item at the same indent; "
+                f"add '- ' or outdent it. Previous list item at line {previous[0]}."
+            )
+
+        if not re.match(r"^[A-Za-z0-9_.-][^:]*:\s*(.*)$", content):
+            raise CheckFailure(f"{path}:{line_no}: expected a mapping key or '- ' list item")
+        if re.match(r"^[A-Za-z0-9_.-][^:]*:\s*[>|-]\s*$", content):
+            block_scalar_parent_indent = indent
+        previous_same_indent[indent] = (line_no, content)
 
 
 def load_json_compatible_yaml(path: Path) -> dict[str, Any]:
@@ -491,6 +536,11 @@ def assert_market_adaptation_contract(fixture: dict[str, Any]) -> None:
     if assertions.get("overseas_command_report_only") is True:
         if route_node != "market_adapt.validate":
             raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 must route to market_adapt.validate")
+        if route.get("normalized_intent") != "validate_target_market_adaptation":
+            raise CheckFailure(
+                f"{fixture['fixture_id']}: market_adapt.validate route must use normalized_intent "
+                "validate_target_market_adaptation"
+            )
         if result.get("body_generated") is not False:
             raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 must not generate script body")
         forbidden_created = set(result.get("forbidden_created_artifacts", []))
@@ -502,6 +552,10 @@ def assert_market_adaptation_contract(fixture: dict[str, Any]) -> None:
     if assertions.get("overseas_concepts_from_start") is True:
         if route_node != "concept.generate":
             raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 without selected concept must route to concept.generate")
+        if route.get("normalized_intent") != "generate_skin_swap_concepts":
+            raise CheckFailure(
+                f"{fixture['fixture_id']}: concept.generate route must use normalized_intent generate_skin_swap_concepts"
+            )
         created = set(result.get("created_artifacts", []))
         expected_artifact = assertions.get("expected_concept_artifact", "02_concepts/concepts-overseas.md")
         if expected_artifact not in created:
@@ -621,6 +675,7 @@ def run_self_test() -> list[str]:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Check short-drama-remake deterministic gate fixtures.")
     parser.add_argument("--fixture", action="append", default=[], help="Path to a JSON-compatible YAML fixture file.")
+    parser.add_argument("--schema", action="append", default=[], help="Path to a human YAML schema contract file.")
     parser.add_argument("--self-test", action="store_true", help="Run built-in smoke test.")
     args = parser.parse_args(argv)
 
@@ -628,6 +683,10 @@ def main(argv: list[str]) -> int:
     try:
         if args.self_test:
             messages.extend(run_self_test())
+        for raw_path in args.schema:
+            path = Path(raw_path)
+            assert_schema_yaml_syntax(path)
+            messages.append(f"ok schema {path}")
         for raw_path in args.fixture:
             messages.extend(check_fixture(Path(raw_path)))
     except CheckFailure as exc:
@@ -635,7 +694,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     if not messages:
-        parser.error("provide --self-test or at least one --fixture")
+        parser.error("provide --self-test, --schema, or at least one --fixture")
     for message in messages:
         print(message)
     return 0

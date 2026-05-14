@@ -21,7 +21,7 @@
     "selected_concept": 3
   },
   "expected_route": {
-    "normalized_intent": "create_overseas_market_adaptation",
+    "normalized_intent": "validate_target_market_adaptation",
     "node_id": "market_adapt.validate",
     "bounded_context": "short-drama-remake"
   },
