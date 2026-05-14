@@ -6,7 +6,7 @@ description: Analyze reference short-drama scripts or screen-recorded prompt wor
 # Short Drama Remake
 
 > License: SKILL.md, agents metadata, scripts, and bundled code are MIT; references are gobuildit methodology documentation with all rights reserved except use as part of this skill distribution.
-> Version: 0.4.1
+> Version: 0.4.2
 
 ## Core Rule
 
@@ -52,7 +52,7 @@ Core subcommands:
 - `/仿写 帮助`: show remake command help, file structure, and recovery examples.
 - `/仿写 骨架`: run the reference skeleton stage.
 - `/仿写 换皮`: run the skin-swap concept stage.
-- `/仿写 出海`: create or refresh the target-market adaptation layer for overseas remakes.
+- `/仿写 出海`: enter overseas-target remake mode. Without a selected concept, generate overseas-adapted skin-swap concepts; with a selected concept number/text, create or refresh the target-market adaptation report.
 - `/仿写 定案`: deepen the selected concept into a project plan.
 - `/仿写 集纲`: create detailed episode outlines.
 - `/仿写 写集 N`: route to the existing managed script drafting path; `script_draft.preflight` remains mandatory.
@@ -72,8 +72,8 @@ Keep each stage dependent on the previous artifact. If the user asks for a downs
 
 Required upstream artifacts:
 
-- **Concept generation** requires a reusable skeleton table or equivalent拆解.
-- **Overseas adaptation** requires the skeleton plus a selected concept number or concept text. It produces a market adaptation report, not a script body.
+- **Concept generation** requires a reusable skeleton table or equivalent拆解. If `target_market=overseas`, concept generation must produce overseas-adapted directions from the start, not domestic concepts for later translation.
+- **Overseas adaptation** requires the skeleton plus a selected overseas-adapted concept number or concept text. It produces a market adaptation report, not a script body.
 - **Project planning** requires the skeleton plus a selected concept number or concept text. If `target_market` is overseas or differs from `source_market`, it also requires an accepted `market_adaptation_report`; otherwise run `/仿写 出海` first and do not create `project-bible.md`.
 - **Episode outlining** requires the skeleton plus the selected project plan.
 - **Script drafting** requires the project plan plus the target episode outline and episode number.
@@ -184,6 +184,7 @@ For each selected concept, perform a second-layer replacement pass before outlin
 4. **换皮不换骨**
    - Generate multiple concept skins that keep the skeleton but change genre, world, identities, power tokens, scenes, and dialogue logic.
    - Favor simple high-conflict premises suitable for Red Fruit/Douyin users.
+   - If `target_market=overseas`, do not generate domestic-facing concepts first. Generate overseas-adapted concept skins directly: overseas-native genre promise, relationship grammar, power/status system, public proof mechanism, and paywall pressure must fit the target market.
    - Diversify the concepts by audience, production cost, genre distance, and conflict engine.
    - Include a short risk note when a concept is too close to the reference or too expensive/confusing to shoot.
 
@@ -237,9 +238,11 @@ Rules:
 - After **reference skeleton / 骨架表**:
   - For partial/sample skeletons: `基于已提供集数的样本骨架，生成 10 个样本创意方向。每个方向只判断开局冲突、人物关系、权力凭证、前 N 集可复刻节奏和雷同风险；中后段反转、终局爽点和完整商业模型均标为 [待确认]。`
   - For complete skeletons: `基于上面的完整可复刻骨架，生成 10 个彻底换皮的短剧创意方向。每个方向包含剧名、题材、一句话卖点、主角身份、男主身份、核心反派、关键权力凭证、前 10 集节奏和最大爽点。`
+  - For overseas target market: `基于上面的可复刻骨架，生成 10 个海外适配换皮方向。每个方向必须从一开始就按海外目标市场设计，包含剧名、目标平台/受众、海外-native 题材承诺、主角/男主身份、核心反派、权力/身份凭证、前 10 集节奏、最大爽点、必须替换的源市场机制和雷同风险。`
   - For complete skeletons: `把上面的可复刻骨架压缩成 20 集版本，保留原来的剧情功能、情绪节奏、爽点位置和结尾钩子。`
   - `指出上面参考剧本最值得复刻的 5 个爽点机制，并说明每个机制适合换成哪些现代/古装/奇幻表皮。`
 - After **10 concepts**:
+  - For overseas concept lists: `对第【编号】个海外适配方向生成 market-adaptation-report.md，逐项说明哪些剧情功能可迁移、哪些源市场机制必须替换、目标市场约束、雷同风险和写集前阻断项。`
   - `深化第【编号】个创意，输出完整项目策划案：剧名、类型、一句话卖点、目标受众、核心爽点、故事梗概、世界观、人设、人物关系网、前 10 集大纲和每集钩子。`
   - `对比第【编号】和第【编号】个创意，从开局冲突、用户理解成本、爽点密度、拍摄成本、长线付费钩子判断哪个更适合红果/抖音。`
 - After **project plan**:

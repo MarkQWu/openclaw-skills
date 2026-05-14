@@ -25,7 +25,7 @@ Do not scan original `~/short-drama-projects/` for remake state. Managed remake 
 | `/仿写 帮助` | `show_remake_command_help` | Help surface | Show command list, recovery examples, and stage order. |
 | `/仿写 骨架` | `extract_reference_skeleton` | Existing skeleton stage | Requires source material or ingested source files; respect source scope. |
 | `/仿写 换皮` | `generate_skin_swap_concepts` | Existing concept stage | Requires skeleton; partial sources only unlock sample concepts. |
-| `/仿写 出海` | `create_overseas_market_adaptation` | Target-market adaptation stage | Requires skeleton plus selected concept or concept text; writes/refreshes `market-adaptation-report.md`, not a script body. |
+| `/仿写 出海` | `enter_overseas_remake_flow` | Target-market concept/adaptation stage | With no selected concept, generate overseas-adapted skin-swap concepts from the skeleton. With a selected concept, write/refresh `market-adaptation-report.md`, not a script body. |
 | `/仿写 定案` | `deepen_selected_concept` | Existing project planning stage | Requires skeleton and selected concept; if target market is overseas or differs from source market, consume accepted `market_adaptation_report` first. |
 | `/仿写 集纲` | `create_episode_outlines` | Existing outline stage | Requires project plan and source/skeleton context. |
 | `/仿写 写集 N` | `draft_episode_script` | `script_draft.preflight` then draft if passed | Mandatory preflight. If blocked, `body_generated=false` and no episode script file. |
@@ -120,7 +120,7 @@ Use this shape for `/仿写 帮助`:
 /仿写 继续 [项目目录]   恢复项目并推荐下一步，不自动生成正文
 /仿写 骨架              拆参考剧本的可复刻骨架
 /仿写 换皮              基于骨架生成换皮方向
-/仿写 出海              为选定方向生成海外市场迁移层，不直接写正文
+/仿写 出海 [方向编号]     进入海外仿写：未选方向先生成海外适配换皮方向；已选方向则生成市场迁移层
 /仿写 定案              深化选定方向为项目策划
 /仿写 集纲              生成详细分集大纲
 /仿写 写集 N            写第 N 集，必须通过 preflight

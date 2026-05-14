@@ -12,6 +12,20 @@ This file is a structure placeholder. Concrete mapping rules will be filled late
 
 ## Mapping Contract
 
+Overseas concept directions must be adapted before project planning. Do not generate domestic-facing skin-swap concepts and translate them later.
+
+Every overseas-adapted concept should include:
+
+| Field | Meaning |
+|---|---|
+| `target_market` | The intended overseas market, platform, or audience assumption. |
+| `overseas_genre_promise` | The overseas-native genre/audience promise. |
+| `relationship_grammar` | The relationship, agency, consent, and power grammar used by the concept. |
+| `status_or_power_system` | The target-market-native power/status mechanism. |
+| `source_mechanisms_to_replace` | Domestic/source-market mechanics that must not carry over. |
+| `paywall_pressure` | How the concept creates paid-episode pressure for the target market. |
+| `similarity_risk_note` | Why this direction is not just the reference with translated labels. |
+
 Every overseas adaptation report should separate:
 
 | Field | Meaning |

@@ -499,6 +499,23 @@ def assert_market_adaptation_contract(fixture: dict[str, Any]) -> None:
         if leaked:
             raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 created forbidden artifacts: {sorted(leaked)}")
 
+    if assertions.get("overseas_concepts_from_start") is True:
+        if route_node != "concept.generate":
+            raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 without selected concept must route to concept.generate")
+        created = set(result.get("created_artifacts", []))
+        expected_artifact = assertions.get("expected_concept_artifact", "02_concepts/concepts-overseas.md")
+        if expected_artifact not in created:
+            raise CheckFailure(f"{fixture['fixture_id']}: overseas concept artifact missing: {expected_artifact}")
+        forbidden_created = set(result.get("forbidden_created_artifacts", []))
+        leaked = created.intersection(forbidden_created)
+        if leaked:
+            raise CheckFailure(f"{fixture['fixture_id']}: overseas concept stage created forbidden artifacts: {sorted(leaked)}")
+        concept_fields = set(assertions.get("required_overseas_concept_fields", []))
+        if not concept_fields.issuperset(
+            {"target_market", "overseas_genre_promise", "source_mechanisms_to_replace", "paywall_pressure"}
+        ):
+            raise CheckFailure(f"{fixture['fixture_id']}: overseas concept fixture must assert core overseas fields")
+
     if assertions.get("forbid_short_drama_overseas_reads") is True:
         read_assertion = fixture.get("assertions", {}).get("read_trace_assertion", {})
         actual_reads = set(read_assertion.get("actual_reads", []))

@@ -44,6 +44,16 @@ nodes:
     produces_machine_report: fact_gate_report
     report_status_field: report_status
 
+  - node_id: concept.generate
+    normalized_intent: generate_skin_swap_concepts
+    bounded_context: short-drama-remake
+    consumes_canonical_artifacts:
+      - reference_skeleton
+    target_market_overlay:
+      - overseas concepts must be target-market adapted before selection
+      - domestic-facing concept lists cannot satisfy overseas project planning
+    produces_registry_artifact: concept_list
+
   - node_id: market_adapt.validate
     normalized_intent: validate_target_market_adaptation
     bounded_context: short-drama-remake

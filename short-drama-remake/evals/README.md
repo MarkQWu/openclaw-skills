@@ -29,4 +29,5 @@ Expected coverage:
 - transaction atomicity prevents half-confirmed state
 - stale/dirty/needs_sync reports block downstream script generation
 - target-market adaptation blocks overseas/cross-market project planning and script drafting when missing or stale
+- `/仿写 出海` without a selected concept generates overseas-adapted concept directions first
 - `/仿写 出海` produces/refreshes `market-adaptation-report.md` only, without generating project plans, episode scripts, or reading `short-drama/references/overseas/*`

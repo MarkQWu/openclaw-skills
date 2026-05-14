@@ -35,7 +35,7 @@ The `/仿写` command layer is a lightweight entry map, not a second workflow en
 | `/仿写 帮助` | Show remake command help and recovery examples. |
 | `/仿写 骨架` | Extract the reusable reference skeleton. |
 | `/仿写 换皮` | Generate skin-swap concepts from the skeleton. |
-| `/仿写 出海` | Build the overseas target-market adaptation layer before planning or scripting. |
+| `/仿写 出海 [方向编号]` | Enter overseas remake flow: first generate overseas-adapted skin-swap concepts, then build the target-market adaptation layer for the selected concept. |
 | `/仿写 定案` | Deepen a selected concept into the project plan. |
 | `/仿写 集纲` | Generate detailed episode outlines. |
 | `/仿写 写集 N` | Draft episode N through `script_draft.preflight`; blocked preflight creates no script body. |

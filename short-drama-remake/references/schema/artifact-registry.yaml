@@ -88,6 +88,21 @@ read_policy:
       artifact_status: accepted
       gate_status: [passed, passed_with_deferred_risk]
       current_pointer: required
+
+artifact_requirements:
+  concept_list:
+    required_metadata:
+      - source_market
+      - target_market
+    overseas_required_when:
+      - target_market == overseas
+    overseas_concept_must_include:
+      - target_market
+      - overseas_genre_promise
+      - relationship_grammar
+      - status_or_power_system
+      - source_mechanisms_to_replace
+      - paywall_pressure
       decision_id: required
       last_transaction_id: committed_in_transaction_ledger
   machine_report:
