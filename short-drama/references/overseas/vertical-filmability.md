@@ -1,6 +1,6 @@
 ---
 layer: modes
-control: hard_gate
+control: mixed_gate
 authority_id: short-drama.overseas-vertical-filmability
 canonical_path: references/overseas/vertical-filmability.md
 read_when: mode is overseas before /分集, /自检, scene polish, and production feasibility review
@@ -61,7 +61,7 @@ Elara watches from behind the bar. Julian's hand is steady. His eyes are not.
 
 **Why it fails**: 9:16 vertical video uses single-subject framing. The camera follows one person at a time. Simultaneous multi-character blocking is unfilmable in vertical. Complex fight choreography requires wide shots and careful spatial blocking, both impossible at 9:16.
 
-**Rule**: Violence is shown through **consequence and reaction**, not choreography. One decisive action + one reaction shot + one INSERT of aftermath.
+**Rule**: Violence should usually be shown through **consequence and reaction**, not choreography. One decisive action + one reaction shot + one INSERT of aftermath is the default. Escalate to hard gate only when the action is unreadable, unfilmable in 9:16, or violates `hard-rules.md` violence calibration.
 
 ## AP-V4: Interior Monologue as Scene Driver
 
@@ -103,7 +103,7 @@ She sits back down.
 
 **Why it fails**: Vertical drama audiences decide to stay or leave within 3-15 seconds. A 30+ second wordless atmospheric sequence is a feature-film luxury. In roughly 90-second episodes (see `platform-knowledge.md` section 1), 30s wordless equals one third of runtime and is indefensible.
 
-**Rule**: Maximum wordless/dialogue-free stretch = 15s, one Hook or Establish sub-segment. After 15s, either dialogue, VO with a valid platform function, or a new character must enter the frame.
+**Rule**: Maximum wordless/dialogue-free stretch defaults to 15s, one Hook or Establish sub-segment. After 15s, either dialogue, VO with a valid platform function, or a new character should enter the frame. Escalate to hard gate only when the silence consumes the hook window or blocks viewer comprehension.
 
 ## AP-V6: Talking Heads -- Dialogue Without Physical Action
 
@@ -157,4 +157,4 @@ ELARA
 Then change how it works.
 ```
 
-**Why it fails**: 9:16 video without physical action is radio with a static image. Every dialogue exchange must be accompanied by hands doing something, objects being manipulated, or spatial relationships shifting. Physical action carries subtext that dialogue alone cannot: her precise jar placement communicates territorial control more than her words do.
+**Why it fails**: 9:16 video without physical action can become radio with a static image. Dialogue scenes should regularly include hands doing something, objects being manipulated, or spatial relationships shifting. This is a strong craft diagnostic; escalate to hard gate only when a scene becomes visually static enough to fail phone-screen readability or retention.

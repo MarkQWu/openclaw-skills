@@ -36,7 +36,21 @@
       "04_outlines/episodes/ep001.execution-card.md",
       "05_scripts/episodes/ep001.md"
     ],
-    "downstream_unlocked": false
+    "downstream_unlocked": false,
+    "market_adaptation_report": {
+      "source_market": "domestic",
+      "target_market": "overseas",
+      "layer_classification": ["R0", "R1", "R2", "R3", "R4", "R5"],
+      "reference_function_map": "present",
+      "source_market_mechanism_map": "present",
+      "target_market_replacement_map": "present",
+      "must_not_carry_over": "present",
+      "overseas_genre_promise": "present",
+      "paywall_pressure": "present",
+      "distance_check": "present",
+      "blockers": [],
+      "warnings": []
+    }
   },
   "node_invocation_trace": {
     "called_nodes": [

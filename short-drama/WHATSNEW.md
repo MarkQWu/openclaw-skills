@@ -1,3 +1,11 @@
+**v1.31.23**（2026-05-15）
+
+修复出海资料分层后的命令接线遗漏：`/开始`、`/角色开发`、`/分集目录`、`/导出`、`/合规` 现在按 mode 读取对应海外资料；新增出海分集目录模板；降级 anti-domestic 与 vertical-filmability 的文件级门控，避免 review/craft 规则误当 must-rewrite；清理 `WIDE SHOT` 旧 eval 口径，统一出海视觉锚点为 `VISUAL ANCHOR`。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.22**（2026-05-15）
 
 重排出海具体资料层：`hard-rules.md` 改为 HARD BLOCK / REVIEW / STRONG GUIDANCE 分级，避免经验判断误升为自动阻断；对白资料拆成平台规则、通用工艺、长剧参考风险三层；反污染资料拆成国内迁移、结构导入、竖屏可拍性和合规/IP 风险，`/出海` 加载清单与 reference registry 已同步。

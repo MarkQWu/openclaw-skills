@@ -1,3 +1,9 @@
+**v0.4.4**（2026-05-15）
+
+Tighten Overseas Boundary：`remake_gate_checker.py` 默认禁止读取 `short-drama/references/` 前缀，避免新增原创出海资料绕过隔离；`market_adaptation_report` 契约补齐 R0-R5 字段校验；`references/market/` 从占位升级为 remake-native active scaffold，用本 skill 自己的目标市场迁移分类表达海外规则。
+
+---
+
 **v0.4.3**（2026-05-15）
 
 Market Layer Taxonomy：新增 `references/market/layer-taxonomy.md`，把 `/仿写 出海` 的资料准入拆成 source truth、target market、non-transferables、target replacement、genre promise / paid pressure、similarity distance 和 script flesh。`concept.generate` / `market_adapt.validate` 明确 allowed market references，海外 concept/report 需要带 layer classification，避免 remake 直接读取原创 `short-drama/references/overseas/*`。

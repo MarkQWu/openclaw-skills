@@ -336,7 +336,7 @@ graph TD
 
 ## /分集目录
 
-> **格式提醒：** 严格按以下模板输出，不添加模板外区块，不混用中英文。
+> **格式提醒：** 国内模式专用。严格按以下模板输出，不添加模板外区块，不混用中英文。出海模式使用下一节 `/分集目录（出海模式）`，不得套用三幕/爽点/固定付费卡点口径。
 
 ````markdown
 # {剧名}：分集目录
@@ -365,6 +365,41 @@ graph TD
 第{N}集：{集标题}：{核心冲突或爽点一句话描述}
 第{N}集：{集标题}：{核心冲突或爽点一句话描述} [关键]
 ...
+````
+
+---
+
+## /分集目录（出海模式）
+
+> **格式提醒：** 仅在 `.drama-state.json#mode == "overseas"` 时使用。不得输出“三幕 / three-act / Save the Cat / 爽点矩阵 / 固定付费卡点”。每集用 platform function 描述：opening pressure、relationship choice、reveal、reversal、paid-pressure cliffhanger。
+
+````markdown
+# {Title}: Episode Directory
+
+> **Target market/platform**: {target market / platform assumption}
+> **Episode count**: {N} episodes
+> **Genre promise**: {overseas genre promise}
+> **Paid-pressure design**: {paywall pressure pattern, source confidence if known}
+
+---
+
+## Phase 1: Hook And Relationship Lock (Ep {X}-{Y})
+
+Ep 1: {Title} — {opening pressure + visible conflict} [KEY]
+Ep 2: {Title} — {relationship pressure / agency choice}
+Ep {N}: {Title} — {reveal or reversal that creates paid pressure} [PAY]
+
+## Phase 2: Escalation And Irreversible Choice (Ep {X}-{Y})
+
+Ep {N}: {Title} — {power shift / relationship choice / identity pressure} [KEY]
+Ep {N}: {Title} — {reveal / reversal / cliffhanger job}
+Ep {N}: {Title} — {paid-pressure cliffhanger, not mechanical interval} [PAY]
+
+## Phase 3: Consequence, Payoff, And Final Promise (Ep {X}-{Y})
+
+Ep {N}: {Title} — {moral consequence / relationship payoff} [KEY]
+Ep {N}: {Title} — {final reveal / reversal}
+Ep {N}: {Title} — {ending promise delivered}
 ````
 
 ---

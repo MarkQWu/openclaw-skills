@@ -1,14 +1,14 @@
 ---
 schema_version: remake.market.overseas_adaptation_map.v0
 read_when: /仿写 出海 and market_adapt.validate
-status: structure_placeholder
+status: active_scaffold
 ---
 
 # Overseas Adaptation Map
 
 Purpose: map reference-drama story functions into overseas-market equivalents.
 
-This file is a structure placeholder. Concrete mapping rules will be filled later.
+This file defines the minimum remake-native mapping contract for overseas adaptation. It is intentionally category-level; do not import original `short-drama` overseas reference files.
 
 ## Mapping Contract
 
@@ -38,10 +38,13 @@ Every overseas adaptation report should separate:
 | `must_not_carry_over` | Surface items that would create market mismatch or similarity risk. |
 | `distance_check` | Why this is not a renamed copy. |
 
-## Future Mapping Areas
+## Required Mapping Areas
 
-- Status and power systems.
-- Public proof scenes.
-- Family secrets and identity mechanics.
-- Paywall pressure.
-- Romance, danger, and agency grammar.
+Every market adaptation report must cover these mappings when applicable:
+
+1. **Status and power systems**: source hierarchy, wealth, office, school, clan, family, or legal power -> target-market-native status/power mechanism.
+2. **Public proof scenes**: source slap, humiliation, reveal, crowd witness, test result, contract, or family proof -> target-market proof mechanism that is legible without domestic context.
+3. **Family secrets and identity mechanics**: source bloodline, household, adoption, pregnancy, inheritance, or mistaken identity -> target-market equivalent with IP distance.
+4. **Paywall pressure**: source paid cliffhanger function -> target-market reason to continue, such as relationship choice, identity reveal, danger escalation, debt, oath, or betrayal.
+5. **Romance, danger, and agency grammar**: source coercion / pursuit / grovel / protection function -> target-market relationship grammar with agency and consent boundary named.
+6. **Vertical filmability**: source crowd/wide/action spectacle -> phone-screen readable visual anchor, single-subject action, or consequence/reaction beat.

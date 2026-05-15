@@ -1,6 +1,6 @@
 ---
 layer: modes
-control: hard_gate
+control: review_gate
 authority_id: short-drama.overseas-anti-domestic-transfer
 canonical_path: references/overseas/anti-domestic-transfer.md
 read_when: mode is overseas before /开始, /分集, /自检, and when diagnosing domestic carryover
@@ -58,7 +58,7 @@ These are plot mechanisms that Chinese screenwriters default to but English mafi
 
 **Why it fails**: Without a moral turning point episode she is just "a sad girl in a nice dress" -- the classic 霸总 failure mode.
 
-**Required**: One episode where she orders a hit, approves torture, or chooses family over a civilian friend. This is the point of no return that makes the transformation real.
+**Useful direction**: Give her one morally irreversible choice that changes the plot and reveals what darkness she is willing to own. Violent examples must stay inside `hard-rules.md` violence calibration and `compliance-risk.md` target-market boundaries; the requirement is irreversible agency, not a required hit/torture beat.
 
 ## Cross-Case Failure Pattern: Male-Frequency Content Has High Transfer Risk
 

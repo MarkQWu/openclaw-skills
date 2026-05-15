@@ -45,6 +45,25 @@ DEFAULT_FORBIDDEN_SCRIPT_READS = {
     "00_source/episodes/ep_012.md",
 }
 
+DEFAULT_FORBIDDEN_READ_PREFIXES = (
+    "short-drama/references/",
+)
+
+REQUIRED_MARKET_ADAPTATION_REPORT_FIELDS = {
+    "source_market",
+    "target_market",
+    "layer_classification",
+    "reference_function_map",
+    "source_market_mechanism_map",
+    "target_market_replacement_map",
+    "must_not_carry_over",
+    "overseas_genre_promise",
+    "paywall_pressure",
+    "distance_check",
+    "blockers",
+    "warnings",
+}
+
 POSTFLIGHT_REPORT_STATUSES = {
     "passed",
     "blocked",
@@ -292,6 +311,13 @@ def assert_read_trace_contract(fixture: dict[str, Any], expected_read_trace: dic
         default_hits = actual_reads.intersection(DEFAULT_FORBIDDEN_SCRIPT_READS)
         if default_hits:
             raise CheckFailure(f"{fixture['fixture_id']}: default forbidden script reads present: {sorted(default_hits)}")
+        prefix_hits = sorted(
+            path
+            for path in actual_reads
+            if any(path.startswith(prefix) for prefix in DEFAULT_FORBIDDEN_READ_PREFIXES)
+        )
+        if prefix_hits:
+            raise CheckFailure(f"{fixture['fixture_id']}: default forbidden read prefixes present: {prefix_hits}")
 
 
 def assert_call_trace_contract(fixture: dict[str, Any], expected_call_trace: dict[str, Any]) -> None:
@@ -557,6 +583,14 @@ def assert_market_adaptation_contract(fixture: dict[str, Any]) -> None:
         leaked = created.intersection(forbidden_created)
         if leaked:
             raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 created forbidden artifacts: {sorted(leaked)}")
+        report = result.get("market_adaptation_report")
+        if not isinstance(report, dict):
+            raise CheckFailure(f"{fixture['fixture_id']}: /仿写 出海 must expose expected_result.market_adaptation_report")
+        missing_report_fields = REQUIRED_MARKET_ADAPTATION_REPORT_FIELDS.difference(report.keys())
+        if missing_report_fields:
+            raise CheckFailure(
+                f"{fixture['fixture_id']}: market_adaptation_report missing fields: {sorted(missing_report_fields)}"
+            )
 
     if assertions.get("overseas_concepts_from_start") is True:
         if route_node != "concept.generate":
@@ -684,6 +718,21 @@ def run_self_test() -> list[str]:
     assert_fast_confirmed_invalidation(synthetic)
     assert_phase5_specific_contracts(synthetic)
     assert_three_layer_control_contract(synthetic)
+
+    forbidden_prefix_synthetic = dict(synthetic)
+    forbidden_prefix_synthetic["fixture_id"] = "self_test_forbidden_short_drama_reference_prefix"
+    forbidden_prefix_synthetic["assertions"] = {
+        "read_trace_assertion": {
+            "actual_reads": ["short-drama/references/overseas/vertical-filmability.md"],
+            "enforce_default_forbidden_script_reads": True,
+        }
+    }
+    try:
+        assert_read_trace_contract(forbidden_prefix_synthetic)
+    except CheckFailure:
+        pass
+    else:
+        raise CheckFailure("self-test: short-drama/references/ prefix leak was not blocked")
     return ["ok self-test"]
 
 

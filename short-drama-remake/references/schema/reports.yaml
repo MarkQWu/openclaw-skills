@@ -120,6 +120,14 @@ market_adaptation_report:
   required_fields:
     - source_market
     - target_market
+    - layer_classification
+    - reference_function_map
+    - source_market_mechanism_map
+    - target_market_replacement_map
+    - must_not_carry_over
+    - overseas_genre_promise
+    - paywall_pressure
+    - distance_check
     - transferable_story_functions
     - must_replace_market_specifics
     - target_market_constraints

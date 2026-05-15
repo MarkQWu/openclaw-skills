@@ -120,9 +120,9 @@ These references now carry explicit metadata fields:
 | `overseas/hard-rules.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, and `/自检` |
 | `overseas/compliance-risk.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, `/自检`, `/合规`, and `/导出` |
 | `overseas/layer-index.md` | `reference_architecture` | `mode=overseas` before selecting overseas references or classifying new material |
-| `overseas/anti-domestic-transfer.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, `/自检`, and domestic-carryover diagnosis |
+| `overseas/anti-domestic-transfer.md` | `review_gate` | `mode=overseas` before `/开始`, `/分集`, `/自检`, and domestic-carryover diagnosis |
 | `overseas/anti-structure-import.md` | `hard_gate` | `mode=overseas` before reviewing outlines, beat sheets, structural documents, and reference imports |
-| `overseas/vertical-filmability.md` | `hard_gate` | `mode=overseas` before `/分集`, `/自检`, scene polish, and production feasibility review |
+| `overseas/vertical-filmability.md` | `mixed_gate` | `mode=overseas` before `/分集`, `/自检`, scene polish, and production feasibility review |
 
 ## Control Boundary
 

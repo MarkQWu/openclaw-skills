@@ -18,7 +18,7 @@ read_when: mode is overseas before /开始, /分集, and /自检
 
 ## Severity Definitions
 
-- **HARD BLOCK**: Cannot ship in overseas mode. Rewrite before continuing.
+- **HARD BLOCK**: Cannot ship in overseas mode. Rewrite content before continuing, unless explicitly labeled as an export/process stop.
 - **REVIEW**: Must be surfaced to a human editor or project owner. Rewrite only if the review confirms target-market, legal, or relationship-grammar failure.
 - **STRONG GUIDANCE**: Craft preference or diagnostic heuristic. Use to improve the draft, not as an automatic fail state.
 
@@ -84,20 +84,6 @@ Allowed dark-romance violence remains outward and narratively accountable:
 - against traffickers, rapists, or attackers
 - against rival mafia who cross a declared line
 - as protection, rescue, retaliation, or underworld consequence aimed away from innocent targets
-
-### HB6: Legal Flag Checklist Missing Before Export
-
-Before `/导出` or handoff, the episode set must include a legal/IP review list.
-
-Block when the project is ready for export but has not listed:
-- character names
-- family names
-- brand elements
-- locations
-- visual likeness references
-- source inspirations or comparable titles used during drafting
-
----
 
 ## REVIEW Gates
 
@@ -172,3 +158,19 @@ C2 Appendix 2.1 (Wound-as-Fetish), 2.2 (Hickey Branding), 2.3 (Lovers-Pose-as-Pr
 ### SG4: Provenance Examples Are Diagnostics, Not Positive Instructions
 
 The old v0.3 source-pattern note is retained only as diagnostic provenance: novel-length dark romance can sustain some redemption arcs through long runway and trigger-warning context, while vertical short drama usually cannot. Do not copy source-specific IP, names, scenes, or likenesses.
+
+---
+
+## EXPORT / PROCESS STOPS
+
+### EP1: Legal Flag Checklist Missing Before Export
+
+Before `/导出` or external handoff, the episode set must include a legal/IP review list. Missing this list blocks export, but it does not imply the script body must be rewritten.
+
+Block export when the project has not listed:
+- character names
+- family names
+- brand elements
+- locations
+- visual likeness references
+- source inspirations or comparable titles used during drafting

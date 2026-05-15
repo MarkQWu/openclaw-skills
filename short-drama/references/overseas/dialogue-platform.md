@@ -26,7 +26,7 @@ When this file conflicts with McKee / Mamet / Sorkin / prestige-drama examples, 
 - **R4 [HIGH] — Trope-forward naming.** Titles and dialogue use direct genre nouns and verbs: "mafia king," "contract," "avenge," "own," "mine," "betrothed." Avoid euphemism when the trope term carries the hook.
 - **R5 [HIGH] — Melodrama over subtext.** Platform tone is soapy, melodramatic, and retention-engineered. Prestige-TV restraint is a platform mismatch when it hides the hook.
 - **R6 [HIGH] — Caption-legibility drives line writing.** Burned-in captions are baseline. Lines must parse in one glance; SVO beats ambiguous fragments.
-- **R7 [MED] — Mafia code-phrases are recycled, not reinvented.** "Born in Blood, Sworn in Blood" / "Enter alive and leave dead" from *Bound by Honor* are genre shibboleths, not writerly flourishes.
+- **R7 [MED] — Mafia oath language should feel genre-legible without copying protected expression.** Use original oath / debt / blood / family / territory wording that performs the same platform job. Do not reuse exact phrases, taglines, signature vows, or recognizable line shapes from existing titles.
 - **R8 [LOW] — Consigliere / lieutenant role often collapses into phone, henchman, or visual function.** Do not over-invest EP1 words in a named retainer unless the scene makes the role instantly legible.
 
 ## Platform-Norm Word Count by Function

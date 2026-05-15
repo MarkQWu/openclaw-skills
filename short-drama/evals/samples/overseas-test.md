@@ -54,7 +54,7 @@ Target platform mode: ReelShort 90-second episodes, IAP first paywall at EP11
 
 - [x] **A1** N/A（出海模式，Billionaire Romance 不在 anchor 覆盖的国内 13 题材内 → anchor 字段可不出现）
 - [x] **A2** 前 1/3 字数有冲突/钩子词（"trembling" / "frozen" / "hidden" 等英文等价）
-- [x] **A3** Hollywood 格式：≥2 个 INT./EXT. 场景头 + ≥1 个 WIDE SHOT/CLOSE-UP；**0** 命中中式 humiliation→power 弧禁词（赘婿/逆袭/打脸/废柴/战神）
+- [x] **A3** Hollywood 格式：≥2 个 INT./EXT. 场景头 + ≥1 个 VISUAL ANCHOR/CLOSE-UP；**0** 命中中式 humiliation→power 弧禁词（赘婿/逆袭/打脸/废柴/战神）
 - [x] **A4** 自检 7 维度齐全
 - [x] **A5** dramatic-truth 4 症状触发（Ava 内心独白如有长台词应被扫）
 - [x] **A6** 中式表达扣分扫描（如模型生成时被中文母语污染产出"心如刀绞""星眸"等直译，自检应标记）

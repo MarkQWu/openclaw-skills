@@ -96,7 +96,7 @@ echo ""
 echo "## A3 海外模式好莱坞格式 + 反中式弧"
 if [[ "$IS_OVERSEAS" -eq 1 ]]; then
   INT_EXT=$(grep -cE "^INT\.|^EXT\." "$EP1" || true)
-  SHOT=$(grep -cE "WIDE SHOT|CLOSE-UP|MEDIUM SHOT" "$EP1" || true)
+  SHOT=$(grep -cE "VISUAL ANCHOR|CLOSE-UP|MEDIUM SHOT" "$EP1" || true)
   CHINESE_ARC=$(grep -cE "赘婿|逆袭|打脸|废柴|战神|神医归来|凤凰涅槃" "$EP1" || true)
   if [[ "$INT_EXT" -ge 2 && "$SHOT" -ge 1 && "$CHINESE_ARC" -eq 0 ]]; then
     check "A3" "PASS" "(INT/EXT=$INT_EXT, SHOT=$SHOT, 中式弧禁词=0)"

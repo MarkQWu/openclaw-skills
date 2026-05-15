@@ -134,7 +134,7 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 6. **推荐配置确认（选择题模式）：** 根据已确定的题材，从 `genre-guide.md#题材推荐配置映射表` 查出推荐值，一次性展示推荐配置卡（受众细分/基调/结局/集数/语言/**承制介质**各一行，每项标 [推荐]）。**承制介质**选项：`ai_live`（仿真人 AI 剧 · 3-5 场 / 严格反抽象 / 单条台词 ≤2 句 · 默认）或 `comic`（漫剧 · ≤3 场 / 单条台词 ≤6 句 / OS/VO 带情绪标签 / 分镜切片密集）。用户回复"确认"或修改项。每次修改配置时，把决策过程追加到 `brainstorm.md#配置决策历史`。
 
-7. 如用户选择 English，自动切换为出海模式。汇总确认后，按「state 写入协议」保存状态。
+7. 如用户选择 English，自动切换为出海模式。切换前先读 `references/overseas/layer-index.md`、`platform-knowledge.md`、`hard-rules.md`、`compliance-risk.md`、`anti-domestic-transfer.md`，要求配置卡明确目标市场 / 平台 / 受众假设；信息不足时写 `[待确认]`，不得把国内题材映射直接当海外规则。汇总确认后，按「state 写入协议」保存状态。
 
    **配置选项列表和题材→推荐映射表：** 见 `genre-guide.md#配置选项列表` 和 `genre-guide.md#题材推荐配置映射表`。
 
@@ -325,7 +325,7 @@ graph LR
 
 **重跑语义：** 若 `characters.md` 已存在（老项目或本次重跑），**默认全量覆盖** 15 字段——按新模板重新生成。若老版本有**新模板未覆盖的独有字段**（如更丰富的视觉细节描写、额外背景段落），可在新模板对应字段下追加保留，只替换重合字段，不删除老独有内容。"口头禅/语言特征"单字段必须被 voice 样本集完整替代，**不得**与 voice 样本集并存造成冲突。
 
-**加载参考：** three-layer-control.md（人物核心与关系逻辑归地基层，角色功能归骨架层，voice 样本和口吻归血肉层）, villain-design.md
+**加载参考：** three-layer-control.md（人物核心与关系逻辑归地基层，角色功能归骨架层，voice 样本和口吻归血肉层）, villain-design.md。若 `.drama-state.json#mode == "overseas"`，额外读取 `references/overseas/dialogue-platform.md`、`dialogue-craft.md`、`dialogue-exemplar-risk.md`、`hard-rules.md`，先锁平台可读 voice 边界，再生成 voice 样本集。
 
 **生成内容：**
 
@@ -373,19 +373,22 @@ graph LR
 
 **前置条件：** 已完成 /角色开发
 
-**加载参考：** three-layer-control.md（分集职责、阶段节奏、关键集和付费点归骨架层，集标题表达归血肉层）, paywall-design.md, rhythm-curve.md
+**加载参考：** three-layer-control.md（分集职责、阶段节奏、关键集和付费点归骨架层，集标题表达归血肉层）, paywall-design.md, rhythm-curve.md。若 `.drama-state.json#mode == "overseas"`，额外读取 `references/overseas/layer-index.md`、`platform-knowledge.md`、`hard-rules.md`、`anti-structure-import.md`、`anti-domestic-transfer.md`、`vertical-filmability.md`，并使用出海分集目录模板。
 
-**生成内容：** 为每一集生成条目：`第{N}集：{集标题}：{核心冲突/爽点一句话描述} {标记}`
+**生成内容：**
+- 国内模式：为每一集生成条目：`第{N}集：{集标题}：{核心冲突/爽点一句话描述} {标记}`
+- 出海模式：为每一集生成条目：`Ep {N}: {Title} — {episode pressure / reveal / reversal / cliffhanger job} {tag}`
 
-**标记说明：** [关键] 重大转折/高潮/揭秘 | [付费] 付费卡点 | 无标记 = 常规推进
+**标记说明：**
+- 国内模式：[关键] 重大转折/高潮/揭秘 | [付费] 付费卡点 | 无标记 = 常规推进
+- 出海模式：[KEY] relationship / identity / power turn | [PAY] paid-pressure cliffhanger | 无标记 = regular escalation
 
 **要求：**
 - 必须覆盖全部集数
-- 前 10 集至少 3 个 [关键] 和 2 个 [付费]
-- 全剧 [关键] 占比 25-35%，[付费] 占比 10-15%
-- 目录必须体现三幕结构的节奏变化
+- 国内模式：前 10 集至少 3 个 [关键] 和 2 个 [付费]；全剧 [关键] 占比 25-35%，[付费] 占比 10-15%；目录必须体现三幕结构的节奏变化
+- 出海模式：不得使用三幕/爽点/固定付费卡点口径；按 opening pressure、relationship choice、reveal/reversal、paid-pressure cliffhanger 组织，每个 [PAY] 必须说明观众为什么付费继续看
 
-**输出格式：** 见 `references/output-templates.md#目录`
+**输出格式：** 国内模式见 `references/output-templates.md#分集目录`；出海模式见 `references/output-templates.md#分集目录出海模式`
 
 **输出：** 保存为 `episode-directory.md`
 
@@ -680,7 +683,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **前置条件：** 至少完成部分集数
 
-**三层门控：** 读取 `three-layer-control.md`。`/导出` 只因地基层 hard gate、格式/文件/docx 合法性失败，或已自检且不合格的集数阻断；血肉层低分或质感弱不单独阻断导出，只能作为导出前建议。
+**三层门控：** 读取 `three-layer-control.md`。若 `.drama-state.json#mode == "overseas"`，额外读取 `references/overseas/compliance-risk.md`、`hard-rules.md`，确认目标市场、IP/相似性、真实人物/AI 肖像和 source inspiration 清单已检查。`/导出` 只因地基层 hard gate、格式/文件/docx 合法性失败、海外导出合规清单缺失，或已自检且不合格的集数阻断；血肉层低分或质感弱不单独阻断导出，只能作为导出前建议。
 
 **入口确认提示（`/导出` 无集数参数时，执行任何门控之前输出）：**
 ```
@@ -835,9 +838,9 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **功能：** 对已完成的剧本进行合规审核。
 
-**加载参考：** compliance-checklist.md
+**加载参考：** 先读取 `.drama-state.json#mode`。国内模式读取 `compliance-checklist.md`；出海模式读取 `references/overseas/compliance-risk.md`、`hard-rules.md`、`anti-domestic-transfer.md`，不得用国内平台口径覆盖海外项目。
 
-**适用于国内模式。** 检查内容：红线检测、高风险内容、短剧特有雷区、正向价值观检查
+**检查内容：** 国内模式检查红线检测、高风险内容、短剧特有雷区、正向价值观；出海模式检查目标市场缺失、IP/相似性、真实人物/AI 肖像、source-market transplant、protected-class harm、consent/violence breach、敏感机构误用和需人工 review 的地域/法律/宗教/政治风险。
 
 **输出格式：** 见 `references/output-templates.md#合规`
 
