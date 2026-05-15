@@ -76,11 +76,16 @@ Chinese control names:
 | `storyboard-guide.md` | Storyboard and video prompt generation guide |
 | `storyboard-rules.md` | Storyboard command constraints and checks |
 | `overseas/anti-patterns.md` | Overseas mode failure patterns |
+| `overseas/anti-domestic-transfer.md` | Domestic-market carryover and failed transfer patterns |
+| `overseas/anti-structure-import.md` | Feature-film and domestic-structure vocabulary pollution |
 | `overseas/compliance-risk.md` | Overseas legal, IP, cultural, and similarity risk separated from domestic compliance |
 | `overseas/dialogue-craft.md` | Overseas dialogue craft and platform conventions |
+| `overseas/dialogue-exemplar-risk.md` | Long-form / prestige exemplar use boundaries and contamination risks |
+| `overseas/dialogue-platform.md` | Overseas vertical-platform native dialogue rules |
 | `overseas/hard-rules.md` | Overseas mode non-negotiable constraints |
 | `overseas/layer-index.md` | Overseas reference taxonomy and causal placement rules |
 | `overseas/platform-knowledge.md` | Overseas platform and market reference |
+| `overseas/vertical-filmability.md` | 9:16 phone-screen filmability and readability anti-patterns |
 
 ### Templates
 
@@ -115,6 +120,9 @@ These references now carry explicit metadata fields:
 | `overseas/hard-rules.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, and `/自检` |
 | `overseas/compliance-risk.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, `/自检`, `/合规`, and `/导出` |
 | `overseas/layer-index.md` | `reference_architecture` | `mode=overseas` before selecting overseas references or classifying new material |
+| `overseas/anti-domestic-transfer.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, `/自检`, and domestic-carryover diagnosis |
+| `overseas/anti-structure-import.md` | `hard_gate` | `mode=overseas` before reviewing outlines, beat sheets, structural documents, and reference imports |
+| `overseas/vertical-filmability.md` | `hard_gate` | `mode=overseas` before `/分集`, `/自检`, scene polish, and production feasibility review |
 
 ## Control Boundary
 

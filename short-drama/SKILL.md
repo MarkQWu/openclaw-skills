@@ -160,7 +160,7 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **入口软提示（命令开始时执行）：** 检查 `.drama-state.json#clashes`——若为空，在生成方案前输出一句：「💡 还没开过选题会。建议先跑 `/选题会` 验证赛道（3 位专家碰撞，5 分钟）。直接继续请回复"继续"。」用户回复"继续"或任意命令则正常推进；`clashes` 非空则跳过此提示。
 
-**加载参考：** three-layer-control.md（按骨架层 75% 锁 story promise / main conflict / payoff / hook，释放具体实现）, opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, creative-intent-ledger.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**。若 `.drama-state.json#mode == "overseas"`，额外先读 `references/overseas/layer-index.md`、`platform-knowledge.md`、`hard-rules.md`、`anti-patterns.md`、`compliance-risk.md`，并以海外分层资料覆盖国内策划模板。
+**加载参考：** three-layer-control.md（按骨架层 75% 锁 story promise / main conflict / payoff / hook，释放具体实现）, opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, creative-intent-ledger.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**。若 `.drama-state.json#mode == "overseas"`，额外先读 `references/overseas/layer-index.md`、`platform-knowledge.md`、`hard-rules.md`、`anti-patterns.md`、`anti-domestic-transfer.md`、`anti-structure-import.md`、`compliance-risk.md`，并以海外分层资料覆盖国内策划模板。
 
 **anchor 推荐步骤（v1.23.0，全 13 题材触发）：** **生成内容前**按 `references/anchor-trigger.md#策划-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。
 
@@ -809,9 +809,14 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **切换后强制加载 `references/overseas/` 分层资料**：
 - `layer-index.md` — 出海资料分层索引：平台事实、本土文化、类型承诺、结构、形式、对白工艺、风险门控的分类标准
-- `hard-rules.md` — 13 条非协商硬规则（男主不可杀平民/禁化学合意/禁中式 humiliation→power 弧 等）
-- `dialogue-craft.md` — L1 McKee/Mamet 通用 12 原则 + L2/L3 英文 voice 分层
-- `anti-patterns.md` — 英文禁词表（三幕/Save the Cat 等会触发好莱坞 prior 的术语）+ 国内机制搬运、prestige/novel 结构污染和平台化校准
+- `hard-rules.md` — 海外 hard gate 矩阵：HARD BLOCK / REVIEW / STRONG GUIDANCE 分级，只有 HARD BLOCK 自动阻断
+- `dialogue-platform.md` — 平台原生对白规则：caption legibility / trope-forward / VO / line function
+- `dialogue-craft.md` — 通用对白工艺导航：McKee/Mamet 等只作平台规则之后的二级技法
+- `dialogue-exemplar-risk.md` — Peaky/Godfather/Succession 等长剧参考的可借技法与污染风险
+- `anti-patterns.md` — 反污染导航：按问题路由到国内迁移、结构导入、竖屏可拍性、合规风险
+- `anti-domestic-transfer.md` — 国内机制搬运、男频出海失败、国内 skill 习惯泄漏
+- `anti-structure-import.md` — 三幕/Save the Cat 等影视结构词污染和平台函数替代表
+- `vertical-filmability.md` — 9:16 可拍性：宽镜头、复杂调度、VO 滥用、静态对话
 - `platform-knowledge.md` — ReelShort/DramaBox runtime ~90s / 付费墙物理 / hook 窗口 / genre 分类，带 HIGH/MED/LOW 信心标
 - `compliance-risk.md` — 海外独立合规/IP/文化风险；不要用国内 `/合规` 口径默认覆盖海外项目
 
