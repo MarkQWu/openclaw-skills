@@ -6,8 +6,7 @@ REPO_GITHUB="https://github.com/MarkQWu/drama-workshop-skills.git"
 REPO_MIRROR="https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
 CACHE="$HOME/.gobuildit/skill-repos/drama-workshop-skills"
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
-OPENCLAW_SKILLS_DIR="$HOME/.openclaw/skills"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P || pwd)"
+SCRIPT_DIR="$(if cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null; then pwd -P; else pwd; fi)"
 
 echo "=== gobuildit Skills 安装器 ==="
 echo ""
@@ -29,7 +28,8 @@ migrate_embedded_trash() {
   local owner_dir
   owner_dir="$(dirname "$skills_dir")"
   local safe_root="$owner_dir/.skill-trash"
-  local dest="$safe_root/from-skills-trash-$(timestamp)"
+  local dest
+  dest="$safe_root/from-skills-trash-$(timestamp)"
 
   mkdir -p "$safe_root"
   if [ -e "$dest" ]; then
@@ -102,7 +102,7 @@ else
   if [ -d "$CACHE/.git" ]; then
     try_pull "$CACHE"
   else
-    [ -d "$CACHE" ] && mv "$CACHE" "$CACHE.backup-$(timestamp)" 2>/dev/null || true
+    if [ -d "$CACHE" ]; then mv "$CACHE" "$CACHE.backup-$(timestamp)" 2>/dev/null || true; fi
     try_clone "$CACHE"
   fi
 fi
