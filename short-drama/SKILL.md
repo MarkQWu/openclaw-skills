@@ -403,7 +403,7 @@ graph LR
 
 **前置条件：** 已完成 /分集目录
 
-**加载参考：** three-layer-control.md（锁本集 story job / entry pressure / turning point / exit hook，释放具体台词、动作和场面质感）, opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, creative-intent-ledger.md（用于防止分集背离原始前提、核心关系和不可牺牲点）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）, **工艺通用补充**（按需读，覆盖中英文）：`vertical-drama-craft.md`（信息密度+段落颗粒+钩子节奏）/ `dramatic-truth.md`（对白真实性 4 症状）/ `script-element-extraction.md`（5 类元素分层 pipeline）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
+**加载参考：** three-layer-control.md（锁本集 story job / entry pressure / turning point / exit hook，释放具体台词、动作和场面质感）, opening-rules.md（**仅第 1 集 Read**，其他集跳过）, rhythm-curve.md, satisfaction-matrix.md, hook-design.md, quality-rules.md（跨介质通用规则 + 自检维度）, creative-intent-ledger.md（用于防止分集背离原始前提、核心关系和不可牺牲点）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, **setting-bible.md**（如存在，强制引用专业细节）, **used-lines.md**（存在则读，跨集台词去重；加载/写入协议见 `used-lines-protocol.md`）, **工艺通用补充**（按需读，覆盖中英文）：`vertical-drama-craft.md`（信息密度+段落颗粒+钩子节奏）/ `dramatic-truth.md`（对白真实性 4 症状）/ `script-element-extraction.md`（5 类元素分层 pipeline）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 分层资料（见 /出海 命令完整清单）
 
 **anchor inline + `--fix anchor-rhythm` 子命令：** 如 `creative-plan.md` 有 `anchor` 字段，按 `references/anchor-trigger.md#分集-anchor-inline` 把 anchor prompt 模板 inline 到分集生成 prompt；无 `anchor` 字段则跳过。节奏污染时 `/分集 N --fix anchor-rhythm` 重写（详见 `references/anchor-trigger.md#fix-anchor-rhythm-子命令`）。
 
@@ -489,7 +489,7 @@ graph LR
 
 **前置条件：** 目标集数已完成
 
-**加载参考：** three-layer-control.md（区分地基层阻断、骨架层修复和血肉层建议；craft 低分不得单独 BLOCKED）, quality-rules.md（自检维度细则 + 跨介质通用规则）, creative-intent-ledger.md（把背离原始冲动列为 soft risk；只有同时触发 OOC、事实矛盾、合规、不可拍或媒介不匹配时升级 hard gate）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）, `dramatic-truth.md`（对白真实性 4 症状清单：Trailer-Speak / Metaphor Overdose / As-You-Know-Bob / Urgency Mismatch；对每条角色长台词 ≥10 词逐句校验）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 全部 4 文件（见 /出海 命令完整清单）
+**加载参考：** three-layer-control.md（区分地基层阻断、骨架层修复和血肉层建议；craft 低分不得单独 BLOCKED）, quality-rules.md（自检维度细则 + 跨介质通用规则）, creative-intent-ledger.md（把背离原始冲动列为 soft risk；只有同时触发 OOC、事实矛盾、合规、不可拍或媒介不匹配时升级 hard gate）, **按 `.drama-state.json#medium` 额外加载：** `ai-live-rules.md`（medium="ai_live" 默认/缺失）或 `comic-rules.md`（medium="comic"）, quality-rubric.md（--fix 流程 + 分数持久化 + medium 分叉）, `dramatic-truth.md`（对白真实性 4 症状清单：Trailer-Speak / Metaphor Overdose / As-You-Know-Bob / Urgency Mismatch；对每条角色长台词 ≥10 词逐句校验）, **按 `.drama-state.json#mode` 额外加载：** `mode="overseas"` 时强制加载 `references/overseas/` 分层资料（见 /出海 命令完整清单）
 
 **支持格式：** `/自检 5` | `/自检 1-10` | `/自检 all` | `/自检 5 --fix`
 
