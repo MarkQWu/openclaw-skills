@@ -1,3 +1,11 @@
+**v1.31.24**（2026-05-15）
+
+调整 `/出海` 的默认交付方法：出海模式只切换内容规则，不再自动切到英文 + Hollywood 格式。默认写入 `language=zh-CN`、`scriptFormat=cn-shortdrama`，用中文短剧格式和中文对白呈现海外剧本，角色名保留英文；只有明确输入 `/出海 英文交付` 或要求英文剧本格式时，才切换为 `language=en-US`、`scriptFormat=hollywood`。自检和 eval 也改为按 `scriptFormat` 判断对白/场景格式，避免国内创作者看不懂英文稿。
+
+输入 `/帮助` 查看全部命令
+
+---
+
 **v1.31.23**（2026-05-15）
 
 修复出海资料分层后的命令接线遗漏：`/开始`、`/角色开发`、`/分集目录`、`/导出`、`/合规` 现在按 mode 读取对应海外资料；新增出海分集目录模板；降级 anti-domestic 与 vertical-filmability 的文件级门控，避免 review/craft 规则误当 must-rewrite；清理 `WIDE SHOT` 旧 eval 口径，统一出海视觉锚点为 `VISUAL ANCHOR`。

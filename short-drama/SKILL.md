@@ -65,7 +65,7 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 ## 格式控制（所有命令强制前置）
 
-执行任何命令前先按 `references/format-control.md` 的**格式锚定步骤**读 `.drama-state.json#mode/language` 锚定输出模板。该文件含三段规则：**格式封闭原则**（对白引号/破折号禁用/emoji 禁用等硬约束，违反扣分或阻断 /导出）、**新格式规范**（场景头顺序/音乐标注/OS/VO 粗体/考据附录边界等，违反 → 自检以【建议】标签提示，不扣分）、国内/出海双模式分化细则。
+执行任何命令前先按 `references/format-control.md` 的**格式锚定步骤**读 `.drama-state.json#mode/language/scriptFormat` 锚定内容规则和呈现模板。该文件含三段规则：**格式封闭原则**（对白引号/破折号禁用/emoji 禁用等硬约束，违反扣分或阻断 /导出）、**新格式规范**（场景头顺序/音乐标注/OS/VO 粗体/考据附录边界等，违反 → 自检以【建议】标签提示，不扣分）、内容模式与呈现格式分化细则。
 
 ## 三层控制模型（原创创作强制前置）
 
@@ -134,7 +134,7 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 6. **推荐配置确认（选择题模式）：** 根据已确定的题材，从 `genre-guide.md#题材推荐配置映射表` 查出推荐值，一次性展示推荐配置卡（受众细分/基调/结局/集数/语言/**承制介质**各一行，每项标 [推荐]）。**承制介质**选项：`ai_live`（仿真人 AI 剧 · 3-5 场 / 严格反抽象 / 单条台词 ≤2 句 · 默认）或 `comic`（漫剧 · ≤3 场 / 单条台词 ≤6 句 / OS/VO 带情绪标签 / 分镜切片密集）。用户回复"确认"或修改项。每次修改配置时，把决策过程追加到 `brainstorm.md#配置决策历史`。
 
-7. 如用户选择 English，自动切换为出海模式。切换前先读 `references/overseas/layer-index.md`、`platform-knowledge.md`、`hard-rules.md`、`compliance-risk.md`、`anti-domestic-transfer.md`，要求配置卡明确目标市场 / 平台 / 受众假设；信息不足时写 `[待确认]`，不得把国内题材映射直接当海外规则。汇总确认后，按「state 写入协议」保存状态。
+7. 如用户选择海外/出海题材或目标平台，自动切换为出海模式。切换前先读 `references/overseas/layer-index.md`、`platform-knowledge.md`、`hard-rules.md`、`compliance-risk.md`、`anti-domestic-transfer.md`，要求配置卡明确目标市场 / 平台 / 受众假设；信息不足时写 `[待确认]`，不得把国内题材映射直接当海外规则。默认写入 `mode: "overseas"`、`language: "zh-CN"`、`scriptFormat: "cn-shortdrama"`；只有用户明确要求英文交付/好莱坞格式时，才写入 `language: "en-US"`、`scriptFormat: "hollywood"`。汇总确认后，按「state 写入协议」保存状态。
 
    **配置选项列表和题材→推荐映射表：** 见 `genre-guide.md#配置选项列表` 和 `genre-guide.md#题材推荐配置映射表`。
 
@@ -377,11 +377,11 @@ graph LR
 
 **生成内容：**
 - 国内模式：为每一集生成条目：`第{N}集：{集标题}：{核心冲突/爽点一句话描述} {标记}`
-- 出海模式：为每一集生成条目：`Ep {N}: {Title} — {episode pressure / reveal / reversal / cliffhanger job} {tag}`
+- 出海模式：为每一集生成条目：`第{N}集：{集标题}：{海外平台函数：opening pressure / relationship choice / reveal / reversal / paid-pressure cliffhanger} {tag}`；英文交付时可用 `Ep {N}: {Title} — ...`
 
 **标记说明：**
 - 国内模式：[关键] 重大转折/高潮/揭秘 | [付费] 付费卡点 | 无标记 = 常规推进
-- 出海模式：[KEY] relationship / identity / power turn | [PAY] paid-pressure cliffhanger | 无标记 = regular escalation
+- 出海模式：[关键] relationship / identity / power turn | [付费] paid-pressure cliffhanger | 无标记 = regular escalation
 
 **要求：**
 - 必须覆盖全部集数
@@ -508,7 +508,7 @@ graph LR
 | 反抽象与镜头化 | /10 | **按 medium 分叉**：ai_live → 纯情绪词 + A/B/C 4 类模式 → 物理动作 / 外部反应 / 拆层；场景叙事层 + OS 超阈归本维度，单集 -3 上限；**C 类 vs 上帝视角**不重复扣；详见 `quality-rules.md#反抽象-画面可拍性规则-轻约束`。comic → **固定 10/10**（漫剧分镜特写可承载微表情，不适用 ai_live 的反抽象扣分），总分稳定 | — |
 | AI Slop | /10 | 书面化扫描 + 情绪过平滑 + 巧合堆砌统计 + AI 生成痕迹；**场景叙事层比喻堆叠**（单集 ≥4 处 -2，与维度 6 不重复扣：同句命中 A/B/C 优先归维度 6）+ **VO 超阈**（每集 >20% 字数 -1 / 单段 >3 句 -1） | 巧合词 ≥3 次 → AI Slop ≤6；≥5 次 → ≤4（v1.18.2 硬约束） |
 | 考据可追溯性 | /10 | 专业术语映射 bible / 时代领域常识 / 制度规则一致 / 虚构白名单（题材为轻型时记 N/A 不计入总分）| 厚型题材无 bible → 0 分；命中 1 条雷区 ≤6 分；命中 ≥2 条 ≤3 分 |
-| 对白格式合规 | 硬约束 | 按 `.drama-state.json#mode` 分化：国内模式（含 mode 缺失/默认）扫全文对白是否含双引号；出海模式反向检查对白必须含双引号 | 违反 → 标【严重】不计入总分但阻断 /导出，提示修复 |
+| 对白格式合规 | 硬约束 | 按 `.drama-state.json#scriptFormat` 分化：`cn-shortdrama` 或缺失时扫全文对白是否含双引号；`hollywood` 时反向检查对白必须含双引号 | 违反 → 标【严重】不计入总分但阻断 /导出，提示修复 |
 | 破折号禁用 | 硬约束 | 统计**剧本正文**中 `——` / `—` / `--` 出现次数（排除 `>` 引用块 / `<!-- ... -->` HTML 注释 / 前情提要引用 / 集末自查 / 本集考据引用附录等元信息段）| 0 次合规；≥1 次 → 标【严重】并要求改写；用动作描写、换对话轮次、完整句、句号、逗号或中文省略号「…」替代 |
 
 **输出/流程：** 输出格式 `output-templates.md#自检`；`--fix` 模式 + 分数持久化见 `quality-rules.md`。
@@ -803,11 +803,12 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 ### /出海
 
-**功能：** 切换为出海模式（任意阶段可调用）——格式切换为好莱坞行业标准（INT./EXT.、VISUAL ANCHOR/CLOSE-UP），语言默认英文，题材映射/文化适配见 `genre-guide.md` 出海部分（Billionaire / Werewolf/Alpha / Flash Marriage / Secret Baby 等已验证爆款元素）。
+**功能：** 切换为出海内容模式（任意阶段可调用）——内容按海外平台、题材、文化、合规和 paid pressure 规则生成；呈现默认仍为中文短剧格式和中文对白，角色名保留英文。只有明确要求“英文交付 / 英文剧本格式 / Hollywood format”时，才切换为英文 + Hollywood master-scene 格式。
 
 **模式边界规则：该共用的共用，该分化的分化。**
 - **共用层**：项目管理、state 读写、承制介质（ai_live/comic）、角色一致性、跨集台词去重、基础可拍性、导出与版本更新机制继续共用。
-- **分化层**：语言、对白格式、场景模板、题材映射、首集设计、付费墙逻辑、平台 runtime、文化禁区、合规/风险判断必须按 `mode` 分流。
+- **内容分化层**：题材映射、首集设计、付费墙逻辑、平台 runtime、文化禁区、合规/风险判断必须按 `mode` 分流。
+- **呈现分化层**：语言和剧本格式按 `language` / `scriptFormat` 分流；`mode=overseas` 不再自动等于英文或好莱坞格式。
 - **冲突优先级**：当通用规则与 mode 专属规则冲突时，`mode=overseas` 必须以 `references/overseas/` 为准；不得把国内首集合同、国内爽点判定、国内身份体系或国内合规口径机械套进海外项目。
 
 **切换后强制加载 `references/overseas/` 分层资料**：
@@ -823,13 +824,18 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 - `platform-knowledge.md` — ReelShort/DramaBox runtime ~90s / 付费墙物理 / hook 窗口 / genre 分类，带 HIGH/MED/LOW 信心标
 - `compliance-risk.md` — 海外独立合规/IP/文化风险；不要用国内 `/合规` 口径默认覆盖海外项目
 
+**支持格式：**
+- `/出海`：切换海外内容规则，默认 `language=zh-CN`、`scriptFormat=cn-shortdrama`
+- `/出海 英文交付`：切换海外内容规则，并设置 `language=en-US`、`scriptFormat=hollywood`
+
 **切换确认：**
 ```
 [出海] 已切换为出海模式
-- 输出语言：English / 剧本格式：Hollywood Standard
+- 内容规则：海外平台模式 / 参考平台：ReelShort / DramaBox
+- 默认呈现：中文输出 / 中文短剧格式 / 角色名保留英文
 - 文化背景：Western/International / 参考平台：ReelShort / DramaBox
 
-继续当前创作流程，所有后续输出将使用英文格式。
+继续当前创作流程，后续内容按海外规则写，但用中文呈现。若需要英文投稿稿，请输入 `/出海 英文交付`。
 ```
 
 ---

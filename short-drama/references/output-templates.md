@@ -11,6 +11,7 @@
 - [/分集目录](#分集目录)
 - [/分集（国内模式）](#分集国内模式)
 - [/分集（出海模式）](#分集出海模式)
+- [/分集（出海英文交付）](#分集出海英文交付)
 - [/自检](#自检)
 - [/导出](#导出)
 - [/合规](#合规)
@@ -146,65 +147,67 @@
 
 ## /策划（出海模式）
 
-> **格式提醒：** 仅在 `.drama-state.json#mode == "overseas"` 时使用。不得输出“三幕/three-act/Save the Cat/爽点矩阵/固定付费卡点”结构词。按 `references/overseas/layer-index.md` 分类，先锁目标市场与题材承诺，再锁关系/权力语法和付费压力。
+> **格式提醒：** 仅在 `.drama-state.json#mode == "overseas"` 时使用。默认中文呈现，角色名/剧名/平台名可保留英文。不得输出“三幕/three-act/Save the Cat/爽点矩阵/固定付费卡点”结构词。按 `references/overseas/layer-index.md` 分类，先锁目标市场与题材承诺，再锁关系/权力语法和付费压力。
 
 ````markdown
-# {Title}: Overseas Creative Plan
+# 《{剧名}》出海创作方案
 
-## Title Options
+## 剧名备选
 
-| # | Title | Market-facing promise |
+| # | 剧名 | 面向海外市场的承诺 |
 |---|---|---|
 | 1 | {Title A} | {promise} |
 | 2 | {Title B} | {promise} |
 | 3 | {Title C} | {promise} |
 
-## Target Market And Platform Assumption
+## 目标市场与平台假设
 
-- **Target market/platform**: {ReelShort/DramaBox/ShortMax/FlexTV/GoodShort/generic English-language vertical drama + market assumption}
-- **Episode range**: {50-100 or user-specified range; do not hard-code 60}
-- **Runtime target**: {platform/user target, with confidence if sourced}
-- **Audience buy**: {why this viewer taps and keeps paying}
+- **目标市场/平台**：{ReelShort/DramaBox/ShortMax/FlexTV/GoodShort/泛英语竖屏短剧 + 市场假设}
+- **集数范围**：{50-100 或用户指定范围；不要硬编码 60}
+- **单集时长目标**：{平台/用户目标；若来自资料，标信心等级}
+- **观众买单理由**：{这个观众为什么点开、为什么继续付费}
 
-## Genre Promise
+## 类型承诺
 
-- **Overseas-native genre promise**: {billionaire / mafia romance / werewolf / revenge / secret baby / etc.}
-- **Trope contract**: {what the title promises emotionally}
-- **Must-not-import mechanisms**: {source/domestic mechanisms to avoid}
+- **海外原生类型承诺**：{billionaire / mafia romance / werewolf / revenge / secret baby / etc.}
+- **类型契约**：{标题和设定承诺给观众的情绪}
+- **禁止搬运机制**：{必须避开的国内/源市场机制}
 
-## Relationship, Power, And Moral Grammar
+## 关系、权力与道德语法
 
-- **Relationship engine**: {consent, choice, proximity, agency, grovel, or danger grammar}
-- **Power/status system**: {inheritance, territory, oath, trust, title, office, money, pack, family, public proof}
-- **Violence/consent boundary**: {hard boundary for this premise}
-- **Irreversible choice**: {the moral or relational point of no return}
+- **关系引擎**：{consent, choice, proximity, agency, grovel, danger grammar}
+- **权力/身份系统**：{inheritance, territory, oath, trust, title, office, money, pack, family, public proof}
+- **暴力/合意边界**：{这个设定不能越过的硬边界}
+- **不可逆选择**：{道德或关系层面的 point of no return}
 
-## Story Function Map
+## 故事功能图
 
-| Phase | Viewer function | Core pressure | Required reveal/reversal | Open risk |
+| 阶段 | 观众功能 | 核心压力 | 必要 reveal/reversal | 风险 |
 |---|---|---|---|---|
 | Entry | {hook and initial buy} | {pressure} | {reveal/reversal} | {risk} |
 | Escalation | {why they keep watching} | {pressure} | {reveal/reversal} | {risk} |
 | Commitment | {relationship/power choice} | {pressure} | {reveal/reversal} | {risk} |
 | Resolution | {payoff promise} | {pressure} | {reveal/reversal} | {risk} |
 
-## Paid-Pressure Map
+## 付费压力图
 
-| Episode zone | Pressure job | Cliffhanger/reveal type | Confidence |
+| 集数区间 | 压力任务 | Cliffhanger / reveal 类型 | 信心等级 |
 |---|---|---|---|
 | Early free window | {job} | {type} | {HIGH/MED/LOW or user brief} |
 | First paywall range | {job} | {type} | {HIGH/MED/LOW or user brief} |
 | Later pressure points | {job} | {type} | {HIGH/MED/LOW or user brief} |
 
-## Format And Filmability Rules
+## 呈现与可拍性规则
 
-- **Opening rule**: EP1 detonates inside active conflict.
-- **9:16 visual rule**: use visual anchors, close details, single-subject action, caption-readable lines.
-- **Template rule**: no wide establishing shot as the default scene opener.
+- **默认呈现**：中文输出 + 中文短剧格式；角色名保留英文。
+- **英文交付条件**：仅当用户明确要求英文投稿稿/英文剧本格式时，才转为英文 + Hollywood master-scene。
+- **开场规则**：第 1 集必须从 active conflict / mid-conflict 进入。
+- **9:16 视觉规则**：使用视觉锚点、近景细节、单主体动作、字幕可读台词。
+- **模板规则**：不得用宽大全景作为默认场景开头。
 
-## Compliance/IP/Similarity Risks
+## 合规 / IP / 相似风险
 
-| Risk | Why it matters | Repair rule |
+| 风险 | 为什么重要 | 修复规则 |
 |---|---|---|
 | {risk} | {reason} | {repair} |
 
@@ -264,7 +267,7 @@
 
 > **三层映射规则**：角色类型→语言风格→台词生成。偏离示例风格的台词需在场景描写中给出合理解释。
 >
-> **示例台词格式**：国内模式裸文字，不加双引号（保持与 `/分集` 国内模板 `**角色名**：台词` 对白格式一致）；出海模式遵循好莱坞标准，台词用双引号包裹（`"{示例台词}"`）。
+> **示例台词格式**：`scriptFormat=cn-shortdrama`（默认，含出海中文呈现）裸文字，不加双引号；出海中文呈现时角色名保留英文。`scriptFormat=hollywood` 才使用双引号包裹（`"{示例台词}"`）。
 
 ## 称呼关系表
 
@@ -371,35 +374,35 @@ graph TD
 
 ## /分集目录（出海模式）
 
-> **格式提醒：** 仅在 `.drama-state.json#mode == "overseas"` 时使用。不得输出“三幕 / three-act / Save the Cat / 爽点矩阵 / 固定付费卡点”。每集用 platform function 描述：opening pressure、relationship choice、reveal、reversal、paid-pressure cliffhanger。
+> **格式提醒：** 仅在 `.drama-state.json#mode == "overseas"` 时使用。默认中文呈现。不得输出“三幕 / three-act / Save the Cat / 爽点矩阵 / 固定付费卡点”。每集用 platform function 描述：opening pressure、relationship choice、reveal、reversal、paid-pressure cliffhanger。
 
 ````markdown
-# {Title}: Episode Directory
+# 《{剧名}》分集目录（出海模式）
 
-> **Target market/platform**: {target market / platform assumption}
-> **Episode count**: {N} episodes
-> **Genre promise**: {overseas genre promise}
-> **Paid-pressure design**: {paywall pressure pattern, source confidence if known}
+> **目标市场/平台**：{target market / platform assumption}
+> **总集数**：{N}集
+> **类型承诺**：{overseas genre promise}
+> **付费压力设计**：{paywall pressure pattern, source confidence if known}
 
 ---
 
-## Phase 1: Hook And Relationship Lock (Ep {X}-{Y})
+## 第一阶段：Hook 与关系锁定（第{X}-{Y}集）
 
-Ep 1: {Title} — {opening pressure + visible conflict} [KEY]
-Ep 2: {Title} — {relationship pressure / agency choice}
-Ep {N}: {Title} — {reveal or reversal that creates paid pressure} [PAY]
+第1集：{集标题}：{opening pressure + visible conflict} [关键]
+第2集：{集标题}：{relationship pressure / agency choice}
+第{N}集：{集标题}：{reveal or reversal that creates paid pressure} [付费]
 
-## Phase 2: Escalation And Irreversible Choice (Ep {X}-{Y})
+## 第二阶段：升级与不可逆选择（第{X}-{Y}集）
 
-Ep {N}: {Title} — {power shift / relationship choice / identity pressure} [KEY]
-Ep {N}: {Title} — {reveal / reversal / cliffhanger job}
-Ep {N}: {Title} — {paid-pressure cliffhanger, not mechanical interval} [PAY]
+第{N}集：{集标题}：{power shift / relationship choice / identity pressure} [关键]
+第{N}集：{集标题}：{reveal / reversal / cliffhanger job}
+第{N}集：{集标题}：{paid-pressure cliffhanger, not mechanical interval} [付费]
 
-## Phase 3: Consequence, Payoff, And Final Promise (Ep {X}-{Y})
+## 第三阶段：后果、兑现与最终承诺（第{X}-{Y}集）
 
-Ep {N}: {Title} — {moral consequence / relationship payoff} [KEY]
-Ep {N}: {Title} — {final reveal / reversal}
-Ep {N}: {Title} — {ending promise delivered}
+第{N}集：{集标题}：{moral consequence / relationship payoff} [关键]
+第{N}集：{集标题}：{final reveal / reversal}
+第{N}集：{集标题}：{ending promise delivered}
 ````
 
 ---
@@ -509,6 +512,52 @@ Ep {N}: {Title} — {ending promise delivered}
 ---
 
 ## /分集（出海模式）
+
+> **格式提醒：** `mode=overseas` 默认使用中文短剧格式和中文对白，角色名保留英文；内容必须执行海外平台规则。只有 `scriptFormat=hollywood` 或用户明确要求英文交付时，才使用英文 + Hollywood master-scene 格式。
+
+```markdown
+# 第{N}集：{集标题}
+
+> 本集关键词：{3个关键词}
+> 本集海外平台函数：{opening pressure / relationship choice / reveal / reversal / paid-pressure cliffhanger}
+> 前情提要：{上一集结尾悬念，1-2句}
+
+---
+
+## 1-1 · 内/外 · {地点} · 日/夜
+
+**出场人物：** {英文角色名列表}
+**出场道具：** {本集关键道具/标志性物品，与 hook / paid pressure 强关联，无则留空}
+
+△ 视觉锚点：{一个近景/特写/具体物件，暗示环境和权力关系；不要用宽大全景开场}
+
+△ {人物动作描写，优先单主体动作 + 反应}
+
+**{English Name}**（{语气/动作指示}）：{中文台词}
+
+**{English Name}**：{中文台词}
+
+**{English Name}**（OS）：{中文内心独白；单段 ≤1 核心比喻，≤3 句，不用不可拍的小说腔}
+
+**{English Name}**（VO）：{中文旁白；每集 VO 总字数 ≤ 本集总字数 20%，单段 ≤3 句，不替代场景叙事层可拍性}
+
+△ 特写：{关键细节 / 表情 / 道具 / 手机字幕可读的信息}
+
+（BGM：{音乐氛围描述，给音乐设计师的 sound brief，用音色+节奏描述，不用通感比喻}）
+
+（音效：{点状音效，如门响 / 玻璃碎 / 手机震动等一次性提示}）
+
+---
+
+> [钩子] 结尾钩子：{cliffhanger}
+> [预告] 下一集：{next episode preview}
+```
+
+---
+
+## /分集（出海英文交付）
+
+> **格式提醒：** 仅当 `.drama-state.json#mode == "overseas"` 且 `scriptFormat == "hollywood"`，或用户明确要求英文交付/海外平台投稿稿时使用。
 
 ```markdown
 # Episode {N}: {Title}
@@ -1037,7 +1086,8 @@ Step 5: 剪辑成片（外部工具）
 
 /角色卡          解决"AI 绘图角色脸不一致"：锁定视觉描述，复用到每个出图 prompt
 /分镜 N          剧本转分镜 + 即梦 AI prompt，直接用于出图（可独立用，不需走全流程）
-/出海            切换英文 + 好莱坞场景格式，用于海外平台投稿
+/出海            切换海外内容规则；默认中文呈现 + 中文短剧格式，角色名保留英文
+/出海 英文交付   切换为英文 + Hollywood 格式，用于海外平台投稿稿
 /工作流          打印完整"剧本 → 视频"链路，新人看清楚全流程
 
 ━━ 项目管理 ━━

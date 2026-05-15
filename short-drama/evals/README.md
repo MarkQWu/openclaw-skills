@@ -63,7 +63,7 @@ diff \
 |---|---|---|
 | A1 | mech | anchor 字段触发（全 13 题材时 creative-plan 含 anchor） |
 | A2 | mech | 开场前 1/3 字数有冲突词 |
-| A3 | mech (overseas) | 海外模式好莱坞格式 + 反中式 humiliation→power 弧 |
+| A3 | mech (overseas) | 海外模式呈现格式 + 反中式 humiliation→power 弧 |
 | A4 | mech | 自检 7 维度齐全 |
 | A5 | mixed | dramatic-truth 4 症状校验被触发（v1.19.0 新增） |
 | A6 | mixed (overseas) | 海外模式中式直译扣分扫描 |

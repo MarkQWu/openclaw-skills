@@ -91,17 +91,26 @@ else
   check "A2" "FAIL" "(前 1/3 字数 0 冲突 → opening-rules.md 未生效)"
 fi
 
-# A3: 海外模式好莱坞格式（仅 overseas）
+# A3: 海外模式呈现格式（仅 overseas）
 echo ""
-echo "## A3 海外模式好莱坞格式 + 反中式弧"
+echo "## A3 海外模式呈现格式 + 反中式弧"
 if [[ "$IS_OVERSEAS" -eq 1 ]]; then
-  INT_EXT=$(grep -cE "^INT\.|^EXT\." "$EP1" || true)
-  SHOT=$(grep -cE "VISUAL ANCHOR|CLOSE-UP|MEDIUM SHOT" "$EP1" || true)
-  CHINESE_ARC=$(grep -cE "赘婿|逆袭|打脸|废柴|战神|神医归来|凤凰涅槃" "$EP1" || true)
-  if [[ "$INT_EXT" -ge 2 && "$SHOT" -ge 1 && "$CHINESE_ARC" -eq 0 ]]; then
-    check "A3" "PASS" "(INT/EXT=$INT_EXT, SHOT=$SHOT, 中式弧禁词=0)"
+  IS_HOLLYWOOD=0
+  if grep -qE '"scriptFormat"\s*:\s*"hollywood"' "$PROJECT_DIR/.drama-state.json" 2>/dev/null; then
+    IS_HOLLYWOOD=1
+  fi
+  if [[ "$IS_HOLLYWOOD" -eq 1 ]]; then
+    FORMAT_HEAD=$(grep -cE "^INT\.|^EXT\." "$EP1" || true)
+    FORMAT_MARK=$(grep -cE "VISUAL ANCHOR|CLOSE-UP|MEDIUM SHOT" "$EP1" || true)
   else
-    check "A3" "FAIL" "(INT/EXT=$INT_EXT, SHOT=$SHOT, 中式弧禁词=$CHINESE_ARC)"
+    FORMAT_HEAD=$(grep -cE "^## [0-9]+-[0-9]+ · (内|外)" "$EP1" || true)
+    FORMAT_MARK=$(grep -cE "视觉锚点|特写|近景" "$EP1" || true)
+  fi
+  CHINESE_ARC=$(grep -cE "赘婿|逆袭|打脸|废柴|战神|神医归来|凤凰涅槃" "$EP1" || true)
+  if [[ "$FORMAT_HEAD" -ge 1 && "$FORMAT_MARK" -ge 1 && "$CHINESE_ARC" -eq 0 ]]; then
+    check "A3" "PASS" "(formatHead=$FORMAT_HEAD, formatMark=$FORMAT_MARK, 中式弧禁词=0)"
+  else
+    check "A3" "FAIL" "(formatHead=$FORMAT_HEAD, formatMark=$FORMAT_MARK, 中式弧禁词=$CHINESE_ARC)"
   fi
 else
   check "A3" "NA" "(mode=domestic)"
