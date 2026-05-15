@@ -6,7 +6,7 @@ REPO_GITHUB="https://github.com/MarkQWu/drama-workshop-skills.git"
 REPO_MIRROR="https://ghfast.top/https://github.com/MarkQWu/drama-workshop-skills.git"
 CACHE="$HOME/.gobuildit/skill-repos/drama-workshop-skills"
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
-SCRIPT_DIR="$(if cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null; then pwd -P; else pwd; fi)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P)" || SCRIPT_DIR="$(pwd)"
 
 echo "=== gobuildit Skills 安装器 ==="
 echo ""
