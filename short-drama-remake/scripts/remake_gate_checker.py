@@ -575,7 +575,13 @@ def assert_market_adaptation_contract(fixture: dict[str, Any]) -> None:
             raise CheckFailure(f"{fixture['fixture_id']}: overseas concept stage created forbidden artifacts: {sorted(leaked)}")
         concept_fields = set(assertions.get("required_overseas_concept_fields", []))
         if not concept_fields.issuperset(
-            {"target_market", "overseas_genre_promise", "source_mechanisms_to_replace", "paywall_pressure"}
+            {
+                "target_market",
+                "layer_classification",
+                "overseas_genre_promise",
+                "source_mechanisms_to_replace",
+                "paywall_pressure",
+            }
         ):
             raise CheckFailure(f"{fixture['fixture_id']}: overseas concept fixture must assert core overseas fields")
 

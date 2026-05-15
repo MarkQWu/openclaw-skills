@@ -76,8 +76,10 @@ Chinese control names:
 | `storyboard-guide.md` | Storyboard and video prompt generation guide |
 | `storyboard-rules.md` | Storyboard command constraints and checks |
 | `overseas/anti-patterns.md` | Overseas mode failure patterns |
+| `overseas/compliance-risk.md` | Overseas legal, IP, cultural, and similarity risk separated from domestic compliance |
 | `overseas/dialogue-craft.md` | Overseas dialogue craft and platform conventions |
 | `overseas/hard-rules.md` | Overseas mode non-negotiable constraints |
+| `overseas/layer-index.md` | Overseas reference taxonomy and causal placement rules |
 | `overseas/platform-knowledge.md` | Overseas platform and market reference |
 
 ### Templates
@@ -111,6 +113,8 @@ These references now carry explicit metadata fields:
 | `ai-live-rules.md` | `hard_gate` | `medium=ai_live` or missing medium |
 | `comic-rules.md` | `hard_gate` | `medium=comic` |
 | `overseas/hard-rules.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, and `/自检` |
+| `overseas/compliance-risk.md` | `hard_gate` | `mode=overseas` before `/开始`, `/分集`, `/自检`, `/合规`, and `/导出` |
+| `overseas/layer-index.md` | `reference_architecture` | `mode=overseas` before selecting overseas references or classifying new material |
 
 ## Control Boundary
 

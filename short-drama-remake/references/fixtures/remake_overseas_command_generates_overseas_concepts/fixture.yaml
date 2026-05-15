@@ -59,6 +59,7 @@
       "expected_concept_artifact": "02_concepts/concepts-overseas.md",
       "required_overseas_concept_fields": [
         "target_market",
+        "layer_classification",
         "overseas_genre_promise",
         "relationship_grammar",
         "status_or_power_system",
@@ -72,11 +73,13 @@
       "actual_reads": [
         "manifest.yaml",
         "01_skeleton/reference-skeleton.md",
+        "references/market/layer-taxonomy.md",
         "references/market/overseas-remake-rules.md",
         "references/market/overseas-adaptation-map.md"
       ],
       "required_reads": [
         "01_skeleton/reference-skeleton.md",
+        "references/market/layer-taxonomy.md",
         "references/market/overseas-remake-rules.md",
         "references/market/overseas-adaptation-map.md"
       ],

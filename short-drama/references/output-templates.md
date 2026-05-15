@@ -6,6 +6,7 @@
 
 - [/开始](#开始)
 - [/策划](#策划)
+- [/策划（出海模式）](#策划出海模式)
 - [/角色开发](#角色开发)
 - [/分集目录](#分集目录)
 - [/分集（国内模式）](#分集国内模式)
@@ -46,6 +47,8 @@
 
 ## /策划
 
+> **适用范围：** 国内模式默认模板。`mode=overseas` 时不要使用本模板的三幕、爽点矩阵或固定付费卡点表，改用 [#策划出海模式](#策划出海模式)。
+>
 > **格式提醒：** 严格按以下模板输出，不添加模板外区块，不混用中英文。
 
 ````markdown
@@ -137,6 +140,79 @@
 - **主线结局**：{结局描述}
 - **感情线结局**：{结局描述}
 - **伏笔回收**：{回收的伏笔列表}
+````
+
+---
+
+## /策划（出海模式）
+
+> **格式提醒：** 仅在 `.drama-state.json#mode == "overseas"` 时使用。不得输出“三幕/three-act/Save the Cat/爽点矩阵/固定付费卡点”结构词。按 `references/overseas/layer-index.md` 分类，先锁目标市场与题材承诺，再锁关系/权力语法和付费压力。
+
+````markdown
+# {Title}: Overseas Creative Plan
+
+## Title Options
+
+| # | Title | Market-facing promise |
+|---|---|---|
+| 1 | {Title A} | {promise} |
+| 2 | {Title B} | {promise} |
+| 3 | {Title C} | {promise} |
+
+## Target Market And Platform Assumption
+
+- **Target market/platform**: {ReelShort/DramaBox/ShortMax/FlexTV/GoodShort/generic English-language vertical drama + market assumption}
+- **Episode range**: {50-100 or user-specified range; do not hard-code 60}
+- **Runtime target**: {platform/user target, with confidence if sourced}
+- **Audience buy**: {why this viewer taps and keeps paying}
+
+## Genre Promise
+
+- **Overseas-native genre promise**: {billionaire / mafia romance / werewolf / revenge / secret baby / etc.}
+- **Trope contract**: {what the title promises emotionally}
+- **Must-not-import mechanisms**: {source/domestic mechanisms to avoid}
+
+## Relationship, Power, And Moral Grammar
+
+- **Relationship engine**: {consent, choice, proximity, agency, grovel, or danger grammar}
+- **Power/status system**: {inheritance, territory, oath, trust, title, office, money, pack, family, public proof}
+- **Violence/consent boundary**: {hard boundary for this premise}
+- **Irreversible choice**: {the moral or relational point of no return}
+
+## Story Function Map
+
+| Phase | Viewer function | Core pressure | Required reveal/reversal | Open risk |
+|---|---|---|---|---|
+| Entry | {hook and initial buy} | {pressure} | {reveal/reversal} | {risk} |
+| Escalation | {why they keep watching} | {pressure} | {reveal/reversal} | {risk} |
+| Commitment | {relationship/power choice} | {pressure} | {reveal/reversal} | {risk} |
+| Resolution | {payoff promise} | {pressure} | {reveal/reversal} | {risk} |
+
+## Paid-Pressure Map
+
+| Episode zone | Pressure job | Cliffhanger/reveal type | Confidence |
+|---|---|---|---|
+| Early free window | {job} | {type} | {HIGH/MED/LOW or user brief} |
+| First paywall range | {job} | {type} | {HIGH/MED/LOW or user brief} |
+| Later pressure points | {job} | {type} | {HIGH/MED/LOW or user brief} |
+
+## Format And Filmability Rules
+
+- **Opening rule**: EP1 detonates inside active conflict.
+- **9:16 visual rule**: use visual anchors, close details, single-subject action, caption-readable lines.
+- **Template rule**: no wide establishing shot as the default scene opener.
+
+## Compliance/IP/Similarity Risks
+
+| Risk | Why it matters | Repair rule |
+|---|---|---|
+| {risk} | {reason} | {repair} |
+
+## Ending Promise
+
+- **Relationship payoff**: {payoff}
+- **Power/status payoff**: {payoff}
+- **Open sequel/series hook**: {optional}
 ````
 
 ---
@@ -414,7 +490,7 @@ graph TD
 **Characters: {character list}**
 **Props: {key props/signature items for this episode (items closely tied to the hook or satisfaction point; leave blank if none)}**
 
-WIDE SHOT - {scene description}
+VISUAL ANCHOR - {one concrete insert/close detail that implies the scene; do not use a wide establishing shot}
 
 MEDIUM SHOT - {action description}
 
@@ -905,7 +981,7 @@ Step 5: 剪辑成片（外部工具）
 
 /开始            没项目时新建，有项目时接着写；通用入口
 /选题会          想法成型前用：3 位专家碰撞赛道风险，避免选错方向白写一本
-/策划            解决"故事怎么架构"：三幕结构 + 核心冲突 + 爽点/付费卡点全局规划
+/策划            解决"故事怎么架构"：国内用三幕/爽点/付费卡点；出海用 market promise / relationship grammar / paid pressure
 /重构 <参考>     手头有爆款想换皮：提取骨架，生成 N 个不同赛道同构变体
 /仿写 <参考>     兼容入口：自动切换到新版 short-drama-remake 拆解复刻能力
 /仿写 帮助       查看拆解复刻流程、子命令和换新对话恢复方法
@@ -913,9 +989,9 @@ Step 5: 剪辑成片（外部工具）
 /仿写 继续 DIR   恢复复刻项目并推荐下一步，不自动写正文
 /角色开发        解决"角色没辨识度"：建人物档案 + 语言风格，让每个角色说话不撞脸
 /考据            专业题材（医疗/宫廷/律政等）用：建世界观底座，杜绝专业硬伤
-/分集目录        解决"不知道每集写啥"：规划全剧节奏，标出爽点集/付费卡点集
+/分集目录        解决"不知道每集写啥"：国内标爽点/付费卡点；出海标 episode pressure / reveal / cliffhanger job
 /分集 N          写第 N 集正文（批量：/分集 5-8，接着写：/分集 next）
-/自检 N          写完一集用：多维打分，精确定位节奏/爽点/台词/格式哪里有问题
+/自检 N          写完一集用：多维打分，按 mode 区分国内爽点与出海 market/format/culture gates
 /圆桌诊断 N      自检不合格或想打磨时用：3 位专家给出可执行修改处方，不只是找问题
 /角色一致性      全剧写完后用：扫描跨集人物漂移（年龄/外貌/性格/弧线前后矛盾）
 /合规            国内发行前用：敏感内容合规审核

@@ -49,6 +49,10 @@ nodes:
     bounded_context: short-drama-remake
     consumes_canonical_artifacts:
       - reference_skeleton
+    allowed_reference_paths:
+      - references/market/layer-taxonomy.md
+      - references/market/overseas-remake-rules.md
+      - references/market/overseas-adaptation-map.md
     target_market_overlay:
       - overseas concepts must be target-market adapted before selection
       - domestic-facing concept lists cannot satisfy overseas project planning
@@ -60,6 +64,11 @@ nodes:
     consumes_canonical_artifacts:
       - reference_skeleton
       - concept_list
+    allowed_reference_paths:
+      - references/market/layer-taxonomy.md
+      - references/market/overseas-remake-rules.md
+      - references/market/overseas-adaptation-map.md
+      - references/market/overseas-risk-gate.md
     produces_machine_report: market_adaptation_report
     report_status_field: report_status
     target_market_required_when:

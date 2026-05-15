@@ -19,6 +19,7 @@ Every overseas-adapted concept should include:
 | Field | Meaning |
 |---|---|
 | `target_market` | The intended overseas market, platform, or audience assumption. |
+| `layer_classification` | The `layer-taxonomy.md` layer affected by the concept decision. |
 | `overseas_genre_promise` | The overseas-native genre/audience promise. |
 | `relationship_grammar` | The relationship, agency, consent, and power grammar used by the concept. |
 | `status_or_power_system` | The target-market-native power/status mechanism. |
@@ -30,6 +31,7 @@ Every overseas adaptation report should separate:
 
 | Field | Meaning |
 |---|---|
+| `layer_classification` | Which remake market layer the mapping decision affects. |
 | `reference_function` | What the original beat does for the viewer. |
 | `source_market_mechanism` | The domestic or source-market surface mechanism. |
 | `target_market_replacement` | The overseas-native mechanism that performs the same function. |

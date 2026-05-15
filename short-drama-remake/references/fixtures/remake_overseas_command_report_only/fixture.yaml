@@ -65,6 +65,7 @@
         "manifest.yaml",
         "01_skeleton/reference-skeleton.md",
         "02_concepts/selected-concept.md",
+        "references/market/layer-taxonomy.md",
         "references/market/overseas-remake-rules.md",
         "references/market/overseas-adaptation-map.md",
         "references/market/overseas-risk-gate.md"
@@ -72,6 +73,7 @@
       "required_reads": [
         "01_skeleton/reference-skeleton.md",
         "02_concepts/selected-concept.md",
+        "references/market/layer-taxonomy.md",
         "references/market/overseas-remake-rules.md",
         "references/market/overseas-adaptation-map.md",
         "references/market/overseas-risk-gate.md"

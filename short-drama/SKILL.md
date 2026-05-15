@@ -160,7 +160,7 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 
 **入口软提示（命令开始时执行）：** 检查 `.drama-state.json#clashes`——若为空，在生成方案前输出一句：「💡 还没开过选题会。建议先跑 `/选题会` 验证赛道（3 位专家碰撞，5 分钟）。直接继续请回复"继续"。」用户回复"继续"或任意命令则正常推进；`clashes` 非空则跳过此提示。
 
-**加载参考：** three-layer-control.md（按骨架层 75% 锁 story promise / main conflict / payoff / hook，释放具体实现）, opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, creative-intent-ledger.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**
+**加载参考：** three-layer-control.md（按骨架层 75% 锁 story promise / main conflict / payoff / hook，释放具体实现）, opening-rules.md, paywall-design.md, rhythm-curve.md, satisfaction-matrix.md, creative-intent-ledger.md, **plot-types.md（"一句话故事线 + 核心冲突" 时从 40 种情节类型组合 2-5 个）**, **genre-guide.md（读选定题材的 `### anchor 参考` section，如有）**。若 `.drama-state.json#mode == "overseas"`，额外先读 `references/overseas/layer-index.md`、`platform-knowledge.md`、`hard-rules.md`、`anti-patterns.md`、`compliance-risk.md`，并以海外分层资料覆盖国内策划模板。
 
 **anchor 推荐步骤（v1.23.0，全 13 题材触发）：** **生成内容前**按 `references/anchor-trigger.md#策划-anchor-推荐步骤` 执行推荐并写入 `creative-plan.md#anchor` 字段。
 
@@ -171,15 +171,15 @@ description: '爆款剧本工坊（Drama Workshop）— 微短剧剧本创作。
 3. **时空背景**：时代、地点、社会环境、阶层关系、主要角色间的社交场景预设
 4. **一句话故事线** + **核心冲突**（从 `plot-types.md` 的 40 种情节类型组合 2-5 个成 1+n 故事类型，避开反模式）
 5. **完整故事梗概**（3-5 段叙事，描述整体弧线 + 核心冲突 + 关键转折，写入 creative-plan.md 的 "## 故事梗概（预想版）" 段落；此为开工前预想版，创作过程中剧情偏移时不必回头改。`/导出` 会综合实际分集内容生成独立的最终梗概写入 Word 文档，不修改本段——source of truth 仍是本段）
-6. **三幕结构拆解**（含反套路/双层结构条件区块：观众视角 vs 真实逻辑两列表格）
-7. **全剧节奏波形图**（文字描述）
-8. **付费卡点规划**
-9. **爽点矩阵**（按 satisfaction-matrix.md 规划）
+6. **结构规划**：国内模式用三幕结构拆解；出海模式禁用三幕/Save the Cat/爽点矩阵词汇，改用 target market / genre promise / relationship grammar / power system / story function map
+7. **全剧节奏波形图**（国内）或 **paid-pressure map**（出海）
+8. **付费卡点规划**（国内）或 **paid-episode pressure range**（出海，不硬编码 EP10/11/20/30）
+9. **爽点矩阵**（国内，按 satisfaction-matrix.md 规划）或 **viewer-buy/payoff map**（出海）
 10. **结局设计**
 
 **选题会处方展示（增量，非阻断）：** 生成创作方案前，检查 `.drama-state.json#clashes`：若存在至少一条碰撞记录，Read 最新一份 `clashes/clash-*.md`，提取 `<!-- PRESCRIPTIONS -->` 块，在创作方案正文开头显示「📋 选题会处方（来自 {文件名}）」块，供方案生成时参考。无碰撞记录则跳过，不提示也不阻断。
 
-**输出格式：** 见 `references/output-templates.md#策划`
+**输出格式：** 国内模式见 `references/output-templates.md#策划`；出海模式见 `references/output-templates.md#策划出海模式`
 
 **输出：** 保存为 `creative-plan.md`
 
@@ -702,7 +702,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 **输入字段白名单**（加载规则：字段缺失静默跳过，不报错；不得读取白名单外字段）：
 
-- `creative-plan.md`：一句话故事线 / 核心冲突 / **时空背景** / 三幕结构（含集数划分）/ 付费卡点规划 / 爽点矩阵 / 结局设计 / anchor（如有）
+- `creative-plan.md`：一句话故事线 / 核心冲突 / **时空背景** / 国内字段（三幕结构 / 付费卡点规划 / 爽点矩阵）或出海字段（target market / genre promise / relationship grammar / power system / story function map / paid-pressure map）/ 结局设计 / anchor（如有）
 - `.drama-state.json`：`logline` / `lastSynopsisTimestamp` / `lastSynopsisEpisodeCount` / `lastSynopsisEpisodeHash` / `lastSynopsisPath`
 - `episodes/`：`completedEpisodes` 列表中每个 entry 对应的 `ep{entry}.md` 正文（**按下方考据附录剥离规则剥离后的版本**，不是 ep*.md 全文）
 
@@ -735,7 +735,7 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 | 5 · 进 docx 写入 | 按 `references/output-templates.md#导出` 三段式渲染 | docx 合法 Word 2007+ |
 | 6 · 缓存写入 | 综合梗概正文落 `.drama-state/synopsis-cache.md`（目录不存在则 `mkdir -p`）；state 更新 `lastSynopsisTimestamp` / `lastSynopsisEpisodeCount` / `lastSynopsisEpisodeHash` / `lastSynopsisPath` | state Read-Modify-Write 不覆盖其他字段 |
 
-**老项目 fallback**（`creative-plan.md` 不含 "## 故事梗概（预想版）" 段）：继续尝试从 `creative-plan.md` 读取白名单中的其他骨架字段（一句话故事线 / 核心冲突 / 时空背景 / 三幕结构 / 付费卡点 / 爽点矩阵 / 结局设计 / anchor），缺失字段静默跳过。**不走"完全绕过 creative-plan.md"的旧逻辑**——只是单一字段缺失时跳过该字段。
+**老项目 fallback**（`creative-plan.md` 不含 "## 故事梗概（预想版）" 段）：继续尝试从 `creative-plan.md` 读取白名单中的其他骨架字段（一句话故事线 / 核心冲突 / 时空背景 / 国内字段：三幕结构 / 付费卡点 / 爽点矩阵；出海字段：target market / genre promise / relationship grammar / power system / story function map / paid-pressure map；结局设计 / anchor），缺失字段静默跳过。**不走"完全绕过 creative-plan.md"的旧逻辑**——只是单一字段缺失时跳过该字段。
 
 **幂等性缓存 migration**：老项目 state 无 `lastSynopsis*` 4 字段 → 视为首次综合（cache miss），自然生成；无需显式迁移脚本。`lastSynopsisPath == ""` 时不尝试读缓存文件。
 
@@ -800,18 +800,20 @@ python3 {skill目录}/scripts/character_consistency_check.py \
 
 ### /出海
 
-**功能：** 切换为出海模式（任意阶段可调用）——格式切换为好莱坞行业标准（INT./EXT.、WIDE SHOT/CLOSE-UP），语言默认英文，题材映射/文化适配见 `genre-guide.md` 出海部分（Billionaire / Werewolf/Alpha / Flash Marriage / Secret Baby 等已验证爆款元素）。
+**功能：** 切换为出海模式（任意阶段可调用）——格式切换为好莱坞行业标准（INT./EXT.、VISUAL ANCHOR/CLOSE-UP），语言默认英文，题材映射/文化适配见 `genre-guide.md` 出海部分（Billionaire / Werewolf/Alpha / Flash Marriage / Secret Baby 等已验证爆款元素）。
 
 **模式边界规则：该共用的共用，该分化的分化。**
 - **共用层**：项目管理、state 读写、承制介质（ai_live/comic）、角色一致性、跨集台词去重、基础可拍性、导出与版本更新机制继续共用。
 - **分化层**：语言、对白格式、场景模板、题材映射、首集设计、付费墙逻辑、平台 runtime、文化禁区、合规/风险判断必须按 `mode` 分流。
 - **冲突优先级**：当通用规则与 mode 专属规则冲突时，`mode=overseas` 必须以 `references/overseas/` 为准；不得把国内首集合同、国内爽点判定、国内身份体系或国内合规口径机械套进海外项目。
 
-**切换后强制加载 `references/overseas/` 全部 4 文件**：
+**切换后强制加载 `references/overseas/` 分层资料**：
+- `layer-index.md` — 出海资料分层索引：平台事实、本土文化、类型承诺、结构、形式、对白工艺、风险门控的分类标准
 - `hard-rules.md` — 13 条非协商硬规则（男主不可杀平民/禁化学合意/禁中式 humiliation→power 弧 等）
 - `dialogue-craft.md` — L1 McKee/Mamet 通用 12 原则 + L2/L3 英文 voice 分层
-- `anti-patterns.md` — 英文禁词表（三幕/Save the Cat 等会触发好莱坞 prior 的术语）+ Gwen Hayes 4-Phase 20-Beat 锚定
+- `anti-patterns.md` — 英文禁词表（三幕/Save the Cat 等会触发好莱坞 prior 的术语）+ 国内机制搬运、prestige/novel 结构污染和平台化校准
 - `platform-knowledge.md` — ReelShort/DramaBox runtime ~90s / 付费墙物理 / hook 窗口 / genre 分类，带 HIGH/MED/LOW 信心标
+- `compliance-risk.md` — 海外独立合规/IP/文化风险；不要用国内 `/合规` 口径默认覆盖海外项目
 
 **切换确认：**
 ```

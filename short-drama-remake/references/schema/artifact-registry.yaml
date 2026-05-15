@@ -94,10 +94,12 @@ artifact_requirements:
     required_metadata:
       - source_market
       - target_market
+      - layer_classification
     overseas_required_when:
       - target_market == overseas
     overseas_concept_must_include:
       - target_market
+      - layer_classification
       - overseas_genre_promise
       - relationship_grammar
       - status_or_power_system
@@ -109,9 +111,10 @@ artifact_requirements:
     requires:
       artifact_status: accepted
       report_status: [passed]
+      evidence_refs: required_when_market_adaptation
+      freshness: not_stale
       decision_id: not_required
       current_pointer: not_required
-      freshness: not_stale
 
 current_pointers_item:
   required_fields:

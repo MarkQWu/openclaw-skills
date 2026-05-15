@@ -7,7 +7,7 @@
 
 ## Prohibited Terminology (L4 Pollution Defense)
 
-The following terms trigger Hollywood feature film structure priors in LLMs. Their use causes drift away from the 4-Phase 20-beat romance structure. GREP output for these before finalizing any structural document.
+The following terms trigger Hollywood feature film structure priors in LLMs. Their use causes drift away from overseas vertical-drama platform grammar. GREP output for these before finalizing any structural document.
 
 ### Hard Banned
 
@@ -18,13 +18,13 @@ The following terms trigger Hollywood feature film structure priors in LLMs. The
 | 开端-发展-高潮 | setup-confrontation-resolution |
 | 铺垫-冲突-结局 | (same structure, Chinese variant) |
 
-### Alert-Level (not banned, but must verify Beat mapping first)
+### Alert-Level (not banned, but must verify platform function first)
 
 Save the Cat family terms that are Hollywood feature film variants: `catalyst` / `break into 2` / `midpoint` / `all is lost` / `dark night of the soul` / `break into 3` / `finale` / `B story`
 
-**Before using any alert-level term**: Confirm it maps to a specific Gwen Hayes Beat number. If it doesn't map cleanly → treat as banned.
+**Before using any alert-level term**: Confirm the term names a concrete platform function, such as hook, paid-episode pressure, relationship choice, reveal, reversal, or cliffhanger. If it only imports feature-film vocabulary → treat as banned.
 
-**Correct alternatives**: Always use Phase 1-4 + Beat 1-20 terminology. When referencing a plot point, anchor to "Beat 13 Retreat" not "mid-point crisis" or "second act climax."
+**Correct alternatives**: Use viewer-facing functions and target-market pressure labels. Gwen Hayes / romance-beat vocabulary may be used as private scaffold, but it is not platform-native authority and must not appear as the final structural surface.
 
 ---
 
@@ -88,7 +88,7 @@ The following elements from the domestic short-drama skill are ANTI-PATTERNS for
 1. **红果 160+ self-check rubric** — built for Chinese domestic platform, actively harmful for English audiences
 2. **爽点 density scoring** — replaced by romance beat emotional threshold
 3. **打脸/装X/反转 as KPIs** — English audiences read these as petty/juvenile
-4. **国内 4-stage wave pattern** — replaced by Gwen Hayes 4-Phase 20-beat
+4. **国内 4-stage wave pattern** — replace with target-market relationship pressure, reveal/reversal function, and paywall pressure; Gwen Hayes may assist privately but is not the governing platform structure
 5. **"Physical conflict can only appear once" rule** — REVERSED for mafia romance (male lead's violence toward threats to female lead is a recurring, expected beat)
 6. **Single female POV assumption** — overseas dark romance defaults to dual POV
 
@@ -243,16 +243,3 @@ Then change how it works.
 ```
 
 **Why it fails**: 9:16 video without physical action is radio with a static image. Every dialogue exchange must be accompanied by **hands doing something, objects being manipulated, or spatial relationships shifting**. The physical action carries subtext that dialogue alone cannot — her precise jar placement communicates territorial control more than her words do.
-
----
-
-## 6 Failure Modes from 2026-04-11 (Agent Error Carryover)
-
-These are real errors that occurred during this project's research phase. They will recur unless explicitly guarded against:
-
-1. **Treating own inferences as external evidence** — quoting your own structural analysis as if a source page explicitly stated it
-2. **Single-lens verification** — checking only structure compliance OR audience fit, not both
-3. **Dead links as evidence** — dailymotion/youtube/fandom clips for vertical drama are frequently DMCA'd
-4. **Local grep ≠ global truth** — checking one installation path doesn't mean all copies are consistent
-5. **Commit messages as ground truth** — commit messages can be aspirational; only `git show --stat` shows actual changes
-6. **Starting work before reading ground truth** — the root cause of all 6 errors above

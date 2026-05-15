@@ -1,3 +1,9 @@
+**v0.4.3**（2026-05-15）
+
+Market Layer Taxonomy：新增 `references/market/layer-taxonomy.md`，把 `/仿写 出海` 的资料准入拆成 source truth、target market、non-transferables、target replacement、genre promise / paid pressure、similarity distance 和 script flesh。`concept.generate` / `market_adapt.validate` 明确 allowed market references，海外 concept/report 需要带 layer classification，避免 remake 直接读取原创 `short-drama/references/overseas/*`。
+
+---
+
 **v0.4.2**（2026-05-14）
 
 Overseas Concept Adaptation：`/仿写 出海` 从换皮方向阶段就进入海外目标市场，不再先生成国内方向再迁移。

@@ -6,7 +6,7 @@ description: Analyze reference short-drama scripts or screen-recorded prompt wor
 # Short Drama Remake
 
 > License: SKILL.md, agents metadata, scripts, and bundled code are MIT; references are gobuildit methodology documentation with all rights reserved except use as part of this skill distribution.
-> Version: 0.4.2
+> Version: 0.4.3
 
 ## Core Rule
 
@@ -93,7 +93,7 @@ For managed remake projects, use the Phase 4 contract files instead of relying o
 - `references/schema/reports.yaml` defines SIR/RMR/FGR/preflight/postflight report fields. Reports use `report_status`; only the registry owns `gate_status`.
 - `references/checker/deterministic-checker.md` defines deterministic checker scope and the LLM review boundary.
 - `references/three-layer-control.md` defines which constraints can block generation and which belong to creative review.
-- `references/market/` defines target-market adaptation contracts. Use these files for `/仿写 出海`; do not import `short-drama/references/overseas/*` into remake nodes.
+- `references/market/` defines target-market adaptation contracts. Start with `references/market/layer-taxonomy.md`, then use the market files for `/仿写 出海`; do not import `short-drama/references/overseas/*` into remake nodes.
 - `references/fixtures/` contains regression fixture contracts and initial samples.
 
 Before drafting a script in a managed project, run or mentally apply `script_draft.preflight`. This gate is the only script-generation entry; do not skip from project plan or episode outline directly to an episode body.

@@ -58,15 +58,13 @@ Character designs and personas must not be traceable to real actors or public fi
 - Target: 60-80% of decisions should change plot direction (DK=62.5%, GoM=59%, HA=80%)
 - **Dialogue floor**: Female lead should have ≥2 spoken lines per episode (not counting VO). Action-only female leads read as plot devices at vertical-drama runtime — audience needs to hear her voice to connect with her.
 
-### Rule 10: EP1 must detonate, not ease in — **GRANDFATHERED pending rebuild**
-
-**Historical content (v0.3, scrapped 2026-04-14)**: prescribed a 5-beat mandatory bundle (Observation-as-Surveillance / Verbal Claim / Violence Redirected / Micro-爽点 / Near-miss bilateral awareness). This prescription produced an EP1 that scored 9/10 on rubric but read as "3岁小孩写的" to the user.
+### Rule 10: EP1 must detonate, not ease in
 
 **Current operative guidance**:
 
 > EP1 should **detonate, not ease in** — open mid-conflict (kidnapping, rejection, confrontation, public humiliation, identity reveal). Successful DramaBox/ReelShort titles (Fated to My Forbidden Alpha, Mafia Lover) open on active conflict, not atmosphere. No 15-second static opening shots. See `references/platform-knowledge.md` §2 for the 3-second drop-off cliff.
 
-Specific beat prescriptions deferred until EP1-3 pilots are hand-written bottom-up and a new beat dictionary is derived from what worked.
+Do not enforce a fixed 5-beat EP1 bundle. Specific beat prescriptions are deferred until EP1-3 pilots are hand-written bottom-up and a new beat dictionary is derived from what worked.
 
 ### Rule 11: Paywall episodes must land on the strongest cliffhanger of that phase
 - First paywall typically at ep 10/11 for 60-ep series (floats between ep 6 and ep 11 per title — see `platform-knowledge.md` §3).

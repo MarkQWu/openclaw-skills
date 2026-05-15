@@ -15,6 +15,7 @@ This file is a structure placeholder. Do not treat it as a complete overseas cra
 - Preserve story function, not domestic surface mechanics.
 - Do not import or directly read `short-drama/references/overseas/*` inside remake nodes.
 - Use this file only through the remake target-market adaptation layer.
+- Classify every new market rule through `layer-taxonomy.md` before it can become a blocker.
 
 ## Future Sections
 
